@@ -1,4 +1,4 @@
-package de.heikozelt.ballaballa_kotlin
+package de.heikozelt.ballakotlin2
 
 import de.heikozelt.ballakotlin2.model.Move
 import org.junit.Test
@@ -18,8 +18,7 @@ class MoveTest {
     fun move_equals() {
         val m1 = Move(7,8)
         val m2 = Move(7, 8)
-        val e = m1.equals(m2)
-        assertEquals(true, e)
+        assertTrue(m1 == m2)
     }
 
     @Test
@@ -27,8 +26,7 @@ class MoveTest {
         val m1 = Move(7,8)
         val m2 = Move(8, 7)
         val b = m2.backwards()
-        val e = b.equals(m1)
-        assertEquals(true, e)
+        assertTrue(b == m1)
     }
 
     @Test

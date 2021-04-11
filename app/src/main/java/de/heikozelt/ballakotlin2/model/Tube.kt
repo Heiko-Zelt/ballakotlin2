@@ -6,7 +6,7 @@ import java.lang.IndexOutOfBoundsException
 class Tube(val tubeHeight: Int) {
 
     var fillLevel: Int = 0
-    var cells = Array<Int>(tubeHeight) { 0 }
+    var cells = Array(tubeHeight) { 0 }
 
     /**
      * liefert wahr, wenn Röhre voll ist

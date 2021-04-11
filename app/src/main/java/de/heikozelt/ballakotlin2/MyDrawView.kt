@@ -11,10 +11,10 @@ import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import android.view.SoundEffectConstants
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
-import kotlin.math.floor
 import kotlin.math.min
 
 class MyDrawView @JvmOverloads constructor(
@@ -22,91 +22,11 @@ class MyDrawView @JvmOverloads constructor(
     attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val _TAG = "MyDrawView"
-    val app = context.applicationContext as BallaApplication?
+    private val app = context.applicationContext as BallaApplication?
 
     /**
-     * positions of original game board / puzzle without scaling
+     * Board Dimensions depend on number of tubes and tube height
      */
-    private val _BALL_RADIUS = 40
-    private val _BALL_RADIUS_INSIDE = _BALL_RADIUS.toFloat().minus(0.5f)
-    private val _BALL_DIAMETER = _BALL_RADIUS * 2
-    private val _BALL_PADDING = 4
-    private val _TUBE_WIDTH = _BALL_DIAMETER + _BALL_PADDING * 2
-    private val _TUBE_LOWER_CORNER_RADIUS = 26
-    private val _TUBE_PADDING = 8
-    private val _BOUNCE = 20
-
-    private val _PAINTS = arrayOf(
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.YELLOW
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.RED
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.GREEN
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x40, 0x40, 0xff) // some light blue
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.GRAY
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0xff, 0x8c, 0x00) // orange
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x8a, 0x2b, 0xe2) // violet
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x00, 0xff, 0x00) // lime
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x80, 0x00, 0x00) // maroon
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x00, 0x00, 0x80) // navy
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x00, 0xff, 0xff) // cyan
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.BLACK
-            style = Paint.Style.FILL
-        },
-        Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(0x55, 0x6b, 0x2f) // olive
-            style = Paint.Style.FILL
-        }
-    )
-
-    private val circlePaint = Paint(ANTI_ALIAS_FLAG).apply {
-        color = Color.RED
-        style = Paint.Style.FILL
-    }
-
-    private val linePaint = Paint(ANTI_ALIAS_FLAG).apply {
-        color = Color.GREEN
-        style = Paint.Style.FILL
-        strokeWidth = 10f
-    }
-
     private var boardWidth = 600
     private var boardHeight = 300
 
@@ -126,7 +46,7 @@ class MyDrawView @JvmOverloads constructor(
     private var transY = 0f
     private var transX = 0f
 
-    private fun _getActivity(): Activity? {
+    private fun findActivity(): Activity? {
         var c: Context? = context
         while (c is ContextWrapper) {
             if (c is Activity) {
@@ -139,32 +59,26 @@ class MyDrawView @JvmOverloads constructor(
 
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        /*
-        if(app == null) {
-            Log.e(_TAG, "No reference to BallaApplication in MyDrawView.onTouchEvent() :-(")
-            return true
-        }
-        */
-
         if(event == null) {
             return true
         }
         if(event.action != MotionEvent.ACTION_DOWN) {
             return true
         }
+        playSoundEffect(SoundEffectConstants.CLICK)
         //Log.i(_TAG, "touched ${event}")
-        Log.i(_TAG, "touched x=${event.x}, y=${event.y}")
+        Log.i(TAG, "touched x=${event.x}, y=${event.y}")
         val virtualX = (event.x / scaleFactor - transX)
-        Log.i(_TAG, "virtualX=${virtualX}")
-        val col = (virtualX / (_TUBE_WIDTH + _TUBE_PADDING)).toInt()
-        Log.i(_TAG, "col=${col}")
-        val c = _getActivity() as MainActivity?
+        Log.i(TAG, "virtualX=${virtualX}")
+        val col = (virtualX / (TUBE_WIDTH + TUBE_PADDING)).toInt()
+        Log.i(TAG, "col=${col}")
+        val c = findActivity() as MainActivity?
         c?.tubeClicked(col)
         return true
     }
 
     override fun onFinishInflate() {
-        Log.i(_TAG, "onon onFinishInflate()")
+        Log.i(TAG, "onon onFinishInflate()")
 
         super.onFinishInflate()
         animator.duration = 1500
@@ -181,10 +95,12 @@ class MyDrawView @JvmOverloads constructor(
         }
         // animator.start()
 
-        boardWidth = if(app == null) {400 } else { app.gameState.numberOfTubes * _TUBE_WIDTH + (app.gameState.numberOfTubes - 1) * _TUBE_PADDING }
-        Log.i(_TAG, "boardWidth: ${boardWidth}")
-        boardHeight = if(app == null) { 300 } else { (app.gameState.tubeHeight + 1) * _BALL_DIAMETER + _BALL_PADDING }
-        Log.i(_TAG, "boardHeight: ${boardHeight}")
+        boardWidth = if(app == null) {400 } else { app.gameState.numberOfTubes * TUBE_WIDTH + (app.gameState.numberOfTubes - 1) * TUBE_PADDING
+        }
+        Log.i(TAG, "boardWidth: ${boardWidth}")
+        boardHeight = if(app == null) { 300 } else { (app.gameState.tubeHeight + 1) * BALL_DIAMETER + BALL_PADDING
+        }
+        Log.i(TAG, "boardHeight: ${boardHeight}")
     }
 
 
@@ -209,25 +125,44 @@ class MyDrawView @JvmOverloads constructor(
     }
 
     private fun ballX(col: Int): Int {
-        return col * (_TUBE_WIDTH + _TUBE_PADDING) + _BALL_RADIUS + _BALL_PADDING
+        return col * (TUBE_WIDTH + TUBE_PADDING) + BALL_RADIUS + BALL_PADDING
     }
 
     private fun ballY(row: Int): Int {
         if(app == null) {
             return 100
         }
-        return (app.gameState.tubeHeight - row) * _BALL_DIAMETER + _BALL_RADIUS
+        return (app.gameState.tubeHeight - row) * BALL_DIAMETER + BALL_RADIUS
     }
 
     private fun drawBall(canvas: Canvas, col: Int, row: Int) {
-        Log.i(_TAG, "drawBall(${col}, ${row})")
-        val color = if(app == null) { 0 } else { app.gameState.tubes.get(col).cells.get(row) }
-        val paint = _PAINTS[color]
-        canvas.drawCircle(ballX(col).toFloat(), ballY(row).toFloat(), _BALL_RADIUS_INSIDE, paint)
+        Log.i(TAG, "drawBall(${col}, ${row})")
+        val color = if(app == null) { 0 } else { app.gameState.tubes[col].cells[row] }
+        val paint = PAINTS[color]
+        canvas.drawCircle(ballX(col).toFloat(), ballY(row).toFloat(), BALL_RADIUS_INSIDE, paint)
         Log.i(
-            _TAG,
-            "drawCircle(${ballX(col).toFloat()}, ${ballY(row).toFloat()}, ${_BALL_RADIUS_INSIDE})"
+                TAG,
+            "drawCircle(${ballX(col).toFloat()}, ${ballY(row).toFloat()}, ${BALL_RADIUS_INSIDE})"
         )
+    }
+
+    private fun drawTubes(canvas: Canvas) {
+        if(app == null) {
+            return
+        }
+        var top = BALL_DIAMETER
+        var bottom = top + app.gameState.tubeHeight * BALL_DIAMETER + BALL_PADDING
+        var circleY = bottom - TUBE_LOWER_CORNER_RADIUS.toFloat()
+        for (col in 0 until app.gameState.numberOfTubes) {
+            var left = col * (TUBE_WIDTH + TUBE_PADDING)
+            var right = left + TUBE_WIDTH
+            var leftCircleX = left + TUBE_LOWER_CORNER_RADIUS
+            var rightCircleX = right - TUBE_LOWER_CORNER_RADIUS
+            canvas.drawCircle(leftCircleX.toFloat(), circleY.toFloat(), TUBE_LOWER_CORNER_RADIUS.toFloat(), TUBE_PAINT)
+            canvas.drawCircle(rightCircleX.toFloat(), circleY.toFloat(), TUBE_LOWER_CORNER_RADIUS.toFloat(), TUBE_PAINT)
+            canvas.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), (bottom - TUBE_LOWER_CORNER_RADIUS).toFloat(), TUBE_PAINT)
+            canvas.drawRect(leftCircleX.toFloat(), circleY.toFloat(), rightCircleX.toFloat(), bottom.toFloat(), TUBE_PAINT)
+        }
     }
 
     private fun drawBalls(canvas: Canvas) {
@@ -235,10 +170,10 @@ class MyDrawView @JvmOverloads constructor(
         if(app == null) {
             return
         }
-        for (col in 0..(app.gameState.numberOfTubes - 1)) {
+        for (col in 0 until app.gameState.numberOfTubes) {
             val tube = app.gameState.tubes[col]
             //Log.i(TAG, "col: ${col}")
-            for (row in 0..(tube.fillLevel - 1)) {
+            for (row in 0 until tube.fillLevel) {
                 //Log.i(TAG, "col: ${row}")
                 drawBall(canvas, col, row)
             }
@@ -266,8 +201,98 @@ class MyDrawView @JvmOverloads constructor(
             canvas.drawLine(0f, 0f, boardWidth.toFloat(), boardHeight.toFloat(), linePaint)
             canvas.drawLine(0f, boardHeight.toFloat(), boardWidth.toFloat(), 0f, linePaint)
 
+            drawTubes(canvas)
             drawBalls(canvas)
             canvas.restore()
 
+    }
+
+    companion object {
+        private const val TAG = "MyDrawView"
+
+        /**
+         * positions of original game board / puzzle without scaling
+         */
+        private const val BALL_RADIUS = 40
+        private const val BALL_RADIUS_INSIDE = BALL_RADIUS.toFloat().minus(0.5f)
+        private const val BALL_DIAMETER = BALL_RADIUS * 2
+        private const val BALL_PADDING = 4
+        private const val TUBE_WIDTH = BALL_DIAMETER + BALL_PADDING * 2
+        private const val TUBE_LOWER_CORNER_RADIUS = 26
+        private const val TUBE_PADDING = 8
+        private const val BOUNCE = 20
+        private val PAINTS = arrayOf(
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.YELLOW
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.RED
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.GREEN
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x40, 0x40, 0xff) // some light blue
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.GRAY
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0xff, 0x8c, 0x00) // orange
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x8a, 0x2b, 0xe2) // violet
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x00, 0xff, 0x00) // lime
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x80, 0x00, 0x00) // maroon
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x00, 0x00, 0x80) // navy
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x00, 0xff, 0xff) // cyan
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
+                style = Paint.Style.FILL
+            },
+            Paint(ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(0x55, 0x6b, 0x2f) // olive
+                style = Paint.Style.FILL
+            }
+        )
+
+        private val TUBE_PAINT = Paint(ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(0xe6, 0xe6, 0xe6) // light gray
+            style = Paint.Style.FILL
+        }
+
+        private val circlePaint = Paint(ANTI_ALIAS_FLAG).apply {
+            color = Color.RED
+            style = Paint.Style.FILL
+        }
+        private val linePaint = Paint(ANTI_ALIAS_FLAG).apply {
+            color = Color.GREEN
+            style = Paint.Style.FILL
+            strokeWidth = 10f
+        }
     }
 }

@@ -6,13 +6,12 @@ import kotlin.random.Random
 
 class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHeight: Int ) {
 
-    private val _TAG = "GameState"
     var numberOfTubes = numberOfColors + numberOfExtraTubes
-    var tubes = MutableList<Tube>(numberOfTubes){Tube(tubeHeight)}
+    var tubes = MutableList(numberOfTubes){Tube(tubeHeight)}
     var moveLog = mutableListOf<Move>()
 
     init {
-        Log.i(_TAG, "init")
+        Log.i(TAG, "init")
     }
 
     /**
@@ -23,7 +22,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     */
 
     fun initTubes() {
-        Log.i(_TAG, "initTubes()")
+        Log.i(TAG, "initTubes()")
         // tubes filled with balls of same color
         for(i in 0 until numberOfColors) {
             val initialColor = i + 1
@@ -40,7 +39,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
 
     fun newGame() {
-        Log.i(_TAG, "newGame()")
+        Log.i(TAG, "newGame()")
         initTubes()
         randomizeBallsMany()
         mixTubes()
@@ -88,7 +87,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * vertauscht Röhren untereinander zufällig
      */
     fun mixTubes() {
-        Log.i(_TAG, "mixTubes()")
+        Log.i(TAG, "mixTubes()")
         for(c in 0 until (numberOfTubes * 3)) {
             val i = Random.nextInt(numberOfTubes)
             val j = Random.nextInt(numberOfTubes)
@@ -182,7 +181,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
                     if(tubes[to].isReverseReceiverCandidate()) {
                         if(from != to) {
                             val move = Move(from, to)
-                            if(!move.backwards().equals(lastMove)) {
+                            if(move.backwards() != lastMove) {
                                 allMoves.add(move)
                             }
                         }
@@ -246,8 +245,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      */
     fun lottery(allMoves: List<Move>): List<Move> {
         val lots = mutableListOf<Move>()
-        for(i in 0 until allMoves.size) {
-            val move = allMoves[i]
+        for(move in allMoves) {
             val rate = rateBackwardMove(move)
             //Log.i("rate: ${rate}")
             multiPush(lots, move, rate)
@@ -279,6 +277,10 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             lastMove = move
             i++
         } while(i < maxMoves)
-        Log.i(_TAG, "randomize finished with number of backward moves: ${i}")
+        Log.i(TAG, "randomize finished with number of backward moves: ${i}")
+    }
+
+    companion object {
+        private const val TAG = "GameState"
     }
 }

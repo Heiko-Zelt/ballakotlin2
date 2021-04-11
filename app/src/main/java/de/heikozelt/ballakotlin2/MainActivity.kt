@@ -9,15 +9,13 @@ import de.heikozelt.ballakotlin2.model.Move
 
 class MainActivity : AppCompatActivity() {
 
-    private val _TAG = "MainActivity"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val app = application as BallaApplication?
         if(app == null) {
-            Log.e(_TAG, "No reference to BallaApplication in MainActivity.onCreate() :-(")
+            Log.e(TAG, "No reference to BallaApplication in MainActivity.onCreate() :-(")
             return
         }
 
@@ -28,43 +26,47 @@ class MainActivity : AppCompatActivity() {
     fun tubeClicked(col: Int) {
         val app = application as BallaApplication?
         if(app == null) {
-            Log.e(_TAG, "No reference to BallaApplication in MainActivity.tubeClicked() :-(")
+            Log.e(TAG, "No reference to BallaApplication in MainActivity.tubeClicked() :-(")
             return
         }
         if(app.donorIndex == null) {
             app.donorIndex = col
         } else {
             val m = Move(app.donorIndex as Int, col)
-            app.gameState.moveBall(m)
+            app.gameState.moveBallAndLog(m)
             app.donorIndex = null
         }
-        _invalidateBoardView()
+        invalidateBoardView()
     }
 
-    private fun _invalidateBoardView() {
-        val v = findViewById(R.id.myDrawView) as MyDrawView
-        v.invalidate()
+    private fun invalidateBoardView() {
+        val v = findViewById<MyDrawView?>(R.id.myDrawView)
+        v?.invalidate()
     }
 
     fun newGame(view: View) {
         val app = application as BallaApplication?
         if(app == null) {
-            Log.e(_TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
+            Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
             return
         }
         app.gameState = GameState(app.numberOfColors, app.numberOfExtraTubes, app.tubeHeight)
         app.gameState.newGame()
         app.originalGameState = app.gameState.clone()
-        _invalidateBoardView()
+        invalidateBoardView()
     }
 
     fun resetGame(view: View) {
         val app = application as BallaApplication?
         if(app == null) {
-            Log.e(_TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
+            Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
             return
         }
         app.gameState = app.originalGameState
-        _invalidateBoardView()
+        invalidateBoardView()
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }

@@ -2,7 +2,6 @@ package de.heikozelt.ballakotlin2
 
 import android.app.Application
 import de.heikozelt.ballakotlin2.model.GameState
-import de.heikozelt.ballakotlin2.model.Move
 
 class BallaApplication: Application() {
 

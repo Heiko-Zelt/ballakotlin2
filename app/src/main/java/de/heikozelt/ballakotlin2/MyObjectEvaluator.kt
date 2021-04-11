@@ -9,7 +9,7 @@ class MyObjectEvaluator : TypeEvaluator<Any> {
         val end =endValue as MyObject
         val newX = start.x + fraction * (end.x - start.x)
         val newY = start.y + fraction * (end.y - start.y)
-        return MyObject(newX, newY);
+        return MyObject(newX, newY)
     }
 
     //override fun evaluate(fraction: Float, startValue: MyObject, endValue: MyObject): MyObject {
