@@ -281,6 +281,6 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
 
     companion object {
-        private const val TAG = "GameState"
+        private const val TAG = "balla GameState"
     }
 }

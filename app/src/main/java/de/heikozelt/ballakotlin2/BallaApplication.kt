@@ -10,7 +10,9 @@ class BallaApplication: Application() {
     var tubeHeight = 4
     var gameState = GameState(numberOfColors, numberOfExtraTubes, tubeHeight)
     var originalGameState = gameState
-    var donorIndex: Int? = null
+
+    // ob der Ball angehoben ist, ist Global nicht von Interesse
+    // var donorIndex: Int? = null
 
     init {
         gameState.newGame()
