@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import de.heikozelt.ballakotlin2.model.GameState
+import de.heikozelt.ballakotlin2.model.Move
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,8 +21,24 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val gameState = app.gameState
+        //val gameState = app.gameState
         //Log.i(_TAG, gameState.toJson())
+    }
+
+    fun tubeClicked(col: Int) {
+        val app = application as BallaApplication?
+        if(app == null) {
+            Log.e(_TAG, "No reference to BallaApplication in MainActivity.tubeClicked() :-(")
+            return
+        }
+        if(app.donorIndex == null) {
+            app.donorIndex = col
+        } else {
+            val m = Move(app.donorIndex as Int, col)
+            app.gameState.moveBall(m)
+            app.donorIndex = null
+        }
+        _invalidateBoardView()
     }
 
     private fun _invalidateBoardView() {

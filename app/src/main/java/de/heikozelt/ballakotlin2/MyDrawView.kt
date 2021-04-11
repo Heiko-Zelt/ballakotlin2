@@ -1,16 +1,20 @@
 package de.heikozelt.ballakotlin2
 
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.util.AttributeSet
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
+import kotlin.math.floor
 import kotlin.math.min
 
 class MyDrawView @JvmOverloads constructor(
@@ -122,6 +126,43 @@ class MyDrawView @JvmOverloads constructor(
     private var transY = 0f
     private var transX = 0f
 
+    private fun _getActivity(): Activity? {
+        var c: Context? = context
+        while (c is ContextWrapper) {
+            if (c is Activity) {
+                return c
+            }
+            c = c.baseContext as ContextWrapper
+        }
+        return null
+    }
+
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        /*
+        if(app == null) {
+            Log.e(_TAG, "No reference to BallaApplication in MyDrawView.onTouchEvent() :-(")
+            return true
+        }
+        */
+
+        if(event == null) {
+            return true
+        }
+        if(event.action != MotionEvent.ACTION_DOWN) {
+            return true
+        }
+        //Log.i(_TAG, "touched ${event}")
+        Log.i(_TAG, "touched x=${event.x}, y=${event.y}")
+        val virtualX = (event.x / scaleFactor - transX)
+        Log.i(_TAG, "virtualX=${virtualX}")
+        val col = (virtualX / (_TUBE_WIDTH + _TUBE_PADDING)).toInt()
+        Log.i(_TAG, "col=${col}")
+        val c = _getActivity() as MainActivity?
+        c?.tubeClicked(col)
+        return true
+    }
+
     override fun onFinishInflate() {
         Log.i(_TAG, "onon onFinishInflate()")
 
@@ -207,7 +248,9 @@ class MyDrawView @JvmOverloads constructor(
     // Called when the view should render its content.
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        if (canvas != null) {
+        if (canvas == null) {
+            return
+        }
             canvas.save()
 
             //Log.i(TAG, "onon canvas.height=${canvas.height}, canvas.width=${canvas.width}, scaleFacor=${scaleFactor}")
@@ -225,6 +268,6 @@ class MyDrawView @JvmOverloads constructor(
 
             drawBalls(canvas)
             canvas.restore()
-        }
+
     }
 }
