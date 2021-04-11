@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
             return
         }
-        app.gameState = app.originalGameState
+        app.gameState = app.originalGameState.clone()
         invalidateBoardView()
     }
 
