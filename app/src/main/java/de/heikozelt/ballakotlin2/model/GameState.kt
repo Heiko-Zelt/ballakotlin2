@@ -140,6 +140,8 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
 
     // kompliziertes Regelwerk
     fun isMoveAllowed(from: Int, to: Int): Boolean {
+        Log.i(TAG, "isMoveAllowd(from=${from}, to=${to})")
+
         // kann keinen Ball aus leerer Röhre nehmen
         if(tubes[from].isEmpty()) {
             return false
@@ -153,7 +155,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             return false
         }
         // oberster Ball hat selbe Farbe oder Ziel-Röhre ist leer
-        if(isSameColor(from, to) || tubes[to].isEmpty()) {
+        if(tubes[to].isEmpty() || isSameColor(from, to)) {
             return true
         }
         return false
@@ -281,6 +283,6 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
 
     companion object {
-        private const val TAG = "balla GameState"
+        private const val TAG = "ballas GameState"
     }
 }

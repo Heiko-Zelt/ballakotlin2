@@ -33,14 +33,17 @@ class MyDrawView @JvmOverloads constructor(
     private var boardHeight = 0
 
     // ball is lifting
-    private var upwardsBall = Ball(Coordinates(0f, 0f), 1)
-    private var isUpwards = false
+    private val upwardsBall = Ball(Coordinates(0f, 0f), 0)
+    // Spalte, in der gerade ein Ball angehoben wird
+    private var upwardsCol = -1
 
     // ball is
     // - dropping or
     // - moving sidewards and dropping or
     // - moving upward, sidewards and eventually dropping
-    private var downwardsBall = Ball(Coordinates(0f, 0f), 1)
+    private val downwardsBall = Ball(Coordinates(0f, 0f), 0)
+    // Spalte, in der gerade ein Ball gesenkt wird
+    private var downwardsCol = -1
 
     // ball ist fixed / object is reused for different balls
     private var fixedBall = Ball(Coordinates(0f, 0f), 1)
@@ -50,6 +53,7 @@ class MyDrawView @JvmOverloads constructor(
     private var object2 = Coordinates(100f, 150f)
     private var object3 = Coordinates(50f, 100f)
     private var upwardsAnimator = ValueAnimator.ofObject(CoordinatesEvaluator(), object1, object2, object3)
+    private var downwardsAnimator = ValueAnimator.ofObject(CoordinatesEvaluator(), object1, object2, object3)
 
     private var scaleFactor = 0f
     private var transY = 0f
@@ -65,6 +69,18 @@ class MyDrawView @JvmOverloads constructor(
         upwardsAnimator.addUpdateListener { animation ->
             val coords = animation.animatedValue as Coordinates
             upwardsBall.coordinates = coords
+            //Log.i(TAG, "onon animator update")
+            invalidate()
+        }
+
+        downwardsAnimator.duration = 1000
+        downwardsAnimator.repeatMode = ValueAnimator.RESTART //is default
+        downwardsAnimator.repeatCount = 0
+        //animator.interpolator = AccelerateDecelerateInterpolator()
+        downwardsAnimator.interpolator = LinearInterpolator()
+        downwardsAnimator.addUpdateListener { animation ->
+            val coords = animation.animatedValue as Coordinates
+            downwardsBall.coordinates = coords
             //Log.i(TAG, "onon animator update")
             invalidate()
         }
@@ -90,14 +106,23 @@ class MyDrawView @JvmOverloads constructor(
         if (event.action != MotionEvent.ACTION_DOWN) {
             return true
         }
-        playSoundEffect(SoundEffectConstants.CLICK)
+
         //Log.i(_TAG, "touched ${event}")
-        Log.i(TAG, "touched x=${event.x}, y=${event.y}")
+        //Log.i(TAG, "touched x=${event.x}, y=${event.y}")
         val virtualX = (event.x / scaleFactor - transX)
-        Log.i(TAG, "virtualX=${virtualX}")
+        //Log.i(TAG, "virtualX=${virtualX}")
+        val virtualY = (event.y / scaleFactor - transY)
+
+        if(virtualX < 0 || virtualX > boardWidth || virtualY < 0 || virtualY > boardHeight) {
+            // left or right, top or bottom outside of board
+            return true
+        }
+
         val col = (virtualX / (TUBE_WIDTH + TUBE_PADDING)).toInt()
         Log.i(TAG, "col=${col}")
         val c = findActivity() as MainActivity?
+
+        playSoundEffect(SoundEffectConstants.CLICK)
         c?.tubeClicked(col)
         return true
     }
@@ -173,6 +198,7 @@ class MyDrawView @JvmOverloads constructor(
 
     /**
      * draw fixed balls
+     * without upwards and downwards ball
      */
     private fun drawBalls(canvas: Canvas) {
         //Log.i(TAG, "drawBalls()")
@@ -180,14 +206,14 @@ class MyDrawView @JvmOverloads constructor(
             return
         }
 
-        val acti = findActivity() as MainActivity
+        //val acti = findActivity() as MainActivity
 
         for (col in 0 until app.gameState.numberOfTubes) {
             fixedBall.coordinates.x = ballX(col).toFloat()
             val tube = app.gameState.tubes[col]
             //Log.i(TAG, "col: ${col}")
 
-            var numberOfBalls = if (acti.donorIndex == col) {
+            var numberOfBalls = if (downwardsCol == col || upwardsCol == col) {
                 tube.fillLevel - 1
             } else {
                 tube.fillLevel
@@ -203,7 +229,7 @@ class MyDrawView @JvmOverloads constructor(
 
     // Called when the view should render its content.
     override fun onDraw(canvas: Canvas?) {
-        Log.i(TAG, "onDraw()")
+        //Log.i(TAG, "onDraw()")
         super.onDraw(canvas)
         if (canvas == null) {
             return
@@ -220,13 +246,16 @@ class MyDrawView @JvmOverloads constructor(
 
         //Log.i(TAG, "onon circleX=${circleX}, circleY=${circleY}, radius=${radius}")
 
-        canvas.drawLine(0f, 0f, boardWidth.toFloat(), boardHeight.toFloat(), linePaint)
-        canvas.drawLine(0f, boardHeight.toFloat(), boardWidth.toFloat(), 0f, linePaint)
+        //canvas.drawLine(0f, 0f, boardWidth.toFloat(), boardHeight.toFloat(), linePaint)
+        //canvas.drawLine(0f, boardHeight.toFloat(), boardWidth.toFloat(), 0f, linePaint)
 
         drawTubes(canvas)
         drawBalls(canvas)
-        if (isUpwards) {
+        if (upwardsCol != -1) {
             upwardsBall.draw(canvas)
+        }
+        if (downwardsCol != -1) {
+            downwardsBall.draw(canvas)
         }
 
         canvas.restore()
@@ -234,7 +263,7 @@ class MyDrawView @JvmOverloads constructor(
 
     // vielleicht besser fun liftBall(from: Int, row: Int)
     fun liftBall(from: Int) {
-        Log.i(TAG, "liftBall()")
+        Log.i(TAG, "liftBall(from=${from})")
         if (app == null) {
             return
         }
@@ -251,24 +280,76 @@ class MyDrawView @JvmOverloads constructor(
         upwardsAnimator.setObjectValues(start, stop)
 
         //Log.i(TAG, "coordinates start: x=${x}, startY=${startY}, stopY=${stopY}")
-        isUpwards = true
+        upwardsCol = from
         upwardsAnimator.start()
     }
 
     fun normalMove(move: Move) {
         // Todo: normal move
+        holeBall(move.to)
+    }
+
+    fun holeBall(to: Int) {
+        Log.i(TAG, "holeBall(to=${to})")
+        if (app == null) {
+            return
+        }
+        var toRow = app.gameState.tubes[to].fillLevel - 1;
+        val acti = findActivity() as MainActivity
+
+        downwardsBall.color = app.gameState.tubes[to].colorOfTopmostBall()
+
+        val startX = ballX(acti.donorIndex).toFloat()
+        val stopX  = ballX(to).toFloat()
+        val startY = BALL_RADIUS.toFloat()
+        val stopY  = ballY(toRow).toFloat()
+        val start   = Coordinates(startX, startY)
+        val between = Coordinates(stopX, startY)
+        val stop    = Coordinates(stopX, stopY)
+        downwardsAnimator.setObjectValues(start, between, stop)
+        downwardsAnimator.start()
+
+        acti.donorIndex = -1
+        acti.donorRow = -1
+
+        upwardsCol = -1
+        downwardsCol = to
     }
 
     fun resetGameView() {
+        downwardsCol = -1
+        upwardsCol = -1
+        invalidate()
         // Todo: reset game view
     }
 
     fun dropBall(donorIndex: Int) {
-        // Todo: drop ball
+        Log.i(TAG, "dropBall(donorIndex=${donorIndex})")
+        if (app == null) {
+            return
+        }
+
+        val acti = findActivity() as MainActivity
+        Log.i(TAG, "donorRow=${acti.donorRow}")
+
+        downwardsCol = donorIndex
+        downwardsBall.color = app.gameState.tubes[donorIndex].colorOfTopmostBall()
+
+        val x = ballX(donorIndex).toFloat()
+        val startY = BALL_RADIUS.toFloat()
+        val stopY = ballY(acti.donorRow).toFloat()
+        val start = Coordinates(x, startY)
+        val stop = Coordinates(x, stopY)
+        downwardsAnimator.setObjectValues(start, stop)
+        downwardsAnimator.start()
+        Log.i(TAG, "downwards animation started x=${x}, startY=${startY}, stopY=${stopY}")
+
+        acti.donorIndex = -1
+        acti.donorRow = -1
     }
 
     companion object {
-        private const val TAG = "balla MyDrawView"
+        private const val TAG = "ballas MyDrawView"
 
         /**
          * positions of original game board / puzzle without scaling
@@ -287,14 +368,12 @@ class MyDrawView @JvmOverloads constructor(
             style = Paint.Style.FILL
         }
 
-        private val circlePaint = Paint(ANTI_ALIAS_FLAG).apply {
-            color = Color.RED
-            style = Paint.Style.FILL
-        }
+        /*
         private val linePaint = Paint(ANTI_ALIAS_FLAG).apply {
             color = Color.GREEN
             style = Paint.Style.FILL
             strokeWidth = 10f
         }
+         */
     }
 }

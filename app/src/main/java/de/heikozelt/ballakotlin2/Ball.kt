@@ -24,13 +24,13 @@ class Ball(var coordinates: Coordinates, color: Int) {
     var paint = PAINTS[color]
 
     fun draw(canvas: Canvas) {
-        Log.i(TAG, "Ball.draw()")
+        //Log.i(TAG, "Ball.draw()")
         canvas.drawCircle(coordinates.x, coordinates.y, MyDrawView.BALL_RADIUS_INSIDE, paint)
-        Log.i(TAG,"drawCircle(${coordinates.x}, ${coordinates.y}, ${MyDrawView.BALL_RADIUS_INSIDE}, ${paint})")
+        //Log.i(TAG,"drawCircle(${coordinates.x}, ${coordinates.y}, ${MyDrawView.BALL_RADIUS_INSIDE}, ${paint})")
     }
 
     companion object {
-        private const val TAG = "Ball"
+        private const val TAG = "ballas Ball"
 
         private val PAINTS = arrayOf(
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {

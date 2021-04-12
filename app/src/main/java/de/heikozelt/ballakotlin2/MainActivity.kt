@@ -15,14 +15,16 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * welche Spalte wurde zuerst geklickt
+     * -1 bedeutet keine
      */
-    var donorIndex: Int? = null
+    var donorIndex: Int = -1
 
     /**
      * auf welcher Höhe lag der oberste Ball bevor er angehoben wurde.
      * (nur für den Fall, dass ein Zug abgebrochen wird und er wieder gesenkt wird.)
+     * -1 bedeutet keine
      */
-    var donorRow: Int? = null
+    var donorRow: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,60 +40,65 @@ class MainActivity : AppCompatActivity() {
         //Log.i(_TAG, gameState.toJson())
     }
 
+    fun puzzleSolved() {
+        Log.i(TAG, "puzzle solved")
+        //setTimeout(function() {
+        val alertBuilder = AlertDialog.Builder(this)
+        with(alertBuilder) {
+            setTitle("Genial!")
+            setMessage("Du hast das Puzzle gelöst.")
+            setCancelable(false)
+            setPositiveButton("ok") { dialogInterface, which ->
+                Toast.makeText(applicationContext, "neues Spiel", Toast.LENGTH_LONG).show()
+            }
+            show()
+        }
+        newGame()
+        val v = findViewById<MyDrawView?>(R.id.myDrawView)
+        v?.resetGameView()
+    }
+
     fun tubeClicked(clickedCol: Int) {
+        Log.i(TAG, "tubeClicked(clickedCol=${clickedCol})")
         val app = application as BallaApplication?
         if (app == null) {
             Log.e(TAG, "No reference to BallaApplication in MainActivity.tubeClicked() :-(")
             return
         }
         val v = findViewById<MyDrawView?>(R.id.myDrawView)
-        if (donorIndex == null) {
-            if (!app.gameState.tubes[clickedCol].isEmpty()) {
+        if (donorIndex == -1) {
+            Log.i(TAG, "no first ball selected till now")
+            if (app.gameState.tubes[clickedCol].isEmpty()) {
+                Log.i(TAG, "clicked on empty tube, can't remove ball")
+            } else {
+                Log.i(TAG, "chose first tube")
                 //oder v?.liftBall(clickedCol, app.gameState.tubes[clickedCol].fillLevel - 1)
                 v?.liftBall(clickedCol)
-            } else {
-                if (app.gameState.isMoveAllowed(donorIndex as Int, clickedCol)) {
-                    //console.debug('move from ' + donorIndex + ' to ' + clickedCol);
-                    val move = Move(donorIndex as Int, clickedCol)
-                    app.gameState.moveBallAndLog(move)
-                    v?.normalMove(move)
-                    /*
-                    Todo: Undo Button disabeln
-                    if (app.gameState.moveLog.size != 0) {
-                        val undoButton = document.getElementById('undoButton')
-                        undoButton.disabled = false
-                    }
-                    */
-                    if (app.gameState.isSolved()) {
-                        //setTimeout(function() {
-                        val alertBuilder = AlertDialog.Builder(this)
-                        with(alertBuilder) {
-                            setTitle("Your Alert")
-                            setMessage("Your Message")
-                            setCancelable(false)
-                            setPositiveButton("ok") {dialogInterface, which ->
-                                Toast.makeText(applicationContext,"clicked yes",Toast.LENGTH_LONG).show()
-                            }
-                            show()
-                        }
-                        newGame()
-                        v?.resetGameView()
-                    }
-                } else {
-                    //console.debug('Wechsel');
-                    // Ball wieder runter
-                    v?.dropBall(donorIndex as Int)
-                    // dafür anderer Ball hoch
-                    v?.liftBall(clickedCol)
+            }
+        } else {
+            Log.i(TAG, "chose second tube")
+            if (app.gameState.isMoveAllowed(donorIndex, clickedCol)) {
+                Log.i(TAG, "move is allowed, normal move")
+                //console.debug('move from ' + donorIndex + ' to ' + clickedCol);
+                val move = Move(donorIndex, clickedCol)
+                app.gameState.moveBallAndLog(move)
+                v?.normalMove(move)
+                if (app.gameState.moveLog.size != 0) {
+                    Log.i(TAG, "enable undo button")
+                    //val undoButton = document.getElementById('undoButton')
+                    //undoButton.disabled = false
                 }
+                if (app.gameState.isSolved()) {
+                    puzzleSolved()
+                }
+            } else {
+                Log.i(TAG, "move not allowed, select new tube as first tube")
+                // Ball wieder runter
+                v?.dropBall(donorIndex)
+                // dafür anderer Ball hoch
+                v?.liftBall(clickedCol)
             }
         }
-        invalidateBoardView()
-    }
-
-    private fun invalidateBoardView() {
-        val v = findViewById<MyDrawView?>(R.id.myDrawView)
-        v?.invalidate()
     }
 
     fun newGame(view: View) {
@@ -107,7 +114,8 @@ class MainActivity : AppCompatActivity() {
         app.gameState = GameState(app.numberOfColors, app.numberOfExtraTubes, app.tubeHeight)
         app.gameState.newGame()
         app.originalGameState = app.gameState.clone()
-        invalidateBoardView()
+        val v = findViewById<MyDrawView?>(R.id.myDrawView)
+        v?.resetGameView()
     }
 
     fun resetGame(view: View) {
@@ -117,10 +125,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
         app.gameState = app.originalGameState.clone()
-        invalidateBoardView()
+        val v = findViewById<MyDrawView?>(R.id.myDrawView)
+        v?.resetGameView()
     }
 
     companion object {
-        private const val TAG = "balla MainActivity"
+        private const val TAG = "ballas MainActivity"
     }
 }

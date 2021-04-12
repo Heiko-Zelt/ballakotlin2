@@ -4,6 +4,7 @@ import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.Move
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import java.lang.IndexOutOfBoundsException
 
@@ -94,7 +95,7 @@ class GameStateTest {
     }
 
     @Test
-    fun sameColor() {
+    fun sameColor_true() {
         val g = GameState(1,1,2)
         g.initTubes()
         val m = Move(0, 1)
@@ -132,5 +133,36 @@ class GameStateTest {
         g.cheat()
         assertEquals(3, g.numberOfTubes)
         assertEquals(3, g.tubes.size)
+    }
+
+    @Test
+    fun isMoveAllowed_to_empty_tube_true() {
+        val g = GameState(1,1,2)
+        g.initTubes()
+        assertTrue(g.isMoveAllowed(0, 1))
+    }
+
+    @Test
+    fun isMoveAllowed_to_same_tube_true() {
+        val g = GameState(1,1,2)
+        g.initTubes()
+        assertTrue(g.isMoveAllowed(0, 0))
+    }
+
+    @Test
+    fun isMoveAllowed_to_full_tube_wrong() {
+        val g = GameState(2,1,3)
+        g.initTubes()
+        val m = Move(0, 1)
+        assertFalse(g.isMoveAllowed(0, 1))
+    }
+
+    @Test
+    fun isMoveAllowed_to_same_color_true() {
+        val g = GameState(2,1,3)
+        g.initTubes()
+        g.tubes[2].addBall(1)
+        val m = Move(0, 2)
+        assertTrue(g.isMoveAllowed(0, 2))
     }
 }
