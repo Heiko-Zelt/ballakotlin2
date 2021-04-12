@@ -50,12 +50,12 @@ class MainActivity : AppCompatActivity() {
             setCancelable(false)
             setPositiveButton("ok") { dialogInterface, which ->
                 Toast.makeText(applicationContext, "neues Spiel", Toast.LENGTH_LONG).show()
+                newGame()
+                val v = findViewById<MyDrawView?>(R.id.myDrawView)
+                v?.resetGameView()
             }
             show()
         }
-        newGame()
-        val v = findViewById<MyDrawView?>(R.id.myDrawView)
-        v?.resetGameView()
     }
 
     fun tubeClicked(clickedCol: Int) {
