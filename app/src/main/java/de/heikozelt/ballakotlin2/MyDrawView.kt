@@ -1,5 +1,8 @@
 package de.heikozelt.ballakotlin2
 
+import android.animation.Keyframe
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -17,6 +20,7 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import de.heikozelt.ballakotlin2.model.Move
+import kotlin.math.abs
 import kotlin.math.min
 
 class MyDrawView @JvmOverloads constructor(
@@ -53,7 +57,6 @@ class MyDrawView @JvmOverloads constructor(
     private var object2 = Coordinates(100f, 150f)
     private var object3 = Coordinates(50f, 100f)
     private var upwardsAnimator = ValueAnimator.ofObject(CoordinatesEvaluator(), object1, object2, object3)
-    private var downwardsAnimator = ValueAnimator.ofObject(CoordinatesEvaluator(), object1, object2, object3)
 
     private var scaleFactor = 0f
     private var transY = 0f
@@ -66,24 +69,33 @@ class MyDrawView @JvmOverloads constructor(
         upwardsAnimator.repeatCount = 0
         //animator.interpolator = AccelerateDecelerateInterpolator()
         upwardsAnimator.interpolator = LinearInterpolator()
+
         upwardsAnimator.addUpdateListener { animation ->
             val coords = animation.animatedValue as Coordinates
             upwardsBall.coordinates = coords
             //Log.i(TAG, "onon animator update")
             invalidate()
         }
+         /*
+        upwardsAnimator.addUpdateListener { animation ->
+            val x = animation.getAnimatedValue("x") as Float
+            val y = animation.getAnimatedValue("x") as Float
+            upwardsBall.coordinates.x = x
+            upwardsBall.coordinates.y = y
+            invalidate()
+        }
+          */
 
-        downwardsAnimator.duration = 1000
-        downwardsAnimator.repeatMode = ValueAnimator.RESTART //is default
-        downwardsAnimator.repeatCount = 0
-        //animator.interpolator = AccelerateDecelerateInterpolator()
-        downwardsAnimator.interpolator = LinearInterpolator()
+        /*
         downwardsAnimator.addUpdateListener { animation ->
             val coords = animation.animatedValue as Coordinates
             downwardsBall.coordinates = coords
             //Log.i(TAG, "onon animator update")
             invalidate()
         }
+         */
+
+
     }
 
     private fun findActivity(): Activity? {
@@ -181,14 +193,14 @@ class MyDrawView @JvmOverloads constructor(
         if (app == null) {
             return
         }
-        var top = BALL_DIAMETER
-        var bottom = top + app.gameState.tubeHeight * BALL_DIAMETER + BALL_PADDING
-        var circleY = bottom - TUBE_LOWER_CORNER_RADIUS.toFloat()
+        val top = BALL_DIAMETER
+        val bottom = top + app.gameState.tubeHeight * BALL_DIAMETER + BALL_PADDING
+        val circleY = bottom - TUBE_LOWER_CORNER_RADIUS.toFloat()
         for (col in 0 until app.gameState.numberOfTubes) {
-            var left = col * (TUBE_WIDTH + TUBE_PADDING)
-            var right = left + TUBE_WIDTH
-            var leftCircleX = left + TUBE_LOWER_CORNER_RADIUS
-            var rightCircleX = right - TUBE_LOWER_CORNER_RADIUS
+            val left = col * (TUBE_WIDTH + TUBE_PADDING)
+            val right = left + TUBE_WIDTH
+            val leftCircleX = left + TUBE_LOWER_CORNER_RADIUS
+            val rightCircleX = right - TUBE_LOWER_CORNER_RADIUS
             canvas.drawCircle(leftCircleX.toFloat(), circleY.toFloat(), TUBE_LOWER_CORNER_RADIUS.toFloat(), TUBE_PAINT)
             canvas.drawCircle(rightCircleX.toFloat(), circleY.toFloat(), TUBE_LOWER_CORNER_RADIUS.toFloat(), TUBE_PAINT)
             canvas.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), (bottom - TUBE_LOWER_CORNER_RADIUS).toFloat(), TUBE_PAINT)
@@ -261,9 +273,20 @@ class MyDrawView @JvmOverloads constructor(
         canvas.restore()
     }
 
+    fun dumpi() {
+        val acti = findActivity() as MainActivity
+        Log.i(TAG, "donorIndex=${acti.donorIndex}, donorRow=${acti.donorRow}, upwardsCol=${upwardsCol}, downwardsCol=${downwardsCol}")
+    }
+
+    /**
+     * Ball wird angehoben. Spielstand ändert sicht nicht.
+     * Falls drop ball animation gleiche Röhre betrifft,
+     * dann wird sie abgebrochen/beendet.
+     */
     // vielleicht besser fun liftBall(from: Int, row: Int)
     fun liftBall(from: Int) {
         Log.i(TAG, "liftBall(from=${from})")
+        dumpi()
         if (app == null) {
             return
         }
@@ -280,8 +303,14 @@ class MyDrawView @JvmOverloads constructor(
         upwardsAnimator.setObjectValues(start, stop)
 
         //Log.i(TAG, "coordinates start: x=${x}, startY=${startY}, stopY=${stopY}")
+
         upwardsCol = from
         upwardsAnimator.start()
+        if(downwardsCol == upwardsCol) {
+            downwardsCol = -1
+        }
+
+        dumpi()
     }
 
     fun normalMove(move: Move) {
@@ -289,8 +318,14 @@ class MyDrawView @JvmOverloads constructor(
         holeBall(move.to)
     }
 
+    /**
+     * neuer Spielstand.
+     * Ball bewegt sich seitlich und dann runter.
+     * lift ball animation wird abgebrochen/beendet
+     */
     fun holeBall(to: Int) {
         Log.i(TAG, "holeBall(to=${to})")
+        dumpi()
         if (app == null) {
             return
         }
@@ -298,22 +333,42 @@ class MyDrawView @JvmOverloads constructor(
         val acti = findActivity() as MainActivity
 
         downwardsBall.color = app.gameState.tubes[to].colorOfTopmostBall()
-
         val startX = ballX(acti.donorIndex).toFloat()
         val stopX  = ballX(to).toFloat()
         val startY = BALL_RADIUS.toFloat()
         val stopY  = ballY(toRow).toFloat()
-        val start   = Coordinates(startX, startY)
-        val between = Coordinates(stopX, startY)
-        val stop    = Coordinates(stopX, stopY)
-        downwardsAnimator.setObjectValues(start, between, stop)
+        val distance0 = abs(stopX - startX)
+        val distance1 = abs(stopY - startY)
+        val fract = distance0 / (distance0 + distance1)
+        //Log.i(TAG, "fract=${fract}")
+        val kX0 = Keyframe.ofFloat(0f, startX)
+        val kX1 = Keyframe.ofFloat(fract, stopX)
+        val kX2 = Keyframe.ofFloat(1f, stopX)
+        val kY0 = Keyframe.ofFloat(0f, startY)
+        val kY1 = Keyframe.ofFloat(fract, startY)
+        val kY2 = Keyframe.ofFloat(1f, stopY)
+        val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2)
+        val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2)
+        val downwardsAnimator = ObjectAnimator.ofPropertyValuesHolder(downwardsBall.coordinates, holderX, holderY)
+        downwardsAnimator.duration = 1000
+        downwardsAnimator.repeatMode = ValueAnimator.RESTART //is default
+        downwardsAnimator.repeatCount = 0
+        downwardsAnimator.interpolator = LinearInterpolator()
+        downwardsAnimator.addUpdateListener { animation ->
+            val x = animation.getAnimatedValue("x") as Float
+            val y = animation.getAnimatedValue("x") as Float
+            downwardsBall.coordinates.x = x
+            downwardsBall.coordinates.y = y
+            invalidate()
+        }
         downwardsAnimator.start()
 
         acti.donorIndex = -1
         acti.donorRow = -1
-
         upwardsCol = -1
         downwardsCol = to
+
+        dumpi()
     }
 
     fun resetGameView() {
@@ -323,8 +378,14 @@ class MyDrawView @JvmOverloads constructor(
         // Todo: reset game view
     }
 
+    /**
+     * angehobener Ball wird wieder senkrecht gesenkt.
+     * lift ball animation wird abgebrochen/beendet
+     */
     fun dropBall(donorIndex: Int) {
+        /*
         Log.i(TAG, "dropBall(donorIndex=${donorIndex})")
+        dumpi()
         if (app == null) {
             return
         }
@@ -332,7 +393,6 @@ class MyDrawView @JvmOverloads constructor(
         val acti = findActivity() as MainActivity
         Log.i(TAG, "donorRow=${acti.donorRow}")
 
-        downwardsCol = donorIndex
         downwardsBall.color = app.gameState.tubes[donorIndex].colorOfTopmostBall()
 
         val x = ballX(donorIndex).toFloat()
@@ -341,11 +401,20 @@ class MyDrawView @JvmOverloads constructor(
         val start = Coordinates(x, startY)
         val stop = Coordinates(x, stopY)
         downwardsAnimator.setObjectValues(start, stop)
-        downwardsAnimator.start()
+
         Log.i(TAG, "downwards animation started x=${x}, startY=${startY}, stopY=${stopY}")
 
+
+
+        downwardsAnimator.start()
+        downwardsCol = donorIndex
+        upwardsCol = -1
         acti.donorIndex = -1
         acti.donorRow = -1
+
+        dumpi()
+
+         */
     }
 
     companion object {
