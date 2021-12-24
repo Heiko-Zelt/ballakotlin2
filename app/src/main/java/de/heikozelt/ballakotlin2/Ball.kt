@@ -16,10 +16,10 @@ import android.util.Log
 
 class Ball(var coordinates: Coordinates, color: Int) {
     var color: Int = color
-    set(value) {
-        paint = PAINTS[value]
-        field = value
-    }
+        set(value) {
+            paint = PAINTS[value]
+            field = value
+        }
 
     var paint = PAINTS[color]
 
@@ -30,7 +30,7 @@ class Ball(var coordinates: Coordinates, color: Int) {
     }
 
     companion object {
-        private const val TAG = "ballas Ball"
+        private const val TAG = "balla.Ball"
 
         private val PAINTS = arrayOf(
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -46,11 +46,11 @@ class Ball(var coordinates: Coordinates, color: Int) {
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = Color.GREEN
+                    color = Color.rgb(0x00, 0xa8, 0x18) // dunkles grün
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = Color.rgb(0x40, 0x40, 0xff) // some light blue
+                    color = Color.rgb(0x20, 0x70, 0xff) // some light blue
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -66,7 +66,7 @@ class Ball(var coordinates: Coordinates, color: Int) {
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = Color.rgb(0x00, 0xff, 0x00) // lime
+                    color = Color.rgb(0x00, 0xff, 0x00) // helles, kräftiges lime grün
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -74,7 +74,7 @@ class Ball(var coordinates: Coordinates, color: Int) {
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = Color.rgb(0x00, 0x00, 0x80) // navy
+                    color = Color.rgb(0x00, 0x00, 0xb0) // navy oder dunkelblau
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -86,8 +86,18 @@ class Ball(var coordinates: Coordinates, color: Int) {
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = Color.rgb(0x55, 0x6b, 0x2f) // olive
+                    color = Color.rgb(0x55, 0x6b, 0x2f) // (dark) olive green
                     style = Paint.Style.FILL
-                })
+                },
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.rgb(0xff, 0x99, 0xff) // light pink
+                    style = Paint.Style.FILL
+                },
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.rgb(0xcc, 0xcc, 0x80) // beige
+                    style = Paint.Style.FILL
+                }
+
+        )
     }
 }

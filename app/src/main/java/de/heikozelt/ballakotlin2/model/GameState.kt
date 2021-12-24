@@ -4,6 +4,10 @@ import android.util.Log
 import kotlin.collections.List
 import kotlin.random.Random
 
+/**
+ * Represents the State of the game.
+ * All balls are placed in tubes.
+ */
 class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHeight: Int ) {
 
     var numberOfTubes = numberOfColors + numberOfExtraTubes
@@ -21,6 +25,13 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
     */
 
+    /**
+     * Füllt die Röhren mit Bällen, wie wenn Spiel fertig ist.
+     * Beispiel:
+     * 1 2 3 0 0
+     * 1 2 3 0 0
+     * 1 2 3 0 0
+     */
     fun initTubes() {
         Log.i(TAG, "initTubes()")
         // tubes filled with balls of same color
@@ -29,13 +40,10 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             tubes[i] = Tube(tubeHeight)
             tubes[i].fillWithOneColor(initialColor)
         }
-        // empty tubes, no color (is default after Array creation)
-        /*
-        for(i in numberOfColors..(numberOfTubes - 1)) {
+        for(i in numberOfColors until numberOfTubes) {
             tubes[i] = Tube(tubeHeight)
-            tubes[i].fillWithOneColor(0)
+            // empty tube, no color (is default after Array creation).
         }
-        */
     }
 
     fun newGame() {
@@ -43,9 +51,12 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         initTubes()
         randomizeBallsMany()
         mixTubes()
+        // clear undo log
+        moveLog = mutableListOf<Move>()
     }
 
     fun clone(): GameState {
+        Log.i(TAG, "clone()")
         val miniMe = GameState(numberOfColors, numberOfExtraTubes, tubeHeight)
         for (i in 0 until numberOfTubes) {
             miniMe.tubes[i] = tubes[i].clone()
@@ -283,6 +294,6 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
 
     companion object {
-        private const val TAG = "ballas GameState"
+        private const val TAG = "balla.GameState"
     }
 }
