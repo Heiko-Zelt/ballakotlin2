@@ -58,11 +58,14 @@ class MyDrawView @JvmOverloads constructor(
      * In dieser Spalte wird der oberste Ball nicht gezeichnet.
      * -1 fuer keine.
      */
+
+    // Todo: Nach Drehen des Handys, geht der Status der beiden Variablen animatedBall und invisibleBallCol verloren. Sie müssen wieder hergestellt werden.
+    // Der Spielstatus ist aber erst wieder nach setGameState1Up() bekannt.
     private var invisibleBallCol = -1
 
     /**
      * Normal unanimated / not moving ball.
-     * Object is reused to draw different balls.
+     * Object is only temporary of relevance but reused to draw different balls.
      */
     private var fixedBall = Ball(Coordinates(0f, 0f), 1)
 

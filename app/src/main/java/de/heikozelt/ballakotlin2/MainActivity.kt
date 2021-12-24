@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate()")
         super.onCreate(savedInstanceState)
-        val app = application as BallaApplication
 
         var v = getMyDrawView()
         if (v == null) {
@@ -75,10 +74,29 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         }
 
         // selber Referenz merken
-        gameState1Up = app.getGameState1Up()
+        gameState1Up = (application as BallaApplication).getGameState1Up()
         Log.i(TAG, "injecting game state")
         v?.setGameState1Up(gameState1Up)
         gameState1Up?.registerGameStateListener(this)
+
+        // Wenn der Bildschirm gedreht wird, dann wird die Activity neu instanziiert.
+        // Status-Informationen der View gehen verloren.
+        val gs = gameState1Up?.getGameState()
+        if(gs != null) {
+            // Wenn das Puzzle bereits gelöst war, dann verschwindet
+            // das Glückwunsch-Popup und muss erneut aufpoppen.
+            if(gs.isSolved()) {
+                puzzleSolved()
+            }
+
+            // Undo-Button-Status wiederherstellen
+            if(gs.moveLog.isEmpty()) {
+                disableUndo()
+            } else {
+                enableUndo()
+            }
+        }
+
         Log.i(TAG, "invalidating / redrawing view")
         v?.invalidate()
     }
