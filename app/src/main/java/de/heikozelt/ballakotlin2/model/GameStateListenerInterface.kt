@@ -34,14 +34,15 @@ interface GameStateListenerInterface {
     fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
 
     /**
-     * called after first move
+     * method is called with parameter true after first move.
+     * and with paramater false after last undo, when undo log is empty.
      */
-    fun enableUndo()
+    fun enableUndoAndReset(enabled: Boolean)
 
     /**
-     * called, when undo-log is empty
+     * method is called with parameter false after user pressed 3 times the cheat button
      */
-    fun disableUndo()
+    fun enableCheat(enabled: Boolean)
 
     /**
      * called, when the puzzle is solved, game sucessfully finished.

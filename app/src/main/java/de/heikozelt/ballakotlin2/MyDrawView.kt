@@ -58,9 +58,6 @@ class MyDrawView @JvmOverloads constructor(
      * In dieser Spalte wird der oberste Ball nicht gezeichnet.
      * -1 fuer keine.
      */
-
-    // Todo: Nach Drehen des Handys, geht der Status der beiden Variablen animatedBall und invisibleBallCol verloren. Sie müssen wieder hergestellt werden.
-    // Der Spielstatus ist aber erst wieder nach setGameState1Up() bekannt.
     private var invisibleBallCol = -1
 
     /**
@@ -119,16 +116,31 @@ class MyDrawView @JvmOverloads constructor(
 
     /**
      * selbst definierte Methode. Setter injection.
+     * Nach Drehen des Handys, geht der Status der beiden Variablen animatedBall und invisibleBallCol verloren.
+     * Sie müssen wieder hergestellt werden.
+     * Der Spielstatus ist erst mit setGameState1Up() bekannt.
      */
-    public fun setGameState1Up(gs: GameState1Up?) {
+    public fun setGameState1Up(gs1up: GameState1Up?) {
         Log.i(TAG, "game state injected into MyDrawView")
-        gameState1Up = gs
+        gameState1Up = gs1up
+        if(gs1up != null) {
+            // wenn Ball oben, dann Status der View entsprechend anpassen
+            if(gs1up.isUp()) {
+                val gs = gs1up.getGameState()
+                invisibleBallCol = gs1up.getUpCol()
+                animatedBall.color = gs.tubes[invisibleBallCol].colorOfTopmostBall()
+                animatedBall.coordinates.x = ballX(invisibleBallCol).toFloat()
+                animatedBall.coordinates.y = BALL_RADIUS.toFloat() // = ballY(0).toFloat()
+            }
+        }
     }
 
     /**
      * selbst definierte Methode
      * (Referenz auf Activity wird eigentlich nicht benoetigt.)
+     * method is never used!
      */
+    /*
     private fun findActivity(): Activity? {
         var c: Context? = context
         while (c is ContextWrapper) {
@@ -139,7 +151,7 @@ class MyDrawView @JvmOverloads constructor(
         }
         return null
     }
-
+*/
 
     /**
      * Methode von View geerbt.
@@ -169,7 +181,7 @@ class MyDrawView @JvmOverloads constructor(
 
         val col = (virtualX / (TUBE_WIDTH + TUBE_PADDING)).toInt()
         Log.i(TAG, "col=${col}")
-        val c = findActivity() as MainActivity?
+        //val c = findActivity() as MainActivity?
 
         playSoundEffect(SoundEffectConstants.CLICK)
         gameState1Up?.tubeClicked(col)

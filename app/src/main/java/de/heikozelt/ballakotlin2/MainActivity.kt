@@ -5,11 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import de.heikozelt.ballakotlin2.model.GameState1Up
 import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
 
@@ -75,6 +73,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
 
         // selber Referenz merken
         gameState1Up = (application as BallaApplication).getGameState1Up()
+
         Log.i(TAG, "injecting game state")
         v?.setGameState1Up(gameState1Up)
         gameState1Up?.registerGameStateListener(this)
@@ -82,19 +81,19 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         // Wenn der Bildschirm gedreht wird, dann wird die Activity neu instanziiert.
         // Status-Informationen der View gehen verloren.
         val gs = gameState1Up?.getGameState()
-        if(gs != null) {
+        if (gs != null) {
             // Wenn das Puzzle bereits gelöst war, dann verschwindet
             // das Glückwunsch-Popup und muss erneut aufpoppen.
-            if(gs.isSolved()) {
+            if (gs.isSolved()) {
                 puzzleSolved()
             }
 
             // Undo-Button-Status wiederherstellen
-            if(gs.moveLog.isEmpty()) {
-                disableUndo()
-            } else {
-                enableUndo()
-            }
+            enableUndoAndReset(gs.moveLog.isNotEmpty())
+        }
+        val allowed = gameState1Up?.isCheatAllowed()
+        if(allowed != null) {
+            enableCheat(allowed)
         }
 
         Log.i(TAG, "invalidating / redrawing view")
@@ -247,23 +246,31 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
     /**
      * Methode von GameStateListenerInterface geerbt
      */
-    override fun enableUndo() {
-        Log.i(TAG, "enableUndo()")
-        val v = findViewById<ImageView?>(R.id.undo)
-        v?.isEnabled = true
-        // volle Sichtbarkeit
-        v?.alpha = 1.0F
+    override fun enableUndoAndReset(enabled: Boolean) {
+        Log.i(TAG, "enableUndoAndReset(${enabled})")
+        enableView(R.id.undo, enabled)
+        enableView(R.id.reset_game, enabled)
     }
 
     /**
      * Methode von GameStateListenerInterface geerbt
      */
-    override fun disableUndo() {
-        Log.i(TAG, "disableUndo()")
-        val v = findViewById<ImageView?>(R.id.undo)
-        v?.isEnabled = false
-        // halbtransparent / ausgegraut
-        v?.alpha = 0.5F
+    override fun enableCheat(enabled: Boolean) {
+        Log.i(TAG, "enableCheat(${enabled})")
+        enableView(R.id.plus_one, enabled)
+    }
+
+    /**
+     * only to shorten / reuse code
+     */
+    private fun enableView(viewId: Int, enabled: Boolean) {
+        val v = findViewById<View?>(viewId)
+        v?.isEnabled = enabled
+        v?.alpha = if (enabled) {
+            ALPHA_ENABLED
+        } else {
+            ALPHA_DISABLED
+        }
     }
 
     /*
@@ -339,5 +346,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
 
     companion object {
         private const val TAG = "balla.MainActivity"
+        private const val ALPHA_ENABLED = 1.0f
+        private const val ALPHA_DISABLED = 0.5f
     }
 }

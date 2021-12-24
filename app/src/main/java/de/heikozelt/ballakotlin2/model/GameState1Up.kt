@@ -90,7 +90,8 @@ class GameState1Up(private var gameState: GameState) {
         gameState.newGame()
         initialGameState = gameState.clone()
         up = false
-        gameStateListener?.disableUndo()
+        gameStateListener?.enableUndoAndReset(false)
+        gameStateListener?.enableCheat(true)
         gameStateListener?.redraw()
         gameStateListener?.newGameToast()
     }
@@ -101,7 +102,8 @@ class GameState1Up(private var gameState: GameState) {
     fun actionResetGame() {
         gameState = initialGameState.clone()
         up = false;
-        gameStateListener?.disableUndo()
+        gameStateListener?.enableUndoAndReset(false)
+        gameStateListener?.enableCheat(true)
         gameStateListener?.redraw()
         // Todo: gameStateListener no invisibleBall
     }
@@ -116,10 +118,14 @@ class GameState1Up(private var gameState: GameState) {
         } else if(gameState.moveLog.isNotEmpty()) {
             val move = gameState.undoLastMove()
             if (gameState.moveLog.isEmpty()) {
-                gameStateListener?.disableUndo()
+                gameStateListener?.enableUndoAndReset(false)
             }
             gameStateListener?.liftAndHoleBall(move.from, move.to, gameState.tubes[move.from].fillLevel, gameState.tubes[move.to].fillLevel - 1, gameState.tubes[move.to].colorOfTopmostBall())
         }
+    }
+
+    fun isCheatAllowed(): Boolean {
+        return gameState.numberOfTubes < initialGameState.numberOfTubes + ALLOWED_CHEATS
     }
 
     /**
@@ -128,8 +134,13 @@ class GameState1Up(private var gameState: GameState) {
      */
     fun actionCheat() {
         Log.i(TAG, "actionCheat")
-        gameState.cheat()
-        gameStateListener?.redraw()
+        if(isCheatAllowed()) {
+            gameState.cheat()
+            gameStateListener?.redraw()
+        }
+        if(gameState.numberOfTubes == initialGameState.numberOfTubes + ALLOWED_CHEATS) {
+            gameStateListener?.enableCheat(false)
+        }
     }
 
     /**
@@ -157,7 +168,7 @@ class GameState1Up(private var gameState: GameState) {
                 val toRow = gameState.tubes[col].fillLevel - 1
                 val color = gameState.tubes[col].colorOfTopmostBall()
                 gameStateListener?.holeBall(upCol, col, toRow, color)
-                gameStateListener?.enableUndo()
+                gameStateListener?.enableUndoAndReset(true)
                 up = false
                 if (gameState.isSolved()) {
                     gameStateListener?.puzzleSolved()
@@ -182,5 +193,6 @@ class GameState1Up(private var gameState: GameState) {
 
     companion object {
         private const val TAG = "balla.GameState1Up"
+        private const val ALLOWED_CHEATS = 3
     }
 }
