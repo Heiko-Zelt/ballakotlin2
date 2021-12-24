@@ -153,7 +153,6 @@ class GameStateTest {
     fun isMoveAllowed_to_full_tube_wrong() {
         val g = GameState(2,1,3)
         g.initTubes()
-        val m = Move(0, 1)
         assertFalse(g.isMoveAllowed(0, 1))
     }
 
@@ -162,7 +161,6 @@ class GameStateTest {
         val g = GameState(2,1,3)
         g.initTubes()
         g.tubes[2].addBall(1)
-        val m = Move(0, 2)
         assertTrue(g.isMoveAllowed(0, 2))
     }
 }

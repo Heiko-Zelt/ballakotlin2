@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="toast_new_game">neues Spiel</string>
+    <string name="button_cancel">Abbrechen</string>
+    <string name="button_defaults">Rücksetzen</string>
+    <string name="label_number_of_colors">Anzahl Farben: %1$d</string>
+    <string name="label_additional_tubes">Zusätzliche Röhren: %1$d</string>
+    <string name="label_height">Höhe: %1$d</string>
+    <string name="alert_title_puzzle_solved">Genial!</string>
+    <string name="alert_text_puzzle_solved">Du hast das Puzzle gelöst.</string>
+</resources>
