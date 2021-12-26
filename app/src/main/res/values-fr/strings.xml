@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_cancel">Annuler</string>
+    <string name="alert_title_puzzle_solved">Super!</string>
+    <string name="alert_text_puzzle_solved">Vous avez résolu le puzzle.</string>
+    <string name="label_height">Hauter: %1$d</string>
+    <string name="label_additional_tubes">Tubes supplémentaires: %1$d</string>
+    <string name="label_number_of_colors">Nombre de couleurs: %1$d</string>
+    <string name="toast_new_game">nouveau jeu</string>
+    <string name="button_defaults">Défaut</string>
+</resources>

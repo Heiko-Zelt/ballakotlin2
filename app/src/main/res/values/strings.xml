@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Balla Balla</string>
     <string name="button_ok" translatable="false">OK</string>
-    <string name="toast_new_game">new Game</string>
+    <string name="toast_new_game">new game</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_defaults">Defaults</string>
     <string name="label_number_of_colors">Number of Colors: %1$d</string>
