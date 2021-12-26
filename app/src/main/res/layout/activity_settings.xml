@@ -20,7 +20,7 @@
     <SeekBar
         android:id="@+id/numberOfColors"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="200dp"
+        android:layout_width="280dp"
         android:layout_height="50dp"
         android:max="13"
         app:layout_constraintTop_toBottomOf="@id/labelNumberOfColors"
@@ -41,7 +41,7 @@
     <SeekBar
         android:id="@+id/additionalTubes"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="200dp"
+        android:layout_width="160dp"
         android:layout_height="50dp"
         android:max="2"
         app:layout_constraintTop_toBottomOf="@id/labelAdditionalTubes"
@@ -72,8 +72,8 @@
 
     <Button
         android:id="@+id/okButton"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/button_ok"
         android:onClick="onOkKlicked"
         app:layout_constraintTop_toBottomOf="@id/height"
@@ -83,8 +83,8 @@
 
     <Button
         android:id="@+id/cancelButton"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/button_cancel"
         android:onClick="onCancelKlicked"
         app:layout_constraintTop_toBottomOf="@id/height"
@@ -94,8 +94,8 @@
 
     <Button
         android:id="@+id/defaultsButton"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/button_defaults"
         android:onClick="onDefaultsKlicked"
         app:layout_constraintTop_toBottomOf="@id/height"
