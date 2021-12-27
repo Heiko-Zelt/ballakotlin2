@@ -8,8 +8,19 @@ package de.heikozelt.ballakotlin2.model
  */
 data class Move(val from: Int, val to: Int) {
 
+    /**
+     * liefert einen umgekehrten/undo Spielzug.
+     */
     fun backwards(): Move {
         val retro = Move(this.to, this.from)
         return retro
     }
+
+    /**
+     * Liefert wahr, wenn der andere Spielzug diesem gleicht
+     * Methode wird implizit generiert
+    fun equals(otherMove: Move): Boolean {
+        return (otherMove.from == from) && (otherMove.to == to)
+    }
+    */
 }

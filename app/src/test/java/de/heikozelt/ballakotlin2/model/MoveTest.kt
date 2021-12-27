@@ -1,14 +1,12 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.model
 
-import de.heikozelt.ballakotlin2.model.Move
 import org.junit.Test
-
 import org.junit.Assert.*
 
 class MoveTest {
     @Test
     fun backwards() {
-        val m = Move(2,3)
+        val m = Move(2, 3)
         val b = m.backwards()
         assertEquals(3, b.from)
         assertEquals(2, b.to)
@@ -16,14 +14,15 @@ class MoveTest {
 
     @Test
     fun move_equals() {
-        val m1 = Move(7,8)
+        val m1 = Move(7, 8)
         val m2 = Move(7, 8)
+        // == Testet auf Datengleichheit in Kotlin
         assertTrue(m1 == m2)
     }
 
     @Test
     fun backward_move_equals() {
-        val m1 = Move(7,8)
+        val m1 = Move(7, 8)
         val m2 = Move(8, 7)
         val b = m2.backwards()
         assertTrue(b == m1)

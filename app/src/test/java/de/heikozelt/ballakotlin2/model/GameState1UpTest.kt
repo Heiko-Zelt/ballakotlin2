@@ -1,11 +1,8 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.model
 
-import de.heikozelt.ballakotlin2.model.GameState
-import de.heikozelt.ballakotlin2.model.GameState1Up
 import org.junit.Assert.*
 import org.junit.Test
 
-// Todo: many more sequences could be testet
 class GameState1UpTest {
 
     @Test
@@ -17,7 +14,7 @@ class GameState1UpTest {
     }
 
     @Test
-    fun register() {
+    fun registerGameStateListener() {
         val gs = GameState(3, 2, 3)
         val gs1Up = GameState1Up(gs)
         val listener = GameStateListenerMock()
@@ -79,7 +76,7 @@ class GameState1UpTest {
     }
 
     @Test
-    fun click_on_undo() {
+    fun click_on_undo_button() {
         val gs = GameState(3, 2, 3)
         gs.tubes[0].addBall(1)
         val gs1Up = GameState1Up(gs)
@@ -100,7 +97,7 @@ class GameState1UpTest {
     }
 
     @Test
-    fun click_on_new_game() {
+    fun click_on_new_game_button() {
         val gs = GameState(3, 2, 3)
         val gs1Up = GameState1Up(gs)
         val listener = GameStateListenerMock()
@@ -114,5 +111,54 @@ class GameState1UpTest {
         assertEquals("enableCheat(enabled=true)", listener.observationsLog.get(1))
         assertEquals("redraw()", listener.observationsLog.get(2))
         assertEquals("newGameToast()", listener.observationsLog.get(3))
+    }
+
+    @Test
+    fun click_on_reset_button() {
+        val gs = GameState(3, 2, 3)
+        val gs1Up = GameState1Up(gs)
+        val listener = GameStateListenerMock()
+        gs1Up.registerGameStateListener(listener)
+
+        gs1Up.actionResetGame()
+
+        assertFalse(gs1Up.isUp())
+        assertEquals(3, listener.observationsLog.size)
+        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog.get(0))
+        assertEquals("enableCheat(enabled=true)", listener.observationsLog.get(1))
+        assertEquals("redraw()", listener.observationsLog.get(2))
+    }
+
+    /**
+     * <pre>
+     * 1 _ _      1 2 _
+     * 1 2 _  =>  1 2 _
+     * 1 2 2      1 2 _
+     * </pre>
+     */
+    @Test
+    fun puzzle_solved() {
+        val gs = GameState(2, 1, 3)
+
+        gs.tubes[0].addBall(1)
+        gs.tubes[0].addBall(1)
+        gs.tubes[0].addBall(1)
+        gs.tubes[1].addBall(2)
+        gs.tubes[1].addBall(2)
+        gs.tubes[2].addBall(2)
+        val gs1Up = GameState1Up(gs)
+        val listener = GameStateListenerMock()
+        gs1Up.registerGameStateListener(listener)
+
+        // Zug von Spalte 2 in Spalte 1
+        gs1Up.tubeClicked(2)
+        gs1Up.tubeClicked(1)
+
+        assertFalse(gs1Up.isUp())
+        assertEquals(4, listener.observationsLog.size)
+        assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog.get(0))
+        assertEquals("holeBall(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog.get(1))
+        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog.get(2)) // weil erster Zug ueberhaupt
+        assertEquals("puzzleSolved()", listener.observationsLog.get(3))
     }
 }

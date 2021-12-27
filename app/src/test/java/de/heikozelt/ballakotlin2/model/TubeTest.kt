@@ -1,6 +1,5 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.model
 
-import de.heikozelt.ballakotlin2.model.Tube
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -142,4 +141,40 @@ class TubeTest {
         t.fillWithOneColor(5)
         assertTrue(t.isSolved())
     }
+
+    @Test
+    fun countTopBallsWithSameColor_0() {
+        val t = Tube(3)
+        assertEquals(0, t.countTopBallsWithSameColor())
+    }
+
+    @Test
+    fun countTopBallsWithSameColor_2() {
+        val t = Tube(5)
+        t.addBall(4)
+        t.addBall(1)
+        t.addBall(1)
+        assertEquals(2, t.countTopBallsWithSameColor())
+    }
+
+    @Test
+    fun countTopBallsWithSameColor_4() {
+        val t = Tube(4)
+        t.fillWithOneColor(3)
+        assertEquals(4, t.countTopBallsWithSameColor())
+    }
+
+    @Test
+    fun freeCells_0() {
+        val t = Tube(4)
+        t.fillWithOneColor(3)
+        assertEquals(0, t.freeCells())
+    }
+
+    @Test
+    fun freeCells_3() {
+        val t = Tube(3)
+        assertEquals(3, t.freeCells())
+    }
+
 }

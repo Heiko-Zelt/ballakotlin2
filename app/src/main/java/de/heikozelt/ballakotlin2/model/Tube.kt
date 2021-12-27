@@ -1,5 +1,6 @@
 package de.heikozelt.ballakotlin2.model
 
+import android.util.Log
 import java.lang.IllegalArgumentException
 import java.lang.IndexOutOfBoundsException
 
@@ -130,6 +131,35 @@ class Tube(val tubeHeight: Int) {
     }
 
     /**
+     * Zähl von oben nach unten, wieviel Bälle die gleiche Farbe haben.
+     * @return 0 für leere Röhre, sonst Anzahl gleichfarbiger Bälle.
+     */
+    fun countTopBallsWithSameColor(): Int {
+        // Sonderfall: leere Röhre
+        if(fillLevel == 0) {
+            return 0
+        }
+        // Normalfall
+        val color = colorOfTopmostBall()
+        var row = fillLevel
+        var count = 0
+        do {
+            row--
+            //Log.d(TAG,"row=${row}")
+            if(cells[row] == color) {
+                count++
+            } else {
+                break
+            }
+        } while(row > 0)
+        return count
+    }
+
+    fun freeCells(): Int {
+        return tubeHeight - fillLevel
+    }
+
+    /**
      * liefert wahr, wenn die Röhre gelöst ist,
      * also die Röhre voll ist und alle Bälle die gleiche Farbe haben.
      */
@@ -153,5 +183,9 @@ class Tube(val tubeHeight: Int) {
         }
         miniMe.fillLevel = fillLevel
         return miniMe
+    }
+
+    companion object {
+        private const val TAG = "balla.Tube"
     }
 }

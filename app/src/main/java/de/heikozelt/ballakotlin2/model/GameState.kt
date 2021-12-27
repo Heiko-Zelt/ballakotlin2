@@ -13,6 +13,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     var numberOfTubes = numberOfColors + numberOfExtraTubes
     var tubes = MutableList(numberOfTubes){Tube(tubeHeight)}
     var moveLog = mutableListOf<Move>()
+    private var jury: NeutralJury? = null
 
     init {
         Log.i(TAG, "init")
@@ -49,7 +50,10 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     fun newGame() {
         Log.i(TAG, "newGame()")
         initTubes()
-        randomizeBallsMany()
+        setJury(AnotherJury(this))
+        //setJury(AdvancedJury(this))
+        //setJury(NeutralJury(this))
+        randomizeBalls()
         mixTubes()
         // clear undo log
         moveLog = mutableListOf<Move>()
@@ -65,6 +69,13 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         // Da Einträge in einem Log aber normalerweise nicht nachträglich geändert werden, ist das kein Problem.
         miniMe.moveLog.addAll(moveLog)
         return miniMe
+    }
+
+    /**
+     * Setter-Injection
+     */
+    fun setJury(j: NeutralJury) {
+        jury = j
     }
 
     /**
@@ -149,6 +160,14 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         return backwardMove
     }
 
+    /**
+     * gets last move. trivial.
+
+    fun getLastMove(): Move? {
+        return moveLog.last()
+    }
+     */
+
     // kompliziertes Regelwerk
     fun isMoveAllowed(from: Int, to: Int): Boolean {
         Log.i(TAG, "isMoveAllowd(from=${from}, to=${to})")
@@ -206,51 +225,9 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
 
     fun multiPush(a: MutableList<Move>, m: Move, number: Int) {
-        for(i in 0 until number) {
+        for (i in 0 until number) {
             a.add(m)
         }
-    }
-
-    /**
-     * Bewertet einen Rückwärts-Zug
-     * returns: niedrige Zahl: schlecht, hoche Zahl: gut
-     * Kategorie a: Zug auf einfarbige Säule anderer Farbe (weitere Unterteilung nach Höhe der Säule)
-     * Kategorie b: Zug auf andersfarbigen Ball, der darunter keinen gleichfarbigen Ball hat
-     * Kategorie c: Zug in leere Röhre
-     * Kategorie d: Zug auf gleichfarbigen Ball
-     * todo: Kategorie e: Zug mit andersfarbigem Ball, auf einen Ball der darunter einen gleichfarbigen hat,
-     *   aber nicht alle in der Ziel-Röhre gleichfarbig sind (kompliziert)
-     */
-    fun rateBackwardMove(move: Move): Int {
-        //console.debug('move ' + JSON.stringify(move))
-
-        // Zug in leere Röhre
-        if(tubes[move.to].isEmpty()) {
-            //console.debug('Zug in leere Röhre')
-            return 50
-        }
-
-        // Zug auf gleichfarbigen Ball
-        val ballColor = tubes[move.from].colorOfTopmostBall()
-        val targetColor = tubes[move.to].colorOfTopmostBall()
-        // console.debug('ballColor ' + ballColor + '== targetColor ' + targetColor + '?')
-        if(targetColor == ballColor) {
-            //console.debug('Zug auf gleichfarbigen Ball')
-            return 50
-        }
-
-        // Zug auf einfarbige Säule anderer Farbe (weitere Unterteilung nach Höhe der Säule)
-        val n = tubes[move.to].unicolor()
-        //console.debug('unicolor: ' + n)
-        if(n > 1) {
-            val points = tubeHeight - n - 1
-            //console.debug('Zug auf einfarbige Säule anderer Farbe :-( Punkte: ' + points);
-            return points
-        }
-
-        // Zug auf andersfarbigen Ball, der darunter keinen gleichfarbigen Ball hat
-        //console.debug('Zug auf andersfarbigen Ball, der darunter keinen gleichfarbigen Ball hat');
-        return 40
     }
 
     /**
@@ -258,10 +235,13 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      */
     fun lottery(allMoves: List<Move>): List<Move> {
         val lots = mutableListOf<Move>()
-        for(move in allMoves) {
-            val rate = rateBackwardMove(move)
-            //Log.i("rate: ${rate}")
-            multiPush(lots, move, rate)
+        val j = jury
+        if(j != null) {
+            for (move in allMoves) {
+                val rate = j.rateBackwardMove(move)
+                //Log.i("rate: ${rate}")
+                multiPush(lots, move, rate)
+            }
         }
         return lots
     }
@@ -269,7 +249,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     /**
      * plays game backwards with many moves
      */
-    fun randomizeBallsMany() {
+    fun randomizeBalls() {
         var lastMove: Move? = null
         val maxMoves = numberOfTubes * tubeHeight * 3
         var i = 0
@@ -285,7 +265,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             }
             //Log.i(_TAG, "{i}: , lottery: ${Gson().toJson(lotty)}")
             val move = lotty.random()
-            //Log.i(_TAG,"selected move ${Gson().toJson(move)}")
+            Log.i(TAG,"=======> selected move: ${move.from} --> ${move.to}")
             moveBall(move)
             lastMove = move
             i++

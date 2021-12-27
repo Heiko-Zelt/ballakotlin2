@@ -1,7 +1,5 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.model
 
-import de.heikozelt.ballakotlin2.model.GameState
-import de.heikozelt.ballakotlin2.model.Move
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse

@@ -1,7 +1,4 @@
-package de.heikozelt.ballakotlin2
-
-import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
-import de.heikozelt.ballakotlin2.model.Move
+package de.heikozelt.ballakotlin2.model
 
 class GameStateListenerMock: GameStateListenerInterface {
 
