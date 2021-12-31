@@ -6,9 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- android:onClick="onMenuKlicked" -->
     <ImageView
         android:id="@+id/btn_burger_menu"
+        android:contentDescription="@string/desc_burger_menu"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@id/myDrawView"
@@ -19,6 +19,7 @@
 
     <ImageView
         android:id="@+id/btn_new_game"
+        android:contentDescription="@string/desc_star"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@id/myDrawView"
@@ -29,6 +30,7 @@
 
     <ImageView
         android:id="@+id/btn_reset_game"
+        android:contentDescription="@string/desc_rewind"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@id/myDrawView"
@@ -39,6 +41,7 @@
 
     <ImageView
         android:id="@+id/btn_undo"
+        android:contentDescription="@string/desc_arrow_left"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:alpha="0.5"
@@ -50,6 +53,7 @@
 
     <ImageView
         android:id="@+id/btn_plus_one"
+        android:contentDescription="@string/desc_plus_one"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@id/myDrawView"

@@ -20,7 +20,7 @@ class AdvancedJury(gs: GameState): NeutralJury(gs) {
 
         // Zug indentisch letzem Zug / mehrere gleichfarbige Bälle umschichten
         if(gs.moveLog.isNotEmpty()) {
-            var last = gs.moveLog.last()
+            val last = gs.moveLog.last()
             // vergleicht Daten (nicht Referenzen wie in Java)
             if(move == last) {
                 rating += 20

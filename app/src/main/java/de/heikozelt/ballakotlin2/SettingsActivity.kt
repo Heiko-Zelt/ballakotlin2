@@ -96,7 +96,7 @@ class SettingsActivity : AppCompatActivity() {
             updateHeightText(gs.getTubeHeight())
         }
 
-        findViewById<View?>(R.id.okButton)?.setOnClickListener() {
+        findViewById<View?>(R.id.okButton)?.setOnClickListener {
             Log.i(TAG, "user clicked on ok button")
             if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
                 val colors = colorsSeekBar.progress + MIN_COLORS
@@ -107,12 +107,12 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<View?>(R.id.cancelButton)?.setOnClickListener() {
+        findViewById<View?>(R.id.cancelButton)?.setOnClickListener {
             Log.i(TAG, "user clicked on cancel button")
             finish()
         }
 
-        findViewById<View?>(R.id.defaultsButton)?.setOnClickListener() {
+        findViewById<View?>(R.id.defaultsButton)?.setOnClickListener {
             Log.i(TAG, "user clicked on defaults button")
             colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS - MIN_COLORS
             extraTubesSeekBar?.progress = BallaApplication.NUMBER_OF_EXTRA_TUBES - MIN_EXTRA

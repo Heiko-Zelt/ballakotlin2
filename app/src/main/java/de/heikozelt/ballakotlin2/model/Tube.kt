@@ -1,6 +1,5 @@
 package de.heikozelt.ballakotlin2.model
 
-import android.util.Log
 import java.lang.IllegalArgumentException
 import java.lang.IndexOutOfBoundsException
 
@@ -69,8 +68,7 @@ class Tube(val tubeHeight: Int) {
         if (isEmpty()) {
             throw IndexOutOfBoundsException("tube is empty")
         }
-        val color = cells[fillLevel - 1]
-        return color
+        return cells[fillLevel - 1]
     }
 
     fun colorOfTopSecondBall(): Int {

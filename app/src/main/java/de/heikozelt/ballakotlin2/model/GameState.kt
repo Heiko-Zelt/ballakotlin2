@@ -16,7 +16,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     private var jury: NeutralJury? = null
 
     init {
-        Log.i(TAG, "init: numberOfColors: ${numberOfColors}, numberOfExtraTubes: ${numberOfExtraTubes}, tubeHeight: ${tubeHeight}")
+        Log.i(TAG, "init: numberOfColors: ${numberOfColors}, numberOfExtraTubes: ${numberOfExtraTubes}, tubeHeight: $tubeHeight")
     }
 
     /**
@@ -58,7 +58,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         randomizeBalls()
         mixTubes()
         // clear undo log
-        moveLog = mutableListOf<Move>()
+        moveLog = mutableListOf()
     }
 
     fun clone(): GameState {
@@ -110,7 +110,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     /**
      * vertauscht Röhren untereinander zufällig
      */
-    fun mixTubes() {
+    private fun mixTubes() {
         Log.i(TAG, "mixTubes()")
         for (c in 0 until (numberOfTubes * 3)) {
             val i = Random.nextInt(numberOfTubes)
@@ -240,7 +240,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * @param m Move
      * @param number Anzahl der Referenzen, die der Liste hinzugefügt werden.
      */
-    fun multiPush(a: MutableList<Move>, m: Move, number: Int) {
+    private fun multiPush(a: MutableList<Move>, m: Move, number: Int) {
         for (i in 0 until number) {
             a.add(m)
         }
@@ -301,7 +301,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * plays game backwards with many moves
      */
     // Todo: auch bei schlechten Zügen, gibt es Unterschiede. Mehr oder weniger schlechte Züge.
-    fun randomizeBalls() {
+    private fun randomizeBalls() {
         var lastMove: Move? = null
         val maxMoves = numberOfTubes * tubeHeight * 3
         var executedMoveIndex = 0
@@ -334,9 +334,9 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             } else { // nein, unterschiedlich
                 val average = ratings.average()
                 // Nur die Züge auswählen, die überdurchschnittlich sind
-                candidateMoves = mutableListOf<Move>()
-                candidateRates = mutableListOf<Int>()
-                for(i in 0 until possibleMoves.size) {
+                candidateMoves = mutableListOf()
+                candidateRates = mutableListOf()
+                for(i in possibleMoves.indices) {
                     if(ratings[i] > average) {
                         Log.d(TAG, "#${i} ${possibleMoves[i].from}-->${possibleMoves[i].to} rating=${ratings[i]} add")
                         candidateMoves.add(possibleMoves[i])
@@ -349,7 +349,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
 
             // Die Anzahl Lose richtet sich nach der jeweiligen Bewertung
             val lots = mutableListOf<Move>()
-            for(i in 0 until candidateMoves.size) {
+            for(i in candidateMoves.indices) {
                 multiPush(lots, candidateMoves[i], candidateRates[i])
             }
 
@@ -361,8 +361,8 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             executedMoveIndex++
         } while (executedMoveIndex < maxMoves)
         // log wieder leeren, bevor das Spiel beginnt
-        moveLog = mutableListOf<Move>()
-        Log.i(TAG, "randomize finished with number of backward moves: ${executedMoveIndex}")
+        moveLog = mutableListOf()
+        Log.i(TAG, "randomize finished with number of backward moves: $executedMoveIndex")
     }
 
     /**
@@ -372,7 +372,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * 1 2 3 _ _
      * 1 2 3 _ _
      */
-    fun dump() {
+    private fun dump() {
         for(row in (tubeHeight - 1) downTo 0) {
             var line = colorToString(tubes[0].cells[row])
             for (col in 1 until numberOfTubes) {
@@ -386,7 +386,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     /**
      * wandelt 0 in "_", 1 in "1", 2 in "2", etc...
      */
-    fun colorToString(color: Int): String {
+    private fun colorToString(color: Int): String {
         return if(color == 0) {
             "_"
         } else {

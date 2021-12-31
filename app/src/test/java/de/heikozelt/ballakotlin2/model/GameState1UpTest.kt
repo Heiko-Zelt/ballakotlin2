@@ -37,7 +37,7 @@ class GameState1UpTest {
         assertTrue(gs1Up.isUp())
         assertEquals(0, gs1Up.getUpCol())
         assertEquals(1, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog.get(0))
+        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
     }
 
     @Test
@@ -53,8 +53,8 @@ class GameState1UpTest {
 
         assertFalse(gs1Up.isUp())
         assertEquals(2, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog.get(0))
-        assertEquals("dropBall(col=0, row=0, color=1)", listener.observationsLog.get(1))
+        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
+        assertEquals("dropBall(col=0, row=0, color=1)", listener.observationsLog[1])
     }
 
     @Test
@@ -70,9 +70,9 @@ class GameState1UpTest {
 
         assertFalse(gs1Up.isUp())
         assertEquals(3, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog.get(0))
-        assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog.get(1))
-        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog.get(2))
+        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
+        assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog[1])
+        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
     }
 
     @Test
@@ -89,11 +89,11 @@ class GameState1UpTest {
 
         assertFalse(gs1Up.isUp())
         assertEquals(5, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog.get(0))
-        assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog.get(1))
-        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog.get(2))
-        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog.get(3))
-        assertEquals("liftAndHoleBall(fromCol=1, toCol=0, fromRow=0, toRow=0, color=1)", listener.observationsLog.get(4))
+        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
+        assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog[1])
+        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
+        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[3])
+        assertEquals("liftAndHoleBall(fromCol=1, toCol=0, fromRow=0, toRow=0, color=1)", listener.observationsLog[4])
     }
 
     @Test
@@ -107,10 +107,10 @@ class GameState1UpTest {
 
         assertFalse(gs1Up.isUp())
         assertEquals(4, listener.observationsLog.size)
-        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog.get(0))
-        assertEquals("enableCheat(enabled=true)", listener.observationsLog.get(1))
-        assertEquals("redraw()", listener.observationsLog.get(2))
-        assertEquals("newGameToast()", listener.observationsLog.get(3))
+        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[0])
+        assertEquals("enableCheat(enabled=true)", listener.observationsLog[1])
+        assertEquals("redraw()", listener.observationsLog[2])
+        assertEquals("newGameToast()", listener.observationsLog[3])
     }
 
     @Test
@@ -124,9 +124,9 @@ class GameState1UpTest {
 
         assertFalse(gs1Up.isUp())
         assertEquals(3, listener.observationsLog.size)
-        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog.get(0))
-        assertEquals("enableCheat(enabled=true)", listener.observationsLog.get(1))
-        assertEquals("redraw()", listener.observationsLog.get(2))
+        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[0])
+        assertEquals("enableCheat(enabled=true)", listener.observationsLog[1])
+        assertEquals("redraw()", listener.observationsLog[2])
     }
 
     /**
@@ -156,9 +156,9 @@ class GameState1UpTest {
 
         assertFalse(gs1Up.isUp())
         assertEquals(4, listener.observationsLog.size)
-        assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog.get(0))
-        assertEquals("holeBall(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog.get(1))
-        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog.get(2)) // weil erster Zug ueberhaupt
-        assertEquals("puzzleSolved()", listener.observationsLog.get(3))
+        assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog[0])
+        assertEquals("holeBall(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
+        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2]) // weil erster Zug ueberhaupt
+        assertEquals("puzzleSolved()", listener.observationsLog[3])
     }
 }

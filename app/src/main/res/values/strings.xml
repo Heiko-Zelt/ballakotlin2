@@ -9,4 +9,9 @@
     <string name="label_height">Height: %1$d</string>
     <string name="alert_title_puzzle_solved">Awesome!</string>
     <string name="alert_text_puzzle_solved">You solved the puzzle.</string>
+    <string name="desc_burger_menu" translatable="false">burger menu</string>
+    <string name="desc_star" translatable="false">star</string>
+    <string name="desc_rewind" translatable="false">rewind</string>
+    <string name="desc_arrow_left" translatable="false">arrow left</string>
+    <string name="desc_plus_one" translatable="false">plus one</string>
 </resources>

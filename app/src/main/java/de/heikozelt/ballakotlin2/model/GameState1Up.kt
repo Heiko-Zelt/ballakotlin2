@@ -14,13 +14,13 @@ class GameState1Up(private var gameState: GameState) {
     /**
      * true, if one ball ist lifted.
      */
-    private var up = false;
+    private var up = false
 
     /**
      * Only relevant, if one ball is lifted.
      * Column number of lifted Ball.
      */
-    private var upCol = 0;
+    private var upCol = 0
 
     /**
      * remember initial game state for reset
@@ -101,7 +101,7 @@ class GameState1Up(private var gameState: GameState) {
      */
     fun actionResetGame() {
         gameState = initialGameState.clone()
-        up = false;
+        up = false
         gameStateListener?.enableUndoAndReset(false)
         gameStateListener?.enableCheat(true)
         gameStateListener?.redraw()

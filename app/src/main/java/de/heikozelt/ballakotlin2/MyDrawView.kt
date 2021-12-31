@@ -1,13 +1,12 @@
 package de.heikozelt.ballakotlin2
 
+//import android.view.animation.Animation
 import android.animation.Keyframe
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -17,10 +16,8 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.SoundEffectConstants
 import android.view.View
-//import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import de.heikozelt.ballakotlin2.model.GameState1Up
-import de.heikozelt.ballakotlin2.model.Move
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -120,7 +117,7 @@ class MyDrawView @JvmOverloads constructor(
      * Sie müssen wieder hergestellt werden.
      * Der Spielstatus ist erst mit setGameState1Up() bekannt.
      */
-    public fun setGameState1Up(gs1up: GameState1Up?) {
+    fun setGameState1Up(gs1up: GameState1Up?) {
         Log.i(TAG, "game state injected into MyDrawView")
         gameState1Up = gs1up
         if(gs1up != null) {
@@ -214,18 +211,18 @@ class MyDrawView @JvmOverloads constructor(
 
         val numTub = gs.numberOfTubes
         boardWidth = numTub * TUBE_WIDTH + (numTub - 1) * TUBE_PADDING
-        Log.i(TAG, "boardWidth: ${boardWidth}")
+        Log.i(TAG, "boardWidth: $boardWidth")
 
         val tubHei = gs.tubeHeight
         boardHeight = (tubHei + 1) * BALL_DIAMETER + BALL_PADDING
-        Log.i(TAG, "boardHeight: ${boardHeight}")
+        Log.i(TAG, "boardHeight: $boardHeight")
     }
 
     /**
      * Berechnet die Transformations-Paramater zur Umrechnung
      * zwischen realen Pixels und virtuellen Einheiten.
      */
-    fun calculateTranslation(w: Int, h: Int) {
+    private fun calculateTranslation(w: Int, h: Int) {
         //Log.i(TAG, "onon onSizeChanged(w=${w}, h=${h})")
         //circleX = w / 2f
         //circleY = h / 2f
@@ -358,7 +355,7 @@ class MyDrawView @JvmOverloads constructor(
             val tube = gs.tubes[col]
             //Log.i(TAG, "col: ${col}")
 
-            var numberOfBalls = if (invisibleBallCol == col) {
+            val numberOfBalls = if (invisibleBallCol == col) {
                 tube.fillLevel - 1
             } else {
                 tube.fillLevel
@@ -408,7 +405,7 @@ class MyDrawView @JvmOverloads constructor(
      * eigene Methode
      * Loggt Objekt-Variablen
      */
-    fun dumpi() {
+    private fun dumpi() {
         /*
         val acti = findActivity() as MainActivity
         Log.i(TAG, "donorIndex=${acti.donorIndex}, donorRow=${acti.donorRow}, upwardsCol=${upwardsCol}, downwardsCol=${downwardsCol}")
@@ -654,9 +651,11 @@ class MyDrawView @JvmOverloads constructor(
         dumpi()
     }
 
+    /**
     fun resetGameView() {
-        // todo: Animationen stoppen und Lifted Ball löschen
+        // Animationen stoppen und Lifted Ball löschen???!?
     }
+    */
 
     companion object {
         private const val TAG = "balla.MyDrawView"

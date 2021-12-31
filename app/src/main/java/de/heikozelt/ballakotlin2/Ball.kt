@@ -3,7 +3,7 @@ package de.heikozelt.ballakotlin2
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.util.Log
+// import android.util.Log
 
 /**
  * Represents a Ball
@@ -21,7 +21,7 @@ class Ball(var coordinates: Coordinates, color: Int) {
             field = value
         }
 
-    var paint = PAINTS[color]
+    private var paint = PAINTS[color]
 
     fun draw(canvas: Canvas) {
         //Log.i(TAG, "Ball.draw()")

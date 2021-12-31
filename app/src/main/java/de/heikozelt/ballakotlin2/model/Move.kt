@@ -12,8 +12,7 @@ data class Move(val from: Int, val to: Int) {
      * liefert einen umgekehrten/undo Spielzug.
      */
     fun backwards(): Move {
-        val retro = Move(this.to, this.from)
-        return retro
+        return Move(to, from)
     }
 
     /**

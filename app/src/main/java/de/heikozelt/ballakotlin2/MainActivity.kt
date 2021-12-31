@@ -95,29 +95,29 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             enableCheat(allowed)
         }
 
-        findViewById<View?>(R.id.btn_burger_menu)?.setOnClickListener() {
+        findViewById<View?>(R.id.btn_burger_menu)?.setOnClickListener {
             Log.i(TAG, "user clicked on menu button")
             Intent(this, SettingsActivity::class.java).also {
                 startActivity(it)
             }
         }
 
-        findViewById<View?>(R.id.btn_new_game)?.setOnClickListener() {
+        findViewById<View?>(R.id.btn_new_game)?.setOnClickListener {
             Log.i(TAG, "user clicked on new game button")
             gameState1Up?.actionNewGame()
         }
 
-        findViewById<View?>(R.id.btn_reset_game)?.setOnClickListener() {
+        findViewById<View?>(R.id.btn_reset_game)?.setOnClickListener {
             Log.i(TAG, "user clicked on reset game button")
             gameState1Up?.actionResetGame()
         }
 
-        findViewById<View?>(R.id.btn_undo)?.setOnClickListener() {
+        findViewById<View?>(R.id.btn_undo)?.setOnClickListener {
             Log.i(TAG, "user clicked on undo button")
             gameState1Up?.actionUndo()
         }
 
-        findViewById<View?>(R.id.btn_plus_one)?.setOnClickListener() {
+        findViewById<View?>(R.id.btn_plus_one)?.setOnClickListener {
             Log.i(TAG, "user clicked on cheat button")
             gameState1Up?.actionCheat()
         }
