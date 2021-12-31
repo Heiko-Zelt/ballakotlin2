@@ -1,9 +1,11 @@
 package de.heikozelt.ballakotlin2.model
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
-import org.junit.Test
+//import org.junit.Assert.assertEquals
+//import org.junit.Assert.assertTrue
+//import org.junit.Assert.assertFalse
+//import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import java.lang.IndexOutOfBoundsException
 
 
@@ -67,29 +69,35 @@ class GameStateTest {
         assertEquals(0, g.tubes[1].fillLevel)
     }
 
-    @Test(expected=IndexOutOfBoundsException::class)
+    @Test //(expected=IndexOutOfBoundsException::class)
     fun moveBall_from_empty_tube() {
         val g = GameState(1,1,2)
         g.tubes[1].addBall(3)
         val m = Move(0, 1)
-        g.moveBall(m)
+        assertThrows(IndexOutOfBoundsException::class.java) {
+            g.moveBall(m)
+        }
     }
 
-    @Test(expected=IndexOutOfBoundsException::class)
+    @Test //(expected=IndexOutOfBoundsException::class)
     fun moveBall_to_full_tube() {
         val g = GameState(1,1,2)
         g.initTubes()
         g.tubes[1].addBall(3)
         val m = Move(1, 0)
-        g.moveBall(m)
+        assertThrows(IndexOutOfBoundsException::class.java) {
+            g.moveBall(m)
+        }
     }
 
-    @Test(expected=IndexOutOfBoundsException::class)
+    @Test //(expected=IndexOutOfBoundsException::class)
     fun moveBall_to_not_existing_tube() {
         val g = GameState(1,1,2)
         g.initTubes()
         val m = Move(0, 2)
-        g.moveBall(m)
+        assertThrows(IndexOutOfBoundsException::class.java) {
+            g.moveBall(m)
+        }
     }
 
     @Test

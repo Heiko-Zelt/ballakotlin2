@@ -189,8 +189,9 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         v?.calculateBoardDimensions()
         // Spielfeld in View einpassen
         v?.calculateTranslation()
-        // Animation beenden und angehobenen Ball senken, falls nötig
+        // Alle Animationen beenden und angehobenen Ball senken, falls nötig
         v?.flatten()
+        v?.calculateBalls()
         // neu zeichnen
         v?.invalidate()
     }
@@ -214,9 +215,9 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
     /**
      * Methode von GameStateListenerInterface geerbt
      */
-    override fun holeBall(fromCol: Int, toCol: Int, toRow: Int, color: Int) {
+    override fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
         val v = getMyDrawView()
-        v?.holeBall(fromCol, toCol, toRow, color)
+        v?.holeBall(fromCol, toCol, fromRow, toRow, color)
     }
 
     /**

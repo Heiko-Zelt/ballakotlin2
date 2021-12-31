@@ -9,27 +9,27 @@ class GameStateListenerMock: GameStateListenerInterface {
     }
 
     override fun liftBall(col: Int, row: Int, color: Int) {
-        observationsLog.add("liftBall(col=${col}, row=${row}, color=${color})")
+        observationsLog.add("liftBall(col=$col, row=$row, color=$color)")
     }
 
     override fun dropBall(col: Int, row: Int, color: Int) {
-        observationsLog.add("dropBall(col=${col}, row=${row}, color=${color})")
+        observationsLog.add("dropBall(col=$col, row=$row, color=$color)")
     }
 
-    override fun holeBall(fromCol: Int, toCol: Int, toRow: Int, color: Int) {
-        observationsLog.add("holeBall(fromCol=${fromCol}, toCol=${toCol}, toRow=${toRow}, color=${color})")
+    override fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        observationsLog.add("holeBall(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
     }
 
     override fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        observationsLog.add("liftAndHoleBall(fromCol=${fromCol}, toCol=${toCol}, fromRow=${fromRow}, toRow=${toRow}, color=${color})")
+        observationsLog.add("liftAndHoleBall(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
     }
 
     override fun enableUndoAndReset(enabled: Boolean) {
-        observationsLog.add("enableResetAndUndo(enabled=${enabled})")
+        observationsLog.add("enableResetAndUndo(enabled=$enabled)")
     }
 
     override fun enableCheat(enabled: Boolean) {
-        observationsLog.add("enableCheat(enabled=${enabled})")
+        observationsLog.add("enableCheat(enabled=$enabled)")
     }
 
     override fun puzzleSolved() {

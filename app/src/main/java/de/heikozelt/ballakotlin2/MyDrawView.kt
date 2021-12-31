@@ -48,20 +48,20 @@ class MyDrawView @JvmOverloads constructor(
      * zunächst einfache Lösung: Es ist immer nur ein Ball animiert,
      * nie mehrere gleichzeitig.
      */
-    private val animatedBall = Ball(Coordinates(0f, 0f), 0)
+    //private val animatedBall = Ball(Coordinates(0f, 0f), 0)
 
     /**
      * Nummer der Spalte, in der gerade ein Ball angehoben oder gesenkt wird.
      * In dieser Spalte wird der oberste Ball nicht gezeichnet.
      * -1 fuer keine.
      */
-    private var invisibleBallCol = -1
+    //private var invisibleBallCol = -1
 
     /**
      * Normal unanimated / not moving ball.
      * Object is only temporary of relevance but reused to draw different balls.
      */
-    private var fixedBall = Ball(Coordinates(0f, 0f), 1)
+    //private var fixedBall = Ball(Coordinates(0f, 0f), 1)
 
     // private var animator = ObjectAnimator.ofFloat(this, View.ROTATION, -360f, 0f)
     /*
@@ -71,11 +71,23 @@ class MyDrawView @JvmOverloads constructor(
     private var upwardsAnimator = ValueAnimator.ofObject(CoordinatesEvaluator(), object1, object2, object3)
      */
 
-    private var animator: ValueAnimator? = null
+    /*
+     * Art der Animation ist liftBall oder liftAndHoleBall
+     */
+    //private var upwardsAnimator: ValueAnimator? = null
+
+    /*
+     * Art der Animation ist dropBall oder holeBall
+     */
+    //private var downwardsAnimator: ValueAnimator? = null
+
+    private var myBallAnimators = MyBallAnimators()
 
     private var scaleFactor = 0f
     private var transY = 0f
     private var transX = 0f
+
+    private var viewTubes: MutableList<ViewTube>? = null
 
     /*
     init {
@@ -120,14 +132,47 @@ class MyDrawView @JvmOverloads constructor(
     fun setGameState1Up(gs1up: GameState1Up?) {
         Log.i(TAG, "game state injected into MyDrawView")
         gameState1Up = gs1up
-        if(gs1up != null) {
-            // wenn Ball oben, dann Status der View entsprechend anpassen
-            if(gs1up.isUp()) {
-                val gs = gs1up.getGameState()
-                invisibleBallCol = gs1up.getUpCol()
-                animatedBall.color = gs.tubes[invisibleBallCol].colorOfTopmostBall()
-                animatedBall.coordinates.x = ballX(invisibleBallCol).toFloat()
-                animatedBall.coordinates.y = BALL_RADIUS.toFloat() // = ballY(0).toFloat()
+        if (gs1up != null) {
+            // Initialisation of ViewTubes 2-dimensional
+            // mit Koordinaten und Ball-Farben
+            calculateBalls()
+        }
+
+    }
+
+    /**
+     * initialisiert die 2-dimensionale Matrix der Bälle neu
+     * z.B. nach new oder reset game
+     * (Die Spielfeldgröße kann sich geändert haben, also Arrays neu anlegen.)
+     */
+    fun calculateBalls() {
+        val gs1up = gameState1Up
+        if (gs1up != null) {
+            val gs = gs1up.getGameState()
+            gs.dump()
+            viewTubes = MutableList(gs.numberOfTubes) { ViewTube(gs.tubeHeight) }
+            val vts = viewTubes
+            if (vts != null) {
+                for (col in vts.indices) {
+                    Log.d(TAG, "tubeHeight=${gs.tubeHeight}")
+                    for (row in 0 until gs.tubeHeight) {
+                        val color = gs.tubes[col].cells[row]
+                        vts[col].cells[row] = if(color == 0) {
+                            null
+                        } else {
+                            val coords = Coordinates(ballX(col).toFloat(), ballY(row).toFloat())
+                            Ball(coords, color)
+                        }
+                    }
+                }
+            }
+
+            // Spezialfall: ein Ball könnte gerade oben sein
+            if (gs1up.isUp()) {
+                val liftedBallCol = gs1up.getUpCol()
+                val liftedBallRow = gs.tubes[gs1up.getUpCol()].fillLevel - 1 // ganz oben
+                val liftedBall = viewTubes?.get(liftedBallCol)?.cells?.get(liftedBallRow)
+                liftedBall?.coordinates?.y = BALL_RADIUS.toFloat() // Position korrigieren
             }
         }
     }
@@ -240,8 +285,10 @@ class MyDrawView @JvmOverloads constructor(
     }
 
     fun flatten() {
-        invisibleBallCol = -1
-        animator?.end()
+        //invisibleBallCol = -1
+        myBallAnimators.endRemoveAll()
+        //upwardsAnimator?.end()
+        //downwardsAnimator?.end()
     }
 
     /**
@@ -259,6 +306,7 @@ class MyDrawView @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
         calculateBoardDimensions()
         calculateTranslation(w, h)
+        calculateBalls()
     }
 
     /**
@@ -348,23 +396,14 @@ class MyDrawView @JvmOverloads constructor(
             return
         }
 
-        //val acti = findActivity() as MainActivity
-
         for (col in 0 until gs.numberOfTubes) {
-            fixedBall.coordinates.x = ballX(col).toFloat()
             val tube = gs.tubes[col]
             //Log.i(TAG, "col: ${col}")
 
-            val numberOfBalls = if (invisibleBallCol == col) {
-                tube.fillLevel - 1
-            } else {
-                tube.fillLevel
-            }
-            for (row in 0 until numberOfBalls) {
+            for (row in 0 until tube.fillLevel) {
                 //Log.d(TAG, "row: ${row}")
-                fixedBall.coordinates.y = ballY(row).toFloat()
-                fixedBall.color = gs.tubes[col].cells[row]
-                fixedBall.draw(canvas)
+                val ball = viewTubes?.get(col)?.cells?.get(row)
+                ball?.draw(canvas)
             }
         }
     }
@@ -394,9 +433,11 @@ class MyDrawView @JvmOverloads constructor(
 
         drawTubes(canvas)
         drawBalls(canvas)
+        /*
         if (invisibleBallCol != -1) {
             animatedBall.draw(canvas)
         }
+        */
 
         canvas.restore()
     }
@@ -417,29 +458,31 @@ class MyDrawView @JvmOverloads constructor(
      */
     private fun animateLiftBall(col: Int, fromRow: Int, color: Int) {
         Log.i(TAG, "animateLiftBall(col=${col}, fromRow=${fromRow}, color=${color})")
-        animatedBall.color = color
-        animatedBall.coordinates.x = ballX(col).toFloat()
+        val animatedBall = viewTubes?.get(col)?.cells?.get(fromRow)
+        if (animatedBall != null) {
+            //animatedBall.color = color
+            //animatedBall.coordinates.x = ballX(col).toFloat()
 
-        val startY = ballY(fromRow).toFloat()
-        val topY = BALL_RADIUS.toFloat()
+            val startY = ballY(fromRow).toFloat()
+            val topY = BALL_RADIUS.toFloat()
 
-        val wholeTime = ANIMATION_ADDITIONAL_DURATION / 2 + (startY - topY) / ANIMATION_SPEED
+            val wholeTime = ANIMATION_ADDITIONAL_DURATION / 2 + (startY - topY) / ANIMATION_SPEED
 
-        val kY0 = Keyframe.ofFloat(0f, startY)
-        val kY1 = Keyframe.ofFloat(1f, topY)
+            val kY0 = Keyframe.ofFloat(0f, startY)
+            val kY1 = Keyframe.ofFloat(1f, topY)
 
-        val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1)
+            val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1)
 
-        animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderY)
-        // todo: Dauer von Strecke abhängig
-        animator?.duration = wholeTime.toLong()
-        animator?.repeatMode = ValueAnimator.RESTART //is default
-        animator?.repeatCount = 0
-        animator?.interpolator = LinearInterpolator()
-        animator?.addUpdateListener { animation ->
-            invalidate()
+            val animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderY)
+            animator.duration = wholeTime.toLong()
+            animator.repeatMode = ValueAnimator.RESTART //is default
+            animator.repeatCount = 0
+            animator.interpolator = LinearInterpolator()
+            animator.addUpdateListener { animation ->
+                invalidate()
+            }
+            myBallAnimators.endRemoveAddStart(animator, col, fromRow)
         }
-        animator?.start()
     }
 
     /**
@@ -448,20 +491,21 @@ class MyDrawView @JvmOverloads constructor(
      * Falls drop ball animation gleiche Röhre betrifft,
      * dann wird sie abgebrochen/beendet.
      */
-    // vielleicht besser fun liftBall(from: Int, row: Int)
     fun liftBall(col: Int, row: Int, color: Int) {
         Log.i(TAG, "liftBall(col=${col})")
         dumpi()
 
-        val gs = gameState1Up?.getGameState()
-        if (gs == null) {
-            Log.e(TAG, "Kein GameState!")
-            return
-        }
-
-        invisibleBallCol = col
+        //invisibleBallCol = col
         // Eventuell laufende Animation beenden, bevor neue gestartet wird.
-        animator?.end()
+        //upwardsAnimator?.end()
+        /*
+        val gs1up = gameState1Up
+        if(gs1up != null) {
+            if (gs1up.isUp()) {
+                animateDropBall(gs1up.getUpCol(), )
+            }
+        }
+        */
         animateLiftBall(col, row, color)
         dumpi()
     }
@@ -471,33 +515,36 @@ class MyDrawView @JvmOverloads constructor(
      */
     private fun animateDropBall(col: Int, toRow: Int, color: Int) {
         Log.i(TAG, "animateDropBall(col=${col}, toRow=${toRow}, color=${color})")
-        animatedBall.color = color
-        animatedBall.coordinates.x = ballX(col).toFloat()
-        val topY = BALL_RADIUS.toFloat()
-        val stopY = ballY(toRow).toFloat()
-        val bounceY = stopY - BOUNCE
+        val animatedBall = viewTubes?.get(col)?.cells?.get(toRow)
+        if (animatedBall != null) {
+            //animatedBall.color = color
+            //animatedBall.coordinates.x = ballX(col).toFloat()
+            val topY = BALL_RADIUS.toFloat()
+            val stopY = ballY(toRow).toFloat()
+            val bounceY = stopY - BOUNCE
 
-        val time0 = ANIMATION_ADDITIONAL_DURATION + (stopY - topY) / ANIMATION_SPEED
-        val wholeTime = time0 + 2 * BOUNCE_DURATION
+            val time0 = ANIMATION_ADDITIONAL_DURATION + (stopY - topY) / ANIMATION_SPEED
+            val wholeTime = time0 + 2 * BOUNCE_DURATION
 
-        val fract1 = time0 / wholeTime
-        val fract2 = (time0 + BOUNCE_DURATION) / wholeTime
+            val fract1 = time0 / wholeTime
+            val fract2 = (time0 + BOUNCE_DURATION) / wholeTime
 
-        val kY0 = Keyframe.ofFloat(0f, topY)
-        val kY1 = Keyframe.ofFloat(fract1, stopY)
-        val kY2 = Keyframe.ofFloat(fract2, bounceY)
-        val kY3 = Keyframe.ofFloat(1f, stopY)
-        val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3)
+            val kY0 = Keyframe.ofFloat(0f, topY)
+            val kY1 = Keyframe.ofFloat(fract1, stopY)
+            val kY2 = Keyframe.ofFloat(fract2, bounceY)
+            val kY3 = Keyframe.ofFloat(1f, stopY)
+            val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3)
 
-        animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderY)
-        animator?.duration = wholeTime.toLong()
-        animator?.repeatMode = ValueAnimator.RESTART //is default
-        animator?.repeatCount = 0
-        animator?.interpolator = LinearInterpolator()
-        animator?.addUpdateListener { animation ->
-            invalidate()
+            val animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderY)
+            animator.duration = wholeTime.toLong()
+            animator.repeatMode = ValueAnimator.RESTART //is default
+            animator.repeatCount = 0
+            animator.interpolator = LinearInterpolator()
+            animator.addUpdateListener { animation ->
+                invalidate()
+            }
+            myBallAnimators.endRemoveAddStart(animator, col, toRow)
         }
-        animator?.start()
     }
 
     /**
@@ -510,56 +557,64 @@ class MyDrawView @JvmOverloads constructor(
         dumpi()
 
         // Eventuell laufende Animation beenden, bevor neue gestartet wird.
-        animator?.end()
+        //downwardsAnimator?.end()
         animateDropBall(col, row, color)
-        invisibleBallCol = col
+        //invisibleBallCol = col
         dumpi()
     }
 
     /**
      * eigene Methode
+     *
      */
-    private fun animateHoleBall(fromCol: Int, toCol: Int, toRow: Int, color: Int) {
-        Log.i(TAG, "animateHoleBall(fromCol=${fromCol}, toCol=${toCol}, toRow=${toRow}, color=${color})")
-        animatedBall.color = color
-        val startX = ballX(fromCol)
-        val stopX = ballX(toCol)
-        val topY = BALL_RADIUS
-        val stopY = ballY(toRow)
-        val bounceY = stopY - BOUNCE
+    private fun animateHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        Log.i(TAG, "animateHoleBall(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
+        // animierter Ball ist jetzt nicht mehr in Quell- sondern in Zielröhre
+        val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
+        viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
 
-        val time0 = ANIMATION_ADDITIONAL_DURATION / 2 + abs(stopX - startX) / ANIMATION_SPEED
-        val time1 = ANIMATION_ADDITIONAL_DURATION / 2 + abs(stopY - topY) / ANIMATION_SPEED
-        val wholeTime = time0 + time1 + 2 * BOUNCE_DURATION
+        if (animatedBall != null) {
+            //animatedBall.color = color
+            val startX = ballX(fromCol)
+            val stopX = ballX(toCol)
+            val topY = BALL_RADIUS
+            val stopY = ballY(toRow)
+            val bounceY = stopY - BOUNCE
 
-        val fract1 = time0 / wholeTime
-        val fract2 = (time0 + time1) / wholeTime
-        val fract3 = (time0 + time1 + BOUNCE_DURATION) / wholeTime
+            val time0 = ANIMATION_ADDITIONAL_DURATION / 2 + abs(stopX - startX) / ANIMATION_SPEED
+            val time1 = ANIMATION_ADDITIONAL_DURATION / 2 + abs(stopY - topY) / ANIMATION_SPEED
+            val wholeTime = time0 + time1 + 2 * BOUNCE_DURATION
 
-        val kX0 = Keyframe.ofFloat(0f, startX.toFloat())
-        val kX1 = Keyframe.ofFloat(fract1, stopX.toFloat())
-        val kX2 = Keyframe.ofFloat(fract2, stopX.toFloat())
-        val kX3 = Keyframe.ofFloat(fract2, stopX.toFloat())
-        val kX4 = Keyframe.ofFloat(1f, stopX.toFloat())
+            val fract1 = time0 / wholeTime
+            val fract2 = (time0 + time1) / wholeTime
+            val fract3 = (time0 + time1 + BOUNCE_DURATION) / wholeTime
 
-        val kY0 = Keyframe.ofFloat(0f, topY.toFloat())
-        val kY1 = Keyframe.ofFloat(fract1, topY.toFloat())
-        val kY2 = Keyframe.ofFloat(fract2, stopY.toFloat())
-        val kY3 = Keyframe.ofFloat(fract3, bounceY.toFloat())
-        val kY4 = Keyframe.ofFloat(1f, stopY.toFloat())
+            val kX0 = Keyframe.ofFloat(0f, startX.toFloat())
+            val kX1 = Keyframe.ofFloat(fract1, stopX.toFloat())
+            val kX2 = Keyframe.ofFloat(fract2, stopX.toFloat())
+            val kX3 = Keyframe.ofFloat(fract2, stopX.toFloat())
+            val kX4 = Keyframe.ofFloat(1f, stopX.toFloat())
 
-        val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2, kX3, kX4)
-        val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3, kY4)
+            val kY0 = Keyframe.ofFloat(0f, topY.toFloat())
+            val kY1 = Keyframe.ofFloat(fract1, topY.toFloat())
+            val kY2 = Keyframe.ofFloat(fract2, stopY.toFloat())
+            val kY3 = Keyframe.ofFloat(fract3, bounceY.toFloat())
+            val kY4 = Keyframe.ofFloat(1f, stopY.toFloat())
 
-        animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderX, holderY)
-        animator?.duration = wholeTime.toLong()
-        animator?.repeatMode = ValueAnimator.RESTART //is default
-        animator?.repeatCount = 0
-        animator?.interpolator = LinearInterpolator()
-        animator?.addUpdateListener { animation ->
-            invalidate()
+            val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2, kX3, kX4)
+            val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3, kY4)
+
+            val animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderX, holderY)
+            animator.duration = wholeTime.toLong()
+            animator.repeatMode = ValueAnimator.RESTART //is default
+            animator.repeatCount = 0
+            animator.interpolator = LinearInterpolator()
+            animator.addUpdateListener { animation ->
+                invalidate()
+            }
+            myBallAnimators.endRemove(fromCol, fromRow)
+            myBallAnimators.endRemoveAddStart(animator, toCol, toRow)
         }
-        animator?.start()
     }
 
     /**
@@ -568,13 +623,12 @@ class MyDrawView @JvmOverloads constructor(
      * Ball bewegt sich seitlich und dann runter.
      * lift ball animation wird abgebrochen/beendet
      */
-    fun holeBall(fromCol: Int, toCol: Int, toRow: Int, color: Int) {
+    fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
         Log.i(TAG, "holeBall(toCol=${toCol})")
         dumpi()
         // Eventuell laufende Animation beenden, bevor neue gestartet wird.
-        animator?.end()
-        animateHoleBall(fromCol, toCol, toRow, color)
-        invisibleBallCol = toCol
+        animateHoleBall(fromCol, toCol, fromRow, toRow, color)
+        //invisibleBallCol = toCol
         dumpi()
     }
 
@@ -583,56 +637,63 @@ class MyDrawView @JvmOverloads constructor(
      */
     private fun animateLiftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
         Log.i(TAG, "animateLiftAndHoleBall(fromCol=${fromCol}, toCol=${toCol}, fromRow=${fromRow}, toRow=${toRow}, color=${color})")
-        animatedBall.color = color
+        // animierter Ball ist jetzt nicht mehr in Quell- sondern in Zielröhre
+        val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
+        viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
 
-        val startX = ballX(fromCol)
-        val stopX = ballX(toCol)
-        val startY = ballY(fromRow)
-        val topY = BALL_RADIUS
-        val stopY = ballY(toRow)
-        val bounceY = stopY - BOUNCE
+        if (animatedBall != null) {
+            // animatedBall.color = color
 
-        val time0 = ANIMATION_ADDITIONAL_DURATION / 3 + (startY - topY) / ANIMATION_SPEED
-        val time1 = ANIMATION_ADDITIONAL_DURATION / 3 + abs(stopX - startX) / ANIMATION_SPEED
-        val time2 = ANIMATION_ADDITIONAL_DURATION / 3 + (stopY - topY) / ANIMATION_SPEED
-        val wholeTime = time0 + time1 + time2 + 2 * BOUNCE_DURATION
-        Log.i(TAG, "time: 0=${time0}, 1=${time1}, 2=${time2}, whole=${wholeTime}")
+            val startX = ballX(fromCol)
+            val stopX = ballX(toCol)
+            val startY = ballY(fromRow)
+            val topY = BALL_RADIUS
+            val stopY = ballY(toRow)
+            val bounceY = stopY - BOUNCE
 
-        val fract1 = time0 / wholeTime
-        val fract2 = (time0 + time1) / wholeTime
-        val fract3 = (time0 + time1 + time2) / wholeTime
-        val fract4 = (time0 + time1 + time2 + BOUNCE_DURATION) / wholeTime
-        Log.i(TAG, "fracts: 1=${fract1}, 2=${fract2}, 3=${fract3}, 4=${fract4}")
+            val time0 = ANIMATION_ADDITIONAL_DURATION / 3 + (startY - topY) / ANIMATION_SPEED
+            val time1 = ANIMATION_ADDITIONAL_DURATION / 3 + abs(stopX - startX) / ANIMATION_SPEED
+            val time2 = ANIMATION_ADDITIONAL_DURATION / 3 + (stopY - topY) / ANIMATION_SPEED
+            val wholeTime = time0 + time1 + time2 + 2 * BOUNCE_DURATION
+            Log.i(TAG, "time: 0=${time0}, 1=${time1}, 2=${time2}, whole=${wholeTime}")
 
-        val kX0 = Keyframe.ofFloat(0f, startX.toFloat())
-        val kX1 = Keyframe.ofFloat(fract1, startX.toFloat())
-        val kX2 = Keyframe.ofFloat(fract2, stopX.toFloat())
-        val kX3 = Keyframe.ofFloat(fract3, stopX.toFloat())
-        val kX4 = Keyframe.ofFloat(fract4, stopX.toFloat())
-        val kX5 = Keyframe.ofFloat(1f, stopX.toFloat())
+            val fract1 = time0 / wholeTime
+            val fract2 = (time0 + time1) / wholeTime
+            val fract3 = (time0 + time1 + time2) / wholeTime
+            val fract4 = (time0 + time1 + time2 + BOUNCE_DURATION) / wholeTime
+            Log.i(TAG, "fracts: 1=${fract1}, 2=${fract2}, 3=${fract3}, 4=${fract4}")
 
-        val kY0 = Keyframe.ofFloat(0f, startY.toFloat())
-        val kY1 = Keyframe.ofFloat(fract1, topY.toFloat())
-        val kY2 = Keyframe.ofFloat(fract2, topY.toFloat())
-        val kY3 = Keyframe.ofFloat(fract3, stopY.toFloat())
-        val kY4 = Keyframe.ofFloat(fract4, bounceY.toFloat())
-        val kY5 = Keyframe.ofFloat(1f, stopY.toFloat())
+            val kX0 = Keyframe.ofFloat(0f, startX.toFloat())
+            val kX1 = Keyframe.ofFloat(fract1, startX.toFloat())
+            val kX2 = Keyframe.ofFloat(fract2, stopX.toFloat())
+            val kX3 = Keyframe.ofFloat(fract3, stopX.toFloat())
+            val kX4 = Keyframe.ofFloat(fract4, stopX.toFloat())
+            val kX5 = Keyframe.ofFloat(1f, stopX.toFloat())
 
-        val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2, kX3, kX4, kX5)
-        val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3, kY4, kY5)
+            val kY0 = Keyframe.ofFloat(0f, startY.toFloat())
+            val kY1 = Keyframe.ofFloat(fract1, topY.toFloat())
+            val kY2 = Keyframe.ofFloat(fract2, topY.toFloat())
+            val kY3 = Keyframe.ofFloat(fract3, stopY.toFloat())
+            val kY4 = Keyframe.ofFloat(fract4, bounceY.toFloat())
+            val kY5 = Keyframe.ofFloat(1f, stopY.toFloat())
 
-        Log.i(TAG, "X: 0=${kX0.value}, 1=${kX1.value}, 2=${kX2.value}, 3=${kX3.value}, 4=${kX4.value}, 5=${kX5.value}")
-        Log.i(TAG, "Y: 0=${kY0.value}, 1=${kY1.value}, 2=${kY2.value}, 3=${kY3.value}, 4=${kY4.value}, 5=${kY5.value}")
+            val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2, kX3, kX4, kX5)
+            val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3, kY4, kY5)
 
-        animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderX, holderY)
-        animator?.duration = wholeTime.toLong()
-        animator?.repeatMode = ValueAnimator.RESTART //is default
-        animator?.repeatCount = 0
-        animator?.interpolator = LinearInterpolator()
-        animator?.addUpdateListener { animation ->
-            invalidate()
+            Log.i(TAG, "X: 0=${kX0.value}, 1=${kX1.value}, 2=${kX2.value}, 3=${kX3.value}, 4=${kX4.value}, 5=${kX5.value}")
+            Log.i(TAG, "Y: 0=${kY0.value}, 1=${kY1.value}, 2=${kY2.value}, 3=${kY3.value}, 4=${kY4.value}, 5=${kY5.value}")
+
+            val animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderX, holderY)
+            animator.duration = wholeTime.toLong()
+            animator.repeatMode = ValueAnimator.RESTART //is default
+            animator.repeatCount = 0
+            animator.interpolator = LinearInterpolator()
+            animator.addUpdateListener { animation ->
+                invalidate()
+            }
+            myBallAnimators.endRemove(fromCol, fromRow)
+            myBallAnimators.endRemoveAddStart(animator, toCol, toRow)
         }
-        animator?.start()
     }
 
 
@@ -644,18 +705,17 @@ class MyDrawView @JvmOverloads constructor(
         Log.i(TAG, "liftAndHoleBall(fromCol=${fromCol}, toCol=${toCol}, fromRow=${fromRow}, toRow=${toRow}, color=${color})")
         dumpi()
         // Eventuell laufende Animation beenden, bevor neue gestartet wird.
-        animator?.end()
         animateLiftAndHoleBall(fromCol, toCol, fromRow, toRow, color)
-        invisibleBallCol = toCol
-        Log.i(TAG, "invisibleBallCol=${invisibleBallCol}")
+        //invisibleBallCol = toCol
+        //Log.i(TAG, "invisibleBallCol=${invisibleBallCol}")
         dumpi()
     }
 
     /**
     fun resetGameView() {
-        // Animationen stoppen und Lifted Ball löschen???!?
+    // Animationen stoppen und Lifted Ball löschen???!?
     }
-    */
+     */
 
     companion object {
         private const val TAG = "balla.MyDrawView"

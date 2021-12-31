@@ -9,4 +9,9 @@
     <string name="alert_title_puzzle_solved">Impresionantemente!</string>
     <string name="alert_text_puzzle_solved">Has resuelto el rompecabezas.</string>
     <string name="toast_new_game">nuevo juego</string>
+    <string name="desc_star" translatable="false">estrella</string>
+    <string name="desc_rewind" translatable="false">rebobinar</string>
+    <string name="desc_arrow_left" translatable="false">flecha izquierda</string>
+    <string name="desc_plus_one">uno mas</string>
+    <string name="desc_burger_menu" translatable="false">menú de hamburguesa</string>
 </resources>

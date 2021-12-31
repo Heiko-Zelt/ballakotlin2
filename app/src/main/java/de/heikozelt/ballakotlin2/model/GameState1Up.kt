@@ -165,19 +165,24 @@ class GameState1Up(private var gameState: GameState) {
             } else if (gameState.isMoveAllowed(upCol, col)) { // Normalfall A
                 val move = Move(upCol, col)
                 gameState.moveBallAndLog(move)
+                val fromRow = gameState.tubes[upCol].fillLevel
                 val toRow = gameState.tubes[col].fillLevel - 1
                 val color = gameState.tubes[col].colorOfTopmostBall()
-                gameStateListener?.holeBall(upCol, col, toRow, color)
+                gameStateListener?.holeBall(upCol, col, fromRow, toRow, color)
                 gameStateListener?.enableUndoAndReset(true)
                 up = false
                 if (gameState.isSolved()) {
                     gameStateListener?.puzzleSolved()
                 }
             } else { // Sonderfall C
-                val fromRow = gameState.tubes[col].fillLevel - 1
-                val color = gameState.tubes[col].colorOfTopmostBall()
-                //gameStateListener.dropBall(upCol, toRow, color)
-                gameStateListener?.liftBall(col, fromRow, color)
+                val downToRow = gameState.tubes[upCol].fillLevel - 1
+                val downColor = gameState.tubes[upCol].colorOfTopmostBall()
+
+                val upFromRow = gameState.tubes[col].fillLevel - 1
+                val upColor = gameState.tubes[col].colorOfTopmostBall()
+
+                gameStateListener?.dropBall(upCol, downToRow, downColor)
+                gameStateListener?.liftBall(col, upFromRow, upColor)
                 upCol = col
             }
         } else { // erster Klick

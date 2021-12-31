@@ -372,7 +372,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * 1 2 3 _ _
      * 1 2 3 _ _
      */
-    private fun dump() {
+    fun dump() {
         for(row in (tubeHeight - 1) downTo 0) {
             var line = colorToString(tubes[0].cells[row])
             for (col in 1 until numberOfTubes) {

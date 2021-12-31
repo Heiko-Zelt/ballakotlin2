@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Balla Balla</string>
-    <string name="button_ok" translatable="false">OK</string>
+    <string name="button_ok">OK</string>
     <string name="toast_new_game">new game</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_defaults">Defaults</string>
@@ -9,9 +9,9 @@
     <string name="label_height">Height: %1$d</string>
     <string name="alert_title_puzzle_solved">Awesome!</string>
     <string name="alert_text_puzzle_solved">You solved the puzzle.</string>
-    <string name="desc_burger_menu" translatable="false">burger menu</string>
-    <string name="desc_star" translatable="false">star</string>
-    <string name="desc_rewind" translatable="false">rewind</string>
-    <string name="desc_arrow_left" translatable="false">arrow left</string>
-    <string name="desc_plus_one" translatable="false">plus one</string>
+    <string name="desc_burger_menu">burger menu</string>
+    <string name="desc_star">star</string>
+    <string name="desc_rewind">rewind</string>
+    <string name="desc_arrow_left">arrow left</string>
+    <string name="desc_plus_one">plus one</string>
 </resources>

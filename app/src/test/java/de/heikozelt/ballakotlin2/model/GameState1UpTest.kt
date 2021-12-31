@@ -1,7 +1,10 @@
 package de.heikozelt.ballakotlin2.model
 
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+
+//import org.junit.Assert.*
+//import org.junit.Test
 
 class GameState1UpTest {
 

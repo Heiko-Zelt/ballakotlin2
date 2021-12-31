@@ -1,8 +1,12 @@
 package de.heikozelt.ballakotlin2
 
-import org.junit.Test
+//JUnit 4
+//import org.junit.Test
+//import org.junit.Assert.*
 
-import org.junit.Assert.*
+// Junit 5
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).

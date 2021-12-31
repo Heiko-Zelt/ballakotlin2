@@ -1,10 +1,14 @@
 package de.heikozelt.ballakotlin2.model
 
-import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotSame
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+
+//import org.junit.jupiter.api.Test
+//import org.junit.Test
+//import org.junit.Assert.assertEquals
+//import org.junit.Assert.assertTrue
+//import org.junit.Assert.assertFalse
+//import org.junit.Assert.assertNotSame
 
 class TubeTest {
     @Test

@@ -25,7 +25,7 @@ interface GameStateListenerInterface {
     /**
      * Ball einlochen (erst waagrecht und dann senkrecht runter)
      */
-    fun holeBall(fromCol: Int, toCol: Int, toRow: Int, color: Int)
+    fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
 
     /**
      * Bei Klick auf Undo-Button.
