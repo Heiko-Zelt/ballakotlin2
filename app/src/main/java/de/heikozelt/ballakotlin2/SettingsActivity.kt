@@ -1,16 +1,11 @@
 package de.heikozelt.ballakotlin2
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import de.heikozelt.ballakotlin2.model.GameState1Up
-import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
 
 
 /**
@@ -28,12 +23,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val colorsTextView = findViewById<TextView?>(R.id.labelNumberOfColors)
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.numberOfColors)
-        val extraTubesTextView = findViewById<TextView?>(R.id.labelAdditionalTubes)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.additionalTubes)
-        val heightTextView = findViewById<TextView?>(R.id.labelHeight)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.height)
+        val colorsTextView = findViewById<TextView?>(R.id.label_number_of_colors)
+        val colorsSeekBar = findViewById<SeekBar?>(R.id.seekbar_number_of_colors)
+        val extraTubesTextView = findViewById<TextView?>(R.id.label_additional_tubes)
+        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.seekbar_additional_tubes)
+        val heightTextView = findViewById<TextView?>(R.id.label_height)
+        val heightSeekBar = findViewById<SeekBar?>(R.id.seekbar_height)
 
         fun updateColorsText(i: Int) {
             colorsTextView?.text = getString(R.string.label_number_of_colors, i)
@@ -100,6 +95,31 @@ class SettingsActivity : AppCompatActivity() {
             updateExtraTubesText(gs.getInitialExtraTubes())
             updateHeightText(gs.getTubeHeight())
         }
+
+        findViewById<View?>(R.id.okButton)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on ok button")
+            if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
+                val colors = colorsSeekBar.progress + MIN_COLORS
+                val extra = extraTubesSeekBar.progress + MIN_EXTRA
+                val height = heightSeekBar.progress + MIN_HEIGHT
+                (application as BallaApplication).getGameState1Up()?.actionNewGame(colors, extra, height)
+            }
+            finish()
+        }
+
+        findViewById<View?>(R.id.cancelButton)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on cancel button")
+            finish()
+        }
+
+        findViewById<View?>(R.id.defaultsButton)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on defaults button")
+            colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS - MIN_COLORS
+            extraTubesSeekBar?.progress = BallaApplication.NUMBER_OF_EXTRA_TUBES - MIN_EXTRA
+            heightSeekBar?.progress = BallaApplication.TUBE_HEIGHT - MIN_HEIGHT
+        }
+
+
     }
 
     /**
@@ -126,45 +146,15 @@ class SettingsActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    /**
-     * User clicked on ok button
-     */
-    fun onOkKlicked(vi: View) {
-        Log.i(TAG, "user clicked on ok button")
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.numberOfColors)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.additionalTubes)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.height)
-        if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
-            (application as BallaApplication).getGameState1Up()?.actionNewGame(colorsSeekBar.progress + MIN_COLORS, extraTubesSeekBar.progress + MIN_EXTRA, heightSeekBar.progress + MIN_HEIGHT)
-        }
-        finish()
-    }
-
-    /**
-     * User clicked on ok button
-     */
-    fun onCancelKlicked(vi: View) {
-        Log.i(TAG, "user clicked on cancel button")
-        finish()
-    }
-
-    fun onDefaultsKlicked(vi: View) {
-        Log.i(TAG, "user clicked on defaults button")
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.numberOfColors)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.additionalTubes)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.height)
-        colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS - MIN_COLORS
-        extraTubesSeekBar?.progress = BallaApplication.NUMBER_OF_EXTRA_TUBES - MIN_EXTRA
-        heightSeekBar?.progress = BallaApplication.TUBE_HEIGHT - MIN_HEIGHT
-    }
-
     companion object {
         private const val TAG = "balla.SettingsActivity"
 
         private const val MIN_COLORS = 2
         //private const val MAX_COLORS = 13
+
         private const val MIN_EXTRA = 1
         //private const val MAX_EXTRA = 3
+
         private const val MIN_HEIGHT = 3
         //private const val MAX_HEIGHT = 8
     }

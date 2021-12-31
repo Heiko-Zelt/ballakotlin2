@@ -101,14 +101,30 @@ class GameStateTest {
         assertTrue(g.isSameColor(0, 1))
     }
 
+    /*
+     * 1 _    _ _
+     * 1 _ => 1 1
+     */
     @Test
-    fun allPossibleBackwardMoves() {
+    fun allPossibleBackwardMoves_full_to_empty() {
         val g = GameState(1,1,2)
         g.initTubes()
         val moves= g.allPossibleBackwardMoves(null)
         assertEquals(1, moves.size)
         assertEquals(0, moves[0].from)
         assertEquals(1, moves[0].to)
+    }
+
+    /*
+     * _ _
+     * 1 _ => Es ist kein sinnvoller Zug möglich.
+     */
+    @Test
+    fun allPossibleBackwardMoves_ground_move() {
+        val g = GameState(1,1,2)
+        g.tubes[0].addBall(1)
+        val moves= g.allPossibleBackwardMoves(null)
+        assertEquals(0, moves.size)
     }
 
     @Test
@@ -160,5 +176,19 @@ class GameStateTest {
         g.initTubes()
         g.tubes[2].addBall(1)
         assertTrue(g.isMoveAllowed(0, 2))
+    }
+
+    @Test
+    fun areEqual_false() {
+        val list = mutableListOf(0, 0, 0, 42)
+        val gs = GameState(2, 3, 1)
+        assertFalse(gs.areEqual(list))
+    }
+
+    @Test
+    fun areEqual_true() {
+        val list = mutableListOf(42)
+        val gs = GameState(2,3,1)
+        assertTrue(gs.areEqual(list))
     }
 }

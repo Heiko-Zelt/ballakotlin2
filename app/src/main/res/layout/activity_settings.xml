@@ -8,75 +8,75 @@
     tools:context=".SettingsActivity">
 
     <TextView
-        android:id="@+id/labelNumberOfColors"
+        android:id="@+id/label_number_of_colors"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_number_of_colors"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/numberOfColors" />
+        app:layout_constraintBottom_toTopOf="@id/seekbar_number_of_colors" />
 
     <SeekBar
-        android:id="@+id/numberOfColors"
+        android:id="@+id/seekbar_number_of_colors"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="280dp"
         android:layout_height="50dp"
         android:max="13"
-        app:layout_constraintTop_toBottomOf="@id/labelNumberOfColors"
+        app:layout_constraintTop_toBottomOf="@id/label_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/labelAdditionalTubes" />
+        app:layout_constraintBottom_toTopOf="@id/label_additional_tubes" />
 
     <TextView
-        android:id="@+id/labelAdditionalTubes"
+        android:id="@+id/label_additional_tubes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_additional_tubes"
-        app:layout_constraintTop_toBottomOf="@id/numberOfColors"
+        app:layout_constraintTop_toBottomOf="@id/seekbar_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/additionalTubes" />
+        app:layout_constraintBottom_toTopOf="@id/seekbar_additional_tubes" />
 
     <SeekBar
-        android:id="@+id/additionalTubes"
+        android:id="@+id/seekbar_additional_tubes"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="160dp"
         android:layout_height="50dp"
         android:max="2"
-        app:layout_constraintTop_toBottomOf="@id/labelAdditionalTubes"
+        app:layout_constraintTop_toBottomOf="@id/label_additional_tubes"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/labelHeight" />
+        app:layout_constraintBottom_toTopOf="@id/label_height" />
 
     <TextView
-        android:id="@+id/labelHeight"
+        android:id="@+id/label_height"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_height"
-        app:layout_constraintTop_toBottomOf="@id/additionalTubes"
+        app:layout_constraintTop_toBottomOf="@id/seekbar_additional_tubes"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/height" />
+        app:layout_constraintBottom_toTopOf="@id/seekbar_height" />
 
     <SeekBar
-        android:id="@+id/height"
+        android:id="@+id/seekbar_height"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:max="5"
-        app:layout_constraintTop_toBottomOf="@id/labelHeight"
+        app:layout_constraintTop_toBottomOf="@id/label_height"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toTopOf="@id/okButton" />
 
+    <!-- android:onClick="onOkKlicked" -->
     <Button
         android:id="@+id/okButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_ok"
-        android:onClick="onOkKlicked"
-        app:layout_constraintTop_toBottomOf="@id/height"
+        app:layout_constraintTop_toBottomOf="@id/seekbar_height"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/cancelButton"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -86,8 +86,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_cancel"
-        android:onClick="onCancelKlicked"
-        app:layout_constraintTop_toBottomOf="@id/height"
+        app:layout_constraintTop_toBottomOf="@id/seekbar_height"
         app:layout_constraintLeft_toRightOf="@id/okButton"
         app:layout_constraintRight_toLeftOf="@id/defaultsButton"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -97,11 +96,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_defaults"
-        android:onClick="onDefaultsKlicked"
-        app:layout_constraintTop_toBottomOf="@id/height"
+        app:layout_constraintTop_toBottomOf="@id/seekbar_height"
         app:layout_constraintLeft_toRightOf="@id/cancelButton"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

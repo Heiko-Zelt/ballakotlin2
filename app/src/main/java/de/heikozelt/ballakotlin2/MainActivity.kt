@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import de.heikozelt.ballakotlin2.model.GameState1Up
@@ -96,6 +95,33 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             enableCheat(allowed)
         }
 
+        findViewById<View?>(R.id.btn_burger_menu)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on menu button")
+            Intent(this, SettingsActivity::class.java).also {
+                startActivity(it)
+            }
+        }
+
+        findViewById<View?>(R.id.btn_new_game)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on new game button")
+            gameState1Up?.actionNewGame()
+        }
+
+        findViewById<View?>(R.id.btn_reset_game)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on reset game button")
+            gameState1Up?.actionResetGame()
+        }
+
+        findViewById<View?>(R.id.btn_undo)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on undo button")
+            gameState1Up?.actionUndo()
+        }
+
+        findViewById<View?>(R.id.btn_plus_one)?.setOnClickListener() {
+            Log.i(TAG, "user clicked on cheat button")
+            gameState1Up?.actionCheat()
+        }
+
         Log.i(TAG, "invalidating / redrawing view")
         v?.invalidate()
     }
@@ -156,7 +182,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
      * called after new game, reset or cheat button clicked
      */
     override fun redraw() {
-        Log.i(MainActivity.TAG, "redraw()")
+        Log.i(TAG, "redraw()")
         val v = getMyDrawView()
         // Todo: Animationen stoppen!
         // falls sich die Ausdehnung des Spielfeldes geaendert hat
@@ -202,54 +228,12 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
     }
 
     /**
-     * User clicked on menu button
-     */
-    fun onMenuKlicked(vi: View) {
-        Log.i(TAG, "user clicked on menu button")
-        Intent(this, SettingsActivity::class.java).also {
-            startActivity(it)
-        }
-    }
-
-    /**
-     * User clicked on new game button
-     */
-    fun onNewGameKlicked(vi: View) {
-        Log.i(TAG, "user clicked on new game button")
-        gameState1Up?.actionNewGame()
-    }
-
-    /**
-     * User clicked on new game button
-     */
-    fun onResetGameKlicked(vi: View) {
-        Log.i(TAG, "user clicked on reset game button")
-        gameState1Up?.actionResetGame()
-    }
-
-    /**
-     * User clicked on undo button
-     */
-    fun onUndoKlicked(vi: View) {
-        Log.i(TAG, "user clicked on undo button")
-        gameState1Up?.actionUndo()
-    }
-
-    /**
-     * User clicked on new game button
-     */
-    fun onCheatKlicked(vi: View) {
-        Log.i(TAG, "user clicked on cheat button")
-        gameState1Up?.actionCheat()
-    }
-
-    /**
      * Methode von GameStateListenerInterface geerbt
      */
     override fun enableUndoAndReset(enabled: Boolean) {
         Log.i(TAG, "enableUndoAndReset(${enabled})")
-        enableView(R.id.undo, enabled)
-        enableView(R.id.reset_game, enabled)
+        enableView(R.id.btn_undo, enabled)
+        enableView(R.id.btn_reset_game, enabled)
     }
 
     /**
@@ -257,7 +241,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
      */
     override fun enableCheat(enabled: Boolean) {
         Log.i(TAG, "enableCheat(${enabled})")
-        enableView(R.id.plus_one, enabled)
+        enableView(R.id.btn_plus_one, enabled)
     }
 
     /**
