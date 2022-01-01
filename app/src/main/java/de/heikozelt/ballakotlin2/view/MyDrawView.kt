@@ -1,4 +1,4 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 //import android.view.animation.Animation
 import android.animation.Keyframe
@@ -17,7 +17,7 @@ import android.view.MotionEvent
 import android.view.SoundEffectConstants
 import android.view.View
 import android.view.animation.LinearInterpolator
-import de.heikozelt.ballakotlin2.model.GameState1Up
+import de.heikozelt.ballakotlin2.GameController
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -31,7 +31,7 @@ class MyDrawView @JvmOverloads constructor(
     /**
      * Spielstatus. Initialisierung mittels Setter-Injection.
      */
-    private var gameState1Up: GameState1Up? = null
+    private var gameController: GameController? = null
 
     /**
      * Board Dimensions depend on number of tubes and tube height
@@ -129,9 +129,9 @@ class MyDrawView @JvmOverloads constructor(
      * Sie müssen wieder hergestellt werden.
      * Der Spielstatus ist erst mit setGameState1Up() bekannt.
      */
-    fun setGameState1Up(gs1up: GameState1Up?) {
+    fun setGameState1Up(gs1up: GameController?) {
         Log.i(TAG, "game state injected into MyDrawView")
-        gameState1Up = gs1up
+        gameController = gs1up
         if (gs1up != null) {
             // Initialisation of ViewTubes 2-dimensional
             // mit Koordinaten und Ball-Farben
@@ -146,7 +146,7 @@ class MyDrawView @JvmOverloads constructor(
      * (Die Spielfeldgröße kann sich geändert haben, also Arrays neu anlegen.)
      */
     fun calculateBalls() {
-        val gs1up = gameState1Up
+        val gs1up = gameController
         if (gs1up != null) {
             val gs = gs1up.getGameState()
             gs.dump()
@@ -226,7 +226,7 @@ class MyDrawView @JvmOverloads constructor(
         //val c = findActivity() as MainActivity?
 
         playSoundEffect(SoundEffectConstants.CLICK)
-        gameState1Up?.tubeClicked(col)
+        gameController?.tubeClicked(col)
         return true
     }
 
@@ -246,7 +246,7 @@ class MyDrawView @JvmOverloads constructor(
      * Berechnet die virtuelle Groesse des Spielbretts.
      */
     fun calculateBoardDimensions() {
-        val gs = gameState1Up?.getGameState()
+        val gs = gameController?.getGameState()
         if (gs == null) {
             Log.e(TAG, "Kein GameState!")
             boardWidth = 400
@@ -322,7 +322,7 @@ class MyDrawView @JvmOverloads constructor(
      * Umrechnung von Zeile zu virtuellen Pixeln.
      */
     private fun ballY(row: Int): Int {
-        val gs = gameState1Up?.getGameState()
+        val gs = gameController?.getGameState()
         if (gs == null) {
             Log.e(TAG, "Kein GameState!")
             return 77
@@ -336,7 +336,7 @@ class MyDrawView @JvmOverloads constructor(
      */
     private fun drawTubes(canvas: Canvas) {
         //Log.d(TAG, "drawTubes()")
-        val gs = gameState1Up?.getGameState()
+        val gs = gameController?.getGameState()
         if (gs == null) {
             Log.e(TAG, "Kein GameState!")
             return
@@ -390,7 +390,7 @@ class MyDrawView @JvmOverloads constructor(
     private fun drawBalls(canvas: Canvas) {
         //Log.d(TAG, "drawBalls()")
 
-        val gs = gameState1Up?.getGameState()
+        val gs = gameController?.getGameState()
         if (gs == null) {
             Log.e(TAG, "Kein GameState!")
             return
@@ -478,7 +478,7 @@ class MyDrawView @JvmOverloads constructor(
             animator.repeatMode = ValueAnimator.RESTART //is default
             animator.repeatCount = 0
             animator.interpolator = LinearInterpolator()
-            animator.addUpdateListener { animation ->
+            animator.addUpdateListener {
                 invalidate()
             }
             myBallAnimators.endRemoveAddStart(animator, col, fromRow)
@@ -540,7 +540,7 @@ class MyDrawView @JvmOverloads constructor(
             animator.repeatMode = ValueAnimator.RESTART //is default
             animator.repeatCount = 0
             animator.interpolator = LinearInterpolator()
-            animator.addUpdateListener { animation ->
+            animator.addUpdateListener {
                 invalidate()
             }
             myBallAnimators.endRemoveAddStart(animator, col, toRow)
@@ -609,7 +609,7 @@ class MyDrawView @JvmOverloads constructor(
             animator.repeatMode = ValueAnimator.RESTART //is default
             animator.repeatCount = 0
             animator.interpolator = LinearInterpolator()
-            animator.addUpdateListener { animation ->
+            animator.addUpdateListener {
                 invalidate()
             }
             myBallAnimators.endRemove(fromCol, fromRow)
@@ -688,7 +688,7 @@ class MyDrawView @JvmOverloads constructor(
             animator.repeatMode = ValueAnimator.RESTART //is default
             animator.repeatCount = 0
             animator.interpolator = LinearInterpolator()
-            animator.addUpdateListener { animation ->
+            animator.addUpdateListener {
                 invalidate()
             }
             myBallAnimators.endRemove(fromCol, fromRow)
@@ -709,6 +709,90 @@ class MyDrawView @JvmOverloads constructor(
         //invisibleBallCol = toCol
         //Log.i(TAG, "invisibleBallCol=${invisibleBallCol}")
         dumpi()
+    }
+
+    fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        Log.i(TAG, "tubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
+        val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
+        viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
+
+        var time0 = 0f
+        var time1 = 0f
+
+        if (animatedBall != null) {
+            //animatedBall.color = color
+            val startX = ballX(fromCol)
+            val stopX = ballX(toCol)
+            val topY = BALL_RADIUS
+            val stopY = ballY(toRow)
+            val bounceY = stopY - BOUNCE
+
+            // Zeit für waagrechte Bewegung
+            time0 = ANIMATION_ADDITIONAL_DURATION / 2 + abs(stopX - startX) / ANIMATION_SPEED
+
+            // Zeit für abwärts Bewegung
+            time1 = ANIMATION_ADDITIONAL_DURATION / 2 + abs(stopY - topY) / ANIMATION_SPEED
+
+            val wholeTime = time0 + time1 + 2 * BOUNCE_DURATION
+
+            val fract1 = time0 / wholeTime
+            val fract2 = (time0 + time1) / wholeTime
+            val fract3 = (time0 + time1 + BOUNCE_DURATION) / wholeTime
+
+            val kX0 = Keyframe.ofFloat(0f, startX.toFloat())
+            val kX1 = Keyframe.ofFloat(fract1, stopX.toFloat())
+            val kX2 = Keyframe.ofFloat(fract2, stopX.toFloat())
+            val kX3 = Keyframe.ofFloat(fract2, stopX.toFloat())
+            val kX4 = Keyframe.ofFloat(1f, stopX.toFloat())
+
+            val kY0 = Keyframe.ofFloat(0f, topY.toFloat())
+            val kY1 = Keyframe.ofFloat(fract1, topY.toFloat())
+            val kY2 = Keyframe.ofFloat(fract2, stopY.toFloat())
+            val kY3 = Keyframe.ofFloat(fract3, bounceY.toFloat())
+            val kY4 = Keyframe.ofFloat(1f, stopY.toFloat())
+
+            val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2, kX3, kX4)
+            val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3, kY4)
+
+            val animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderX, holderY)
+            animator.duration = wholeTime.toLong()
+            animator.repeatMode = ValueAnimator.RESTART //is default
+            animator.repeatCount = 0
+            animator.interpolator = LinearInterpolator()
+            animator.addUpdateListener {
+                invalidate()
+            }
+            myBallAnimators.endRemove(fromCol, fromRow)
+            myBallAnimators.endRemoveAddStart(animator, toCol, toRow)
+        }
+
+        for(row in 0 until toRow) {
+            val i = toRow - row
+            val ball1 = viewTubes?.get(toCol)?.cells?.get(row)
+            if (ball1 != null) {
+                val startY = ballY(row)
+                val bounceY = startY - BOUNCE
+                val wholeTime = time0 + time1 + BOUNCE_DURATION * i + 2 * BOUNCE_DURATION
+
+                val fract1 = (time0 + time1 + BOUNCE_DURATION * i) / wholeTime
+                val fract2 = (time0 + time1 + BOUNCE_DURATION * (i + 1)) / wholeTime
+
+                val kY0 = Keyframe.ofFloat(0f, startY.toFloat())
+                val kY1 = Keyframe.ofFloat(fract1, startY.toFloat())
+                val kY2 = Keyframe.ofFloat(fract2, bounceY.toFloat())
+                val kY3 = Keyframe.ofFloat(1f, startY.toFloat())
+                val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3)
+                val animator = ObjectAnimator.ofPropertyValuesHolder(ball1.coordinates, holderY)
+                animator.duration = wholeTime.toLong()
+                animator.repeatMode = ValueAnimator.RESTART //is default
+                animator.repeatCount = 0
+                animator.interpolator = LinearInterpolator()
+                animator.addUpdateListener {
+                    invalidate()
+                }
+                myBallAnimators.endRemoveAddStart(animator, toCol, row)
+            }
+        }
     }
 
     /**

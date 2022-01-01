@@ -1,8 +1,9 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+
 // import android.util.Log
 
 /**

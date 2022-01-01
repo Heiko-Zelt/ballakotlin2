@@ -1,4 +1,4 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 import android.animation.ObjectAnimator
 

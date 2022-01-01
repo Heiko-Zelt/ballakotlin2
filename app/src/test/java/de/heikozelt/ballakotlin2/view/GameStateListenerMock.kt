@@ -1,4 +1,6 @@
-package de.heikozelt.ballakotlin2.model
+package de.heikozelt.ballakotlin2.view
+
+import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
 
 class GameStateListenerMock: GameStateListenerInterface {
 
@@ -30,6 +32,10 @@ class GameStateListenerMock: GameStateListenerInterface {
 
     override fun enableCheat(enabled: Boolean) {
         observationsLog.add("enableCheat(enabled=$enabled)")
+    }
+
+    override fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        observationsLog.add("tubeSolved(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
     }
 
     override fun puzzleSolved() {

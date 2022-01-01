@@ -1,10 +1,10 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 
 import android.app.Application
 import android.util.Log
+import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.model.GameState
-import de.heikozelt.ballakotlin2.model.GameState1Up
 
 class BallaApplication : Application() {
 
@@ -13,17 +13,17 @@ class BallaApplication : Application() {
      * Activity und View sind eher temporäre Objekte.
      * Deswegen ist Spielstand von Application statt Activity oder View referenziert.
      */
-    private var gameState1Up: GameState1Up? = null
+    private var gameController: GameController? = null
 
     init {
         Log.i(TAG, "init")
         val gs = GameState(NUMBER_OF_COLORS, NUMBER_OF_EXTRA_TUBES, TUBE_HEIGHT)
         gs.newGame()
-        gameState1Up = GameState1Up(gs)
+        gameController = GameController(gs)
     }
 
-    fun getGameState1Up(): GameState1Up? {
-        return gameState1Up
+    fun getGameState1Up(): GameController? {
+        return gameController
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 import android.os.Bundle
 import android.util.Log
@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import de.heikozelt.ballakotlin2.R
 
 
 /**

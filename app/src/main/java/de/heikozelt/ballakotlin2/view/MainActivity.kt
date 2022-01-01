@@ -1,4 +1,4 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -7,7 +7,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import de.heikozelt.ballakotlin2.model.GameState1Up
+import de.heikozelt.ballakotlin2.GameController
+import de.heikozelt.ballakotlin2.R
 import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
 
 
@@ -18,7 +19,7 @@ import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
  */
 class MainActivity : AppCompatActivity(), GameStateListenerInterface {
 
-    private var gameState1Up: GameState1Up? = null
+    private var gameController: GameController? = null
 
     /**
      * welche Spalte wurde zuerst geklickt
@@ -71,15 +72,15 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         }
 
         // selber Referenz merken
-        gameState1Up = (application as BallaApplication).getGameState1Up()
+        gameController = (application as BallaApplication).getGameState1Up()
 
         Log.i(TAG, "injecting game state")
-        v?.setGameState1Up(gameState1Up)
-        gameState1Up?.registerGameStateListener(this)
+        v?.setGameState1Up(gameController)
+        gameController?.registerGameStateListener(this)
 
         // Wenn der Bildschirm gedreht wird, dann wird die Activity neu instanziiert.
         // Status-Informationen der View gehen verloren.
-        val gs = gameState1Up?.getGameState()
+        val gs = gameController?.getGameState()
         if (gs != null) {
             // Wenn das Puzzle bereits gelöst war, dann verschwindet
             // das Glückwunsch-Popup und muss erneut aufpoppen.
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             // Undo-Button-Status wiederherstellen
             enableUndoAndReset(gs.moveLog.isNotEmpty())
         }
-        val allowed = gameState1Up?.isCheatAllowed()
+        val allowed = gameController?.isCheatAllowed()
         if(allowed != null) {
             enableCheat(allowed)
         }
@@ -104,22 +105,22 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
 
         findViewById<View?>(R.id.btn_new_game)?.setOnClickListener {
             Log.i(TAG, "user clicked on new game button")
-            gameState1Up?.actionNewGame()
+            gameController?.actionNewGame()
         }
 
         findViewById<View?>(R.id.btn_reset_game)?.setOnClickListener {
             Log.i(TAG, "user clicked on reset game button")
-            gameState1Up?.actionResetGame()
+            gameController?.actionResetGame()
         }
 
         findViewById<View?>(R.id.btn_undo)?.setOnClickListener {
             Log.i(TAG, "user clicked on undo button")
-            gameState1Up?.actionUndo()
+            gameController?.actionUndo()
         }
 
         findViewById<View?>(R.id.btn_plus_one)?.setOnClickListener {
             Log.i(TAG, "user clicked on cheat button")
-            gameState1Up?.actionCheat()
+            gameController?.actionCheat()
         }
 
         Log.i(TAG, "invalidating / redrawing view")
@@ -148,7 +149,16 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy()")
         super.onDestroy()
-        gameState1Up?.unregisterGameStateListener()
+        gameController?.unregisterGameStateListener()
+    }
+
+    /**
+     * Methode von GameStateListenerInterface geerbt
+     */
+    override fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        Log.i(TAG, "tubeSoled(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
+        val v = getMyDrawView()
+        v?.tubeSolved(fromCol, toCol, fromRow, toRow, color)
     }
 
     /**
@@ -163,7 +173,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             setMessage(getString(R.string.alert_text_puzzle_solved))
             setCancelable(false)
             setPositiveButton(getString(R.string.button_ok)) { dialogInterface, which ->
-                gameState1Up?.actionNewGame()
+                gameController?.actionNewGame()
                 /*
                 val v = findViewById<MyDrawView?>(R.id.myDrawView)
                 v?.resetGameView()

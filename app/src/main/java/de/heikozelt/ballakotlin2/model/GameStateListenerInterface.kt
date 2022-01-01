@@ -46,6 +46,13 @@ interface GameStateListenerInterface {
 
     /**
      * called, when the puzzle is solved, game sucessfully finished.
+     * todo: beinhaltet Animation des letzetn Spielzuges
+     */
+    //fun tubeSolved(col: Int)
+    fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+
+    /**
+     * called, when the puzzle is solved, game sucessfully finished.
      */
     fun puzzleSolved()
 

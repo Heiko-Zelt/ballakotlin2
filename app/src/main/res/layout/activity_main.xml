@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".view.MainActivity">
 
     <ImageView
         android:id="@+id/btn_burger_menu"
@@ -62,7 +62,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/plus_one" />
 
-    <de.heikozelt.ballakotlin2.MyDrawView
+    <de.heikozelt.ballakotlin2.view.MyDrawView
         android:id="@+id/myDrawView"
         android:layout_width="0dp"
         android:layout_height="0dp"

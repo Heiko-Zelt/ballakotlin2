@@ -29,6 +29,12 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -37,11 +43,20 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.8.1"
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.8.2')
+
+    //testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    //testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    //testImplementation 'org.junit.jupiter:junit-jupiter'
+    // testImplementation 'org.junit.platform:junit-platform-commons:1.5.2' ????
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.8.2'
+    //testRuntimeOnly 'org.junit.platform:junit-platform-suite:1.8.2'
+
+    //testImplementation "org.junit.jupiter:junit-jupiter-params:5.8.2" Parametisierte Tests
     //testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
+

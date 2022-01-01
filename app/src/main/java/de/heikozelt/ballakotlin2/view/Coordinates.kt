@@ -1,4 +1,4 @@
-package de.heikozelt.ballakotlin2
+package de.heikozelt.ballakotlin2.view
 
 /**
  * Represents Coordinates of a Ball (for animation)

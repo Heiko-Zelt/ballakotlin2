@@ -1,13 +1,16 @@
-package de.heikozelt.ballakotlin2.model
+package de.heikozelt.ballakotlin2
 
 import android.util.Log
+import de.heikozelt.ballakotlin2.model.GameState
+import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
+import de.heikozelt.ballakotlin2.model.Move
 
 /**
  * Represents the state of the game.
  * One ball may be lifted.
  * Main input is clicks on tubes.
  */
-class GameState1Up(private var gameState: GameState) {
+class GameController(private var gameState: GameState) {
 
     private var gameStateListener: GameStateListenerInterface? = null
 
@@ -154,6 +157,10 @@ class GameState1Up(private var gameState: GameState) {
      *
      * Sonderfall C: Klick auf andere Spalte mit falscher Farbe:
      * Alter Ball senkt sich wieder und es hebt sich der neue Ball.
+     *
+     * Sonderfall A.1: Röhre gelöst. Hurra!
+     *
+     * Sonderfall A.2: Spiel beendet. Hurra!
      */
     fun tubeClicked(col: Int) {
         if (up) { // zweiter Klick
@@ -168,12 +175,17 @@ class GameState1Up(private var gameState: GameState) {
                 val fromRow = gameState.tubes[upCol].fillLevel
                 val toRow = gameState.tubes[col].fillLevel - 1
                 val color = gameState.tubes[col].colorOfTopmostBall()
-                gameStateListener?.holeBall(upCol, col, fromRow, toRow, color)
-                gameStateListener?.enableUndoAndReset(true)
-                up = false
                 if (gameState.isSolved()) {
+                    gameStateListener?.tubeSolved(upCol, col, fromRow, toRow, color)
                     gameStateListener?.puzzleSolved()
+                } else if(gameState.tubes[col].isSolved()) {
+                    gameStateListener?.tubeSolved(upCol, col, fromRow, toRow, color)
+                    gameStateListener?.enableUndoAndReset(true)
+                } else {
+                    gameStateListener?.holeBall(upCol, col, fromRow, toRow, color)
+                    gameStateListener?.enableUndoAndReset(true)
                 }
+                up = false
             } else { // Sonderfall C
                 val downToRow = gameState.tubes[upCol].fillLevel - 1
                 val downColor = gameState.tubes[upCol].colorOfTopmostBall()
