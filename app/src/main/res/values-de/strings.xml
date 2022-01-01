@@ -8,10 +8,10 @@
     <string name="label_height">Höhe: %1$d</string>
     <string name="alert_title_puzzle_solved">Genial!</string>
     <string name="alert_text_puzzle_solved">Du hast das Puzzle gelöst.</string>
-    <string name="button_ok" translatable="false">OK</string>
-    <string name="desc_star" translatable="false">Stern</string>
+    <string name="button_ok">OK</string>
+    <string name="desc_star">Stern</string>
     <string name="desc_arrow_left">Pfeil nach Links</string>
     <string name="desc_plus_one">plus eins</string>
     <string name="desc_rewind">zurückspulen</string>
-    <string name="desc_burger_menu" translatable="false">Hamburger Menü Icon</string>
+    <string name="desc_burger_menu">Hamburger Menü Icon</string>
 </resources>

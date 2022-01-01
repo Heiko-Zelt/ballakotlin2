@@ -1,7 +1,5 @@
 package de.heikozelt.ballakotlin2
 
-import de.heikozelt.ballakotlin2.model.Tube
-
 class ViewTube(val tubeHeight: Int) {
 
     /**

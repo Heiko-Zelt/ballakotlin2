@@ -8,10 +8,10 @@
     <string name="label_number_of_colors">Nombre de couleurs: %1$d</string>
     <string name="toast_new_game">nouveau jeu</string>
     <string name="button_defaults">Défaut</string>
-    <string name="button_ok" translatable="false">OK</string>
-    <string name="desc_star" translatable="false">étoile</string>
+    <string name="button_ok">OK</string>
+    <string name="desc_star">étoile</string>
     <string name="desc_rewind">rebobiner</string>
     <string name="desc_arrow_left">flèche de gauche</string>
     <string name="desc_plus_one">encore un</string>
-    <string name="desc_burger_menu" translatable="false">buton menu hamburger</string>
+    <string name="desc_burger_menu">buton menu hamburger</string>
 </resources>

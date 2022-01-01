@@ -7,7 +7,7 @@ import android.animation.ObjectAnimator
  * die Ballposition bezieht sich auf den Spielstand ohne Animationen.
  * so kann jeder Ball und jeder Animator eindeutig identifiziert und wiedergefunden werden.
  */
-class MyBallAnimator(val animator: ObjectAnimator, val col: Int, val row: Int) {
+class MyBallAnimator(private val animator: ObjectAnimator, val col: Int, val row: Int) {
 
     fun end() {
         animator.end()
