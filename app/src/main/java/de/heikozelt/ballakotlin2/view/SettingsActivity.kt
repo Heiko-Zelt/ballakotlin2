@@ -87,14 +87,14 @@ class SettingsActivity : AppCompatActivity() {
 
         //colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS
         //updateColorsText(BallaApplication.NUMBER_OF_COLORS)
-        val gs = (application as BallaApplication).getGameState1Up()
-        if (gs != null) {
-            colorsSeekBar?.progress = gs.getNumberOfColors() - MIN_COLORS
-            extraTubesSeekBar?.progress = gs.getInitialExtraTubes() - MIN_EXTRA
-            heightSeekBar?.progress = gs.getTubeHeight() - MIN_HEIGHT
-            updateColorsText(gs.getNumberOfColors())
-            updateExtraTubesText(gs.getInitialExtraTubes())
-            updateHeightText(gs.getTubeHeight())
+        val controller = (application as BallaApplication).getGameController()
+        if (controller != null) {
+            colorsSeekBar?.progress = controller.getNumberOfColors() - MIN_COLORS
+            extraTubesSeekBar?.progress = controller.getInitialExtraTubes() - MIN_EXTRA
+            heightSeekBar?.progress = controller.getTubeHeight() - MIN_HEIGHT
+            updateColorsText(controller.getNumberOfColors())
+            updateExtraTubesText(controller.getInitialExtraTubes())
+            updateHeightText(controller.getTubeHeight())
         }
 
         findViewById<View?>(R.id.okButton)?.setOnClickListener {
@@ -103,7 +103,7 @@ class SettingsActivity : AppCompatActivity() {
                 val colors = colorsSeekBar.progress + MIN_COLORS
                 val extra = extraTubesSeekBar.progress + MIN_EXTRA
                 val height = heightSeekBar.progress + MIN_HEIGHT
-                (application as BallaApplication).getGameState1Up()?.actionNewGame(colors, extra, height)
+                (application as BallaApplication).getGameController()?.actionNewGame(colors, extra, height)
             }
             finish()
         }

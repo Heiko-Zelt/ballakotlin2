@@ -3,6 +3,9 @@ package de.heikozelt.ballakotlin2.view
 import android.animation.ObjectAnimator
 import android.util.Log
 
+/**
+ * Liste aller Bälle, welche einen Animator haben
+ */
 class MyBallAnimators {
     private val animators = mutableListOf<MyBallAnimator>()
 
@@ -29,6 +32,7 @@ class MyBallAnimators {
      *     <li>remove old animation</li>
      * </ol>
      */
+    @Synchronized
     fun endRemove(col: Int, row: Int) {
         Log.d(TAG, "endAndRemoveAnimator(col=$col, row=$row)")
         val mba = findAnimator(col, row)
@@ -55,6 +59,7 @@ class MyBallAnimators {
      *     <li>start new animation</li>
      * </ol>
      */
+    @Synchronized
     fun endRemoveAddStart(animator: ObjectAnimator, col: Int, row: Int) {
         Log.d(TAG, "endRemoveAddStart(col=$col, row=$row)")
         endRemove(col, row)
@@ -71,11 +76,26 @@ class MyBallAnimators {
      * </ol>
      * for all animations
      */
+
+    /*
+    wozu?
+    @Synchronized
     fun endRemoveAll() {
+        var anis = animators.clone()
         for (mba in animators) {
+        // end() ruft end-Handler auf, der ruft remove(col, row) auf, der entfernt Object aus List, über die gerade iteriert wird. *autsch*
             mba.end()
         }
         animators.clear()
+    }
+     */
+
+    @Synchronized
+    fun remove(col: Int, row: Int) {
+        val mba = findAnimator(col, row)
+        if (mba != null) {
+            animators.remove(mba)
+        }
     }
 
     companion object {

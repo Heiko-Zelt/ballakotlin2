@@ -22,7 +22,7 @@ class BallaApplication : Application() {
         gameController = GameController(gs)
     }
 
-    fun getGameState1Up(): GameController? {
+    fun getGameController(): GameController? {
         return gameController
     }
 

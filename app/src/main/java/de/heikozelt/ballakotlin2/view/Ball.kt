@@ -24,6 +24,9 @@ class Ball(var coordinates: Coordinates, color: Int) {
 
     private var paint = PAINTS[color]
 
+    // Ball, der sich diagonal über Bälle in Röhren bewegt, muss im Vordergrund sein
+    var foreground = false
+
     fun draw(canvas: Canvas) {
         //Log.i(TAG, "Ball.draw()")
         canvas.drawCircle(coordinates.x, coordinates.y, MyDrawView.BALL_RADIUS_INSIDE, paint)

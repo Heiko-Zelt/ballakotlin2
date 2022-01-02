@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
      * kleine Verkürzung des Funktionsaufrufs
      */
     private fun getMyDrawView(): MyDrawView? {
-        return findViewById<MyDrawView?>(R.id.myDrawView)
+        return findViewById(R.id.myDrawView)
     }
 
     /**
@@ -72,10 +72,11 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         }
 
         // selber Referenz merken
-        gameController = (application as BallaApplication).getGameState1Up()
+        // Todo: Das ist keine Setter Injection!!!
+        gameController = (application as BallaApplication).getGameController()
 
         Log.i(TAG, "injecting game state")
-        v?.setGameState1Up(gameController)
+        v?.setGameController(gameController)
         gameController?.registerGameStateListener(this)
 
         // Wenn der Bildschirm gedreht wird, dann wird die Activity neu instanziiert.
@@ -172,7 +173,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             setTitle(getString(R.string.alert_title_puzzle_solved))
             setMessage(getString(R.string.alert_text_puzzle_solved))
             setCancelable(false)
-            setPositiveButton(getString(R.string.button_ok)) { dialogInterface, which ->
+            setPositiveButton(getString(R.string.button_ok)) { _, _ ->
                 gameController?.actionNewGame()
                 /*
                 val v = findViewById<MyDrawView?>(R.id.myDrawView)
@@ -195,12 +196,20 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         Log.i(TAG, "redraw()")
         val v = getMyDrawView()
         // Todo: Animationen stoppen!
+
+        // neu setzten der Dimensionen ist eigentlich nur noetig,
         // falls sich die Ausdehnung des Spielfeldes geaendert hat
-        v?.calculateBoardDimensions()
+        /*
+        val gs = gameController?.getGameState()
+        if(gs != null) {
+        }
+        */
+        v?.selectBoardLayout()
+
         // Spielfeld in View einpassen
         v?.calculateTranslation()
-        // Alle Animationen beenden und angehobenen Ball senken, falls nötig
-        v?.flatten()
+        // Alle Animationen beenden und angehobenen Ball senken, falls nötig? Warum?
+        //v?.flatten()
         v?.calculateBalls()
         // neu zeichnen
         v?.invalidate()
