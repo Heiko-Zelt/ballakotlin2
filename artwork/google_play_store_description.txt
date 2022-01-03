@@ -1,0 +1,32 @@
+App-Name:
+Balla Balla
+
+Kurze Beschreibung:
+Balla Balla is a ball sort puzzle like many others but with more freedom.
+
+Vollständige Beschreibung:
+Balla Balla is a ball sort puzzle like many others but with more freedom.
+
+It's fun and simple to play! Try to sort the colored balls in the tubes until all balls with the same color stay in the same tube.
+
+<b>Features</b>
+ &#8226;&#8195;One finger control
+ &#8226;&#8195;It's free, no in-app purchases and no ads
+ &#8226;&#8195;Lightweight and fast loading
+ &#8226;&#8195;You can freely choose the difficulty level by number of colors and the size of the puzzle.
+ &#8226;&#8195;The puzzles are randomly generated. No predefined levels. There are infinite possibilities.
+
+
+<b>How to play</b>
+Tap on any tube to select the topmost ball. It moves upwards.
+ &#8226;&#8195;Tap on another tube which is empty or the topmost ball has the same color and has space left.
+ &#8226;&#8195;The ball moves to the second tube.
+ &#8226;&#8195;You habe solved a tube if all balls inside are of the same color.
+ &#8226;&#8195;You have solved the puzzle if all tubes/colors are solved.
+ &#8226;&#8195;If you get stuck, undo your last moves or start new from the beginning.
+
+<b>Advanced tip</b>
+Don't just focus on fillig tubes but also emptying. You can place a ball of any color in an empty tube. It's like a joker.
+
+<b>Do you need help? Have questions? Found a bug? Ideas for improvements?</b>
+Please contact the developer: hz@heikozelt.de
