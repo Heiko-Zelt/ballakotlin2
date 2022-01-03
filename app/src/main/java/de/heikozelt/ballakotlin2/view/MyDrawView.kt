@@ -653,14 +653,16 @@ class MyDrawView @JvmOverloads constructor(
             val holderX = PropertyValuesHolder.ofKeyframe("x", kX0, kX1, kX2, kX3, kX4, kX5)
             val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1, kY2, kY3, kY4, kY5)
 
-            Log.i(
+            /*
+            Log.d(
                 TAG,
                 "X: 0=${kX0.value}, 1=${kX1.value}, 2=${kX2.value}, 3=${kX3.value}, 4=${kX4.value}, 5=${kX5.value}"
             )
-            Log.i(
+            Log.d(
                 TAG,
                 "Y: 0=${kY0.value}, 1=${kY1.value}, 2=${kY2.value}, 3=${kY3.value}, 4=${kY4.value}, 5=${kY5.value}"
             )
+            */
 
             val animator =
                 ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderX, holderY)
