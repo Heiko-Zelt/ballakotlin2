@@ -833,8 +833,8 @@ class MyDrawView @JvmOverloads constructor(
          * 1.0f for normal speed
          * 0.1f for testing in slow motion
          */
-        //const val SPEED_FACTOR = 1.0f
-        const val SPEED_FACTOR = 0.1f
+        const val SPEED_FACTOR = 1.0f
+        //const val SPEED_FACTOR = 0.1f
 
         /**
          * virtual positions and sizes of original game board / puzzle without scaling and translation
