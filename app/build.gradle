@@ -7,11 +7,11 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "de.heikozelt.myapplication"
+        applicationId "de.heikozelt.ballakotlin2"
         minSdk 21
         targetSdk 31
-        versionCode 2 // important for publication in google play store
-        versionName "1.1"
+        versionCode 4 // important for publication in google play store
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

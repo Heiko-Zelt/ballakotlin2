@@ -1,9 +1,8 @@
-package de.heikozelt.ballakotlin2.view
+package de.heikozelt.ballakotlin2
 
 
 import android.app.Application
 import android.util.Log
-import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.model.GameState
 
 class BallaApplication : Application() {

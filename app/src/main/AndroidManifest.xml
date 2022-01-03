@@ -3,7 +3,7 @@
     package="de.heikozelt.ballakotlin2">
 
     <application
-        android:name=".view.BallaApplication"
+        android:name=".BallaApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_app_logo"
         android:label="@string/app_name"

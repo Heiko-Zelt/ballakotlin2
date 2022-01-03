@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.R
 
 
