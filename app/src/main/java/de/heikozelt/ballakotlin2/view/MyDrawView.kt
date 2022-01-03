@@ -827,20 +827,26 @@ class MyDrawView @JvmOverloads constructor(
         private const val TAG = "balla.MyDrawView"
 
         /**
-         * positions and sizes of original game board / puzzle without scaling and translation
+         * Speed factor
+         * 1.0f for normal speed
+         * 0.1f for testing in slow motion
+         */
+        //const val SPEED_FACTOR = 1.0f
+        const val SPEED_FACTOR = 0.1f
+
+        /**
+         * virtual positions and sizes of original game board / puzzle without scaling and translation
          */
 
         /**
          * virtueller Radius eine Balls
          */
-        //const val BALL_RADIUS = 40
         const val BALL_RADIUS = 10
 
         /**
          * Es sieht haesslich aus, wenn die Bälle sich berühren.
          * Deswegen ein bisschen kleiner zeichnen.
          */
-        //const val BALL_RADIUS_INSIDE = BALL_RADIUS.toFloat() - 0.5f
         const val BALL_RADIUS_INSIDE = BALL_RADIUS.toFloat() - 0.13f
 
         /**
@@ -851,7 +857,6 @@ class MyDrawView @JvmOverloads constructor(
         /**
          * virtueller (seitlicher und unterer) Abstand zwischen Ball und Röhre
          */
-        //const val BALL_PADDING = 4
         const val BALL_PADDING = 1
 
         /**
@@ -862,7 +867,6 @@ class MyDrawView @JvmOverloads constructor(
         /**
          * Radius der unteren Rundung einer "Ecke" einer Röhre
          */
-        //private const val TUBE_LOWER_CORNER_RADIUS = 26
         private const val TUBE_LOWER_CORNER_RADIUS = 7
 
         /**
@@ -879,18 +883,18 @@ class MyDrawView @JvmOverloads constructor(
          * Speed of animations in virtual pixels per millisecond
          * (except while bouncing)
          */
-        private const val ANIMATION_SPEED = 1f
+        private const val ANIMATION_SPEED = 1f * SPEED_FACTOR
 
         /**
          * Time for bouncing up or down (slow)
          */
-        private const val BOUNCE_DURATION = 60f
+        private const val BOUNCE_DURATION = 60f / SPEED_FACTOR
 
         /**
          * Minimum duration of animations, if the distance would be zero
          * (without bouncing)
          */
-        private const val ANIMATION_ADDITIONAL_DURATION = 200f
+        private const val ANIMATION_ADDITIONAL_DURATION = 200f / SPEED_FACTOR
 
         /**
          * Farbe der Röhren
