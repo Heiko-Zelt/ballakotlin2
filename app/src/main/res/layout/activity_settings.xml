@@ -8,96 +8,96 @@
     tools:context=".view.SettingsActivity">
 
     <TextView
-        android:id="@+id/label_number_of_colors"
+        android:id="@+id/settings_label_number_of_colors"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_number_of_colors"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/seekbar_number_of_colors" />
+        app:layout_constraintBottom_toTopOf="@id/settings_seekbar_number_of_colors" />
 
     <SeekBar
-        android:id="@+id/seekbar_number_of_colors"
+        android:id="@+id/settings_seekbar_number_of_colors"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="280dp"
         android:layout_height="50dp"
         android:max="13"
-        app:layout_constraintTop_toBottomOf="@id/label_number_of_colors"
+        app:layout_constraintTop_toBottomOf="@id/settings_label_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/label_additional_tubes" />
+        app:layout_constraintBottom_toTopOf="@id/settings_label_additional_tubes" />
 
     <TextView
-        android:id="@+id/label_additional_tubes"
+        android:id="@+id/settings_label_additional_tubes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_additional_tubes"
-        app:layout_constraintTop_toBottomOf="@id/seekbar_number_of_colors"
+        app:layout_constraintTop_toBottomOf="@id/settings_seekbar_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/seekbar_additional_tubes" />
+        app:layout_constraintBottom_toTopOf="@id/settings_seekbar_additional_tubes" />
 
     <SeekBar
-        android:id="@+id/seekbar_additional_tubes"
+        android:id="@+id/settings_seekbar_additional_tubes"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="160dp"
         android:layout_height="50dp"
         android:max="2"
-        app:layout_constraintTop_toBottomOf="@id/label_additional_tubes"
+        app:layout_constraintTop_toBottomOf="@id/settings_label_additional_tubes"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/label_height" />
+        app:layout_constraintBottom_toTopOf="@id/settings_label_height" />
 
     <TextView
-        android:id="@+id/label_height"
+        android:id="@+id/settings_label_height"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_height"
-        app:layout_constraintTop_toBottomOf="@id/seekbar_additional_tubes"
+        app:layout_constraintTop_toBottomOf="@id/settings_seekbar_additional_tubes"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/seekbar_height" />
+        app:layout_constraintBottom_toTopOf="@id/settings_seekbar_height" />
 
     <SeekBar
-        android:id="@+id/seekbar_height"
+        android:id="@+id/settings_seekbar_height"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:max="5"
-        app:layout_constraintTop_toBottomOf="@id/label_height"
+        app:layout_constraintTop_toBottomOf="@id/settings_label_height"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/okButton" />
+        app:layout_constraintBottom_toTopOf="@id/settings_btn_ok" />
 
     <!-- android:onClick="onOkKlicked" -->
     <Button
-        android:id="@+id/okButton"
+        android:id="@+id/settings_btn_ok"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_ok"
-        app:layout_constraintTop_toBottomOf="@id/seekbar_height"
+        app:layout_constraintTop_toBottomOf="@id/settings_seekbar_height"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/cancelButton"
+        app:layout_constraintRight_toLeftOf="@id/settings_btn_cancel"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
-        android:id="@+id/cancelButton"
+        android:id="@+id/settings_btn_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_cancel"
-        app:layout_constraintTop_toBottomOf="@id/seekbar_height"
-        app:layout_constraintLeft_toRightOf="@id/okButton"
-        app:layout_constraintRight_toLeftOf="@id/defaultsButton"
+        app:layout_constraintTop_toBottomOf="@id/settings_seekbar_height"
+        app:layout_constraintLeft_toRightOf="@id/settings_btn_ok"
+        app:layout_constraintRight_toLeftOf="@id/settings_btn_defaults"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
-        android:id="@+id/defaultsButton"
+        android:id="@+id/settings_btn_defaults"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_defaults"
-        app:layout_constraintTop_toBottomOf="@id/seekbar_height"
-        app:layout_constraintLeft_toRightOf="@id/cancelButton"
+        app:layout_constraintTop_toBottomOf="@id/settings_seekbar_height"
+        app:layout_constraintLeft_toRightOf="@id/settings_btn_cancel"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 

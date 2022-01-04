@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
      * kleine Verkürzung des Funktionsaufrufs
      */
     private fun getMyDrawView(): MyDrawView? {
-        return findViewById(R.id.myDrawView)
+        return findViewById(R.id.my_draw_view)
     }
 
     /**
@@ -98,24 +98,24 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             enableCheat(allowed)
         }
 
-        findViewById<View?>(R.id.btn_burger_menu)?.setOnClickListener {
+        findViewById<View?>(R.id.main_btn_burger_menu)?.setOnClickListener {
             Log.i(TAG, "user clicked on menu button")
             Intent(this, SettingsActivity::class.java).also {
                 startActivity(it)
             }
         }
 
-        findViewById<View?>(R.id.btn_new_game)?.setOnClickListener {
+        findViewById<View?>(R.id.main_btn_new_game)?.setOnClickListener {
             Log.i(TAG, "user clicked on new game button")
             gameController?.actionNewGame()
         }
 
-        findViewById<View?>(R.id.btn_reset_game)?.setOnClickListener {
+        findViewById<View?>(R.id.main_btn_reset_game)?.setOnClickListener {
             Log.i(TAG, "user clicked on reset game button")
             gameController?.actionResetGame()
         }
 
-        findViewById<View?>(R.id.btn_undo)?.setOnClickListener {
+        findViewById<View?>(R.id.main_btn_undo)?.setOnClickListener {
             Log.i(TAG, "user clicked on undo button")
             gameController?.actionUndo()
         }
@@ -253,8 +253,8 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
      */
     override fun enableUndoAndReset(enabled: Boolean) {
         Log.i(TAG, "enableUndoAndReset(${enabled})")
-        enableView(R.id.btn_undo, enabled)
-        enableView(R.id.btn_reset_game, enabled)
+        enableView(R.id.main_btn_undo, enabled)
+        enableView(R.id.main_btn_reset_game, enabled)
     }
 
     /**

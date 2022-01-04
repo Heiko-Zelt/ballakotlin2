@@ -25,12 +25,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val colorsTextView = findViewById<TextView?>(R.id.label_number_of_colors)
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.seekbar_number_of_colors)
-        val extraTubesTextView = findViewById<TextView?>(R.id.label_additional_tubes)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.seekbar_additional_tubes)
-        val heightTextView = findViewById<TextView?>(R.id.label_height)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.seekbar_height)
+        val colorsTextView = findViewById<TextView?>(R.id.settings_label_number_of_colors)
+        val colorsSeekBar = findViewById<SeekBar?>(R.id.settings_seekbar_number_of_colors)
+        val extraTubesTextView = findViewById<TextView?>(R.id.settings_label_additional_tubes)
+        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.settings_seekbar_additional_tubes)
+        val heightTextView = findViewById<TextView?>(R.id.settings_label_height)
+        val heightSeekBar = findViewById<SeekBar?>(R.id.settings_seekbar_height)
 
         fun updateColorsText(i: Int) {
             colorsTextView?.text = getString(R.string.label_number_of_colors, i)
@@ -98,7 +98,7 @@ class SettingsActivity : AppCompatActivity() {
             updateHeightText(controller.getTubeHeight())
         }
 
-        findViewById<View?>(R.id.okButton)?.setOnClickListener {
+        findViewById<View?>(R.id.settings_btn_ok)?.setOnClickListener {
             Log.i(TAG, "user clicked on ok button")
             if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
                 val colors = colorsSeekBar.progress + MIN_COLORS
@@ -109,12 +109,12 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<View?>(R.id.cancelButton)?.setOnClickListener {
+        findViewById<View?>(R.id.settings_btn_cancel)?.setOnClickListener {
             Log.i(TAG, "user clicked on cancel button")
             finish()
         }
 
-        findViewById<View?>(R.id.defaultsButton)?.setOnClickListener {
+        findViewById<View?>(R.id.settings_btn_defaults)?.setOnClickListener {
             Log.i(TAG, "user clicked on defaults button")
             colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS - MIN_COLORS
             extraTubesSeekBar?.progress = BallaApplication.NUMBER_OF_EXTRA_TUBES - MIN_EXTRA
