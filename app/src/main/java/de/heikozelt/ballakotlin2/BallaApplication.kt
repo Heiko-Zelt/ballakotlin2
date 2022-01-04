@@ -12,7 +12,16 @@ class BallaApplication : Application() {
      * Activity und View sind eher temporäre Objekte.
      * Deswegen ist Spielstand von Application statt Activity oder View referenziert.
      */
-    private var gameController: GameController? = null
+
+    /*
+    private var gamei: GameController? = null
+    var gameController: GameController?
+        get() = gamei
+        set(value) {
+            gamei = value
+        }
+     */
+    var gameController: GameController
 
     init {
         Log.i(TAG, "init")
@@ -21,9 +30,6 @@ class BallaApplication : Application() {
         gameController = GameController(gs)
     }
 
-    fun getGameController(): GameController? {
-        return gameController
-    }
 
     companion object {
         private const val TAG = "balla.BallaApplication"

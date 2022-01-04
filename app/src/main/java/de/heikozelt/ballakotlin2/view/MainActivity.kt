@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
@@ -42,6 +44,9 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         return findViewById(R.id.my_draw_view)
     }
 
+
+    private var settingsResult: ActivityResultLauncher<Intent>? = null
+
     /**
      * Methode von Activity geerbt
      * wird z.B. aufgerufen, wenn Bildschirm gedreht wird
@@ -74,7 +79,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
 
         // selber Referenz merken
         // Todo: Das ist keine Setter Injection!!!
-        gameController = (application as BallaApplication).getGameController()
+        gameController = (application as BallaApplication).gameController
 
         Log.i(TAG, "injecting game state")
         v?.setGameController(gameController)
@@ -94,14 +99,50 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
             enableUndoAndReset(gs.moveLog.isNotEmpty())
         }
         val allowed = gameController?.isCheatAllowed()
-        if(allowed != null) {
+        if (allowed != null) {
             enableCheat(allowed)
         }
 
+        settingsResult = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        )
+        {
+            Log.d(TAG, "activity result code: ${it.resultCode}")
+            if (it.resultCode == RESULT_OK) {
+                Log.d(TAG, "RESULT_OK")
+                val resultIntent = it.data
+                val resultBundle = resultIntent?.extras
+                if (resultBundle != null) {
+                    val colors = resultBundle.getInt("number_of_colors")
+                    val extra = resultBundle.getInt("extra_tubes")
+                    val height = resultBundle.getInt("height")
+                    (application as BallaApplication).gameController?.actionNewGame(
+                        colors,
+                        extra,
+                        height
+                    )
+                }
+            } else if (it.resultCode == RESULT_CANCELED) {
+                Log.d(TAG, "RESULT_CANCELED")
+            } else {
+                Log.e(TAG, "unknown activity result code")
+            }
+        }
+
+        // Klick auf Burger Menu öffnet Settings-Activity
         findViewById<View?>(R.id.main_btn_burger_menu)?.setOnClickListener {
             Log.i(TAG, "user clicked on menu button")
-            Intent(this, SettingsActivity::class.java).also {
-                startActivity(it)
+            val launchIntent = Intent(this, SettingsActivity::class.java)
+            val gC = gameController
+            if (gC != null) {
+                val launchBundle = Bundle()
+                launchBundle.putInt("number_of_colors", gC.getNumberOfColors())
+                launchBundle.putInt("extra_tubes", gC.getInitialExtraTubes())
+                Log.d(TAG, "launchBundle.extra_tubes: ${gC.getInitialExtraTubes()}")
+                launchBundle.putInt("height", gC.getTubeHeight())
+                launchIntent.putExtras(launchBundle)
+                // start settings activity
+                settingsResult?.launch(launchIntent)
             }
         }
 
@@ -128,6 +169,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
         Log.i(TAG, "invalidating / redrawing view")
         v?.invalidate()
     }
+
 
     /**
      * Methode von Activity geerbt
@@ -158,7 +200,10 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
      * Methode von GameStateListenerInterface geerbt
      */
     override fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        Log.i(TAG, "tubeSoled(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
+        Log.i(
+            TAG,
+            "tubeSoled(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
+        )
         val v = getMyDrawView()
         v?.tubeSolved(fromCol, toCol, fromRow, toRow, color)
     }
@@ -186,7 +231,8 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
     }
 
     override fun newGameToast() {
-        Toast.makeText(applicationContext, getString(R.string.toast_new_game), Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, getString(R.string.toast_new_game), Toast.LENGTH_SHORT)
+            .show()
     }
 
     /**

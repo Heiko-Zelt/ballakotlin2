@@ -10,11 +10,11 @@ import de.heikozelt.ballakotlin2.R
 import org.junit.Rule
 import org.junit.Test
 import androidx.test.espresso.action.Press
-import androidx.test.espresso.action.CoordinatesProvider
 import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.GeneralClickAction
 import androidx.test.espresso.ViewAction
 import org.junit.Assert.assertNotEquals
+import java.lang.Thread.sleep
 
 
 class MainActivityTest {
@@ -53,13 +53,13 @@ class MainActivityTest {
         onView(withId(R.id.main_btn_reset_game)).perform(click())
         onView(withId(R.id.main_btn_undo)).perform(click())
         onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        Thread.sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        Thread.sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        Thread.sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        Thread.sleep(1000)
+        //sleep(1000)
 
         val v = view
         val a = activity

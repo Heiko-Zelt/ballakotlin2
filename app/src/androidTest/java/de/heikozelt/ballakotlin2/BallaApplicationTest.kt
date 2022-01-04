@@ -50,7 +50,7 @@ class BallaApplicationTest {
     fun getGameController() {
         val ctx = ApplicationProvider.getApplicationContext<Context>()
         val app = ctx.applicationContext as BallaApplication
-        val gameController = app.getGameController()
+        val gameController = app.gameController
         assertFalse (gameController == null)
         if(gameController != null) {
             assertFalse(gameController.isUp())

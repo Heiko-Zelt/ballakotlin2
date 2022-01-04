@@ -1,5 +1,6 @@
 package de.heikozelt.ballakotlin2.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -46,6 +47,7 @@ class SettingsActivity : AppCompatActivity() {
 
         colorsSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, i: Int, b: Boolean) {
+                Log.d(TAG, "colorsSeekBar?.setOnSeekBarChangeListener(i=$i)")
                 updateColorsText(seek.progress + MIN_COLORS)
             }
 
@@ -60,6 +62,7 @@ class SettingsActivity : AppCompatActivity() {
 
         extraTubesSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, i: Int, b: Boolean) {
+                Log.d(TAG, "extraTubesSeekBar?.setOnSeekBarChangeListener(i=$i)")
                 updateExtraTubesText(seek.progress + MIN_EXTRA)
             }
 
@@ -74,6 +77,7 @@ class SettingsActivity : AppCompatActivity() {
 
         heightSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, i: Int, b: Boolean) {
+                Log.d(TAG, "heightSeekBar?.setOnSeekBarChangeListener(i=$i)")
                 updateHeightText(seek.progress + MIN_HEIGHT)
             }
 
@@ -86,31 +90,67 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
-        //colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS
-        //updateColorsText(BallaApplication.NUMBER_OF_COLORS)
-        val controller = (application as BallaApplication).getGameController()
+
+        /*
+        val controller = (application as BallaApplication).gameController
         if (controller != null) {
             colorsSeekBar?.progress = controller.getNumberOfColors() - MIN_COLORS
             extraTubesSeekBar?.progress = controller.getInitialExtraTubes() - MIN_EXTRA
             heightSeekBar?.progress = controller.getTubeHeight() - MIN_HEIGHT
-            updateColorsText(controller.getNumberOfColors())
-            updateExtraTubesText(controller.getInitialExtraTubes())
-            updateHeightText(controller.getTubeHeight())
+        }
+        */
+
+        // get data from intent instead of "global variable"
+        val bundle = intent.extras
+        val bundleColors = bundle?.getInt("number_of_colors")
+        Log.d(TAG, "bundleColors: $bundleColors")
+        if (bundleColors != null) {
+            val value = bundleColors - MIN_COLORS
+            colorsSeekBar?.progress = value
+            updateColorsText(bundleColors)
+        }
+        val bundleExtra = bundle?.getInt("extra_tubes")
+        Log.d(TAG, "bundleExtra: $bundleExtra")
+        if (bundleExtra != null) {
+            val value = bundleExtra - MIN_EXTRA
+            extraTubesSeekBar?.progress = value
+            updateExtraTubesText(bundleExtra)
+        }
+        val bundleHeight = bundle?.getInt("height")
+        Log.d(TAG, "bundleHeight: $bundleHeight")
+        if (bundleHeight != null) {
+            val value = bundleHeight - MIN_EXTRA
+            heightSeekBar?.progress = bundleHeight - MIN_HEIGHT
+            updateHeightText(bundleHeight)
         }
 
         findViewById<View?>(R.id.settings_btn_ok)?.setOnClickListener {
             Log.i(TAG, "user clicked on ok button")
             if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
+                /*
                 val colors = colorsSeekBar.progress + MIN_COLORS
                 val extra = extraTubesSeekBar.progress + MIN_EXTRA
                 val height = heightSeekBar.progress + MIN_HEIGHT
-                (application as BallaApplication).getGameController()?.actionNewGame(colors, extra, height)
+                (application as BallaApplication).gameController?.actionNewGame(
+                    colors,
+                    extra,
+                    height
+                )
+                */
+                val resultIntent = Intent()
+                val resultBundle = Bundle()
+                resultBundle.putInt("number_of_colors", colorsSeekBar.progress + MIN_COLORS)
+                resultBundle.putInt("extra_tubes", extraTubesSeekBar.progress + MIN_EXTRA)
+                resultBundle.putInt("height", heightSeekBar.progress + MIN_HEIGHT)
+                resultIntent.putExtras(resultBundle)
+                setResult(RESULT_OK, resultIntent)
             }
             finish()
         }
 
         findViewById<View?>(R.id.settings_btn_cancel)?.setOnClickListener {
             Log.i(TAG, "user clicked on cancel button")
+            setResult(RESULT_CANCELED, intent)
             finish()
         }
 
