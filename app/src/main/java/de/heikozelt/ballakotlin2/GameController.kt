@@ -2,7 +2,7 @@ package de.heikozelt.ballakotlin2
 
 import android.util.Log
 import de.heikozelt.ballakotlin2.model.GameState
-import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
+import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import de.heikozelt.ballakotlin2.model.Move
 
 /**
@@ -12,7 +12,7 @@ import de.heikozelt.ballakotlin2.model.Move
  */
 class GameController(private var gameState: GameState) {
 
-    private var gameStateListener: GameStateListenerInterface? = null
+    private var gameObserver: GameObserverInterface? = null
 
     /**
      * true, if one ball ist lifted.
@@ -55,15 +55,15 @@ class GameController(private var gameState: GameState) {
     /**
      * muss aufgerufen werden, wenn eine Activity zum Leben kommt
      */
-    fun registerGameStateListener(gsl: GameStateListenerInterface) {
-        gameStateListener = gsl
+    fun registerGameStateListener(gsl: GameObserverInterface) {
+        gameObserver = gsl
     }
 
     /**
      * muss aufgerufen werden, wenn eine Activity beendet wird
      */
     fun unregisterGameStateListener() {
-        gameStateListener = null
+        gameObserver = null
     }
 
     fun getGameState(): GameState {
@@ -93,10 +93,10 @@ class GameController(private var gameState: GameState) {
         gameState.newGame()
         initialGameState = gameState.clone()
         up = false
-        gameStateListener?.enableUndoAndReset(false)
-        gameStateListener?.enableCheat(true)
-        gameStateListener?.redraw()
-        gameStateListener?.newGameToast()
+        gameObserver?.enableUndoAndReset(false)
+        gameObserver?.enableCheat(true)
+        gameObserver?.redraw()
+        gameObserver?.newGameToast()
     }
 
     /**
@@ -105,9 +105,9 @@ class GameController(private var gameState: GameState) {
     fun actionResetGame() {
         gameState = initialGameState.clone()
         up = false
-        gameStateListener?.enableUndoAndReset(false)
-        gameStateListener?.enableCheat(true)
-        gameStateListener?.redraw()
+        gameObserver?.enableUndoAndReset(false)
+        gameObserver?.enableCheat(true)
+        gameObserver?.redraw()
         // Todo: gameStateListener no invisibleBall
     }
 
@@ -116,14 +116,14 @@ class GameController(private var gameState: GameState) {
      */
     fun actionUndo() {
         if(up) {
-            gameStateListener?.dropBall(upCol, gameState.tubes[upCol].fillLevel -1, gameState.tubes[upCol].colorOfTopmostBall())
+            gameObserver?.dropBall(upCol, gameState.tubes[upCol].fillLevel -1, gameState.tubes[upCol].colorOfTopmostBall())
             up = false
         } else if(gameState.moveLog.isNotEmpty()) {
             val move = gameState.undoLastMove()
             if (gameState.moveLog.isEmpty()) {
-                gameStateListener?.enableUndoAndReset(false)
+                gameObserver?.enableUndoAndReset(false)
             }
-            gameStateListener?.liftAndHoleBall(move.from, move.to, gameState.tubes[move.from].fillLevel, gameState.tubes[move.to].fillLevel - 1, gameState.tubes[move.to].colorOfTopmostBall())
+            gameObserver?.liftAndHoleBall(move.from, move.to, gameState.tubes[move.from].fillLevel, gameState.tubes[move.to].fillLevel - 1, gameState.tubes[move.to].colorOfTopmostBall())
         }
     }
 
@@ -139,10 +139,10 @@ class GameController(private var gameState: GameState) {
         Log.i(TAG, "actionCheat")
         if(isCheatAllowed()) {
             gameState.cheat()
-            gameStateListener?.redraw()
+            gameObserver?.redraw()
         }
         if(gameState.numberOfTubes == initialGameState.numberOfTubes + ALLOWED_CHEATS) {
-            gameStateListener?.enableCheat(false)
+            gameObserver?.enableCheat(false)
         }
     }
 
@@ -167,7 +167,7 @@ class GameController(private var gameState: GameState) {
             if(col == upCol) { // Sonderfall B
                 val row = gameState.tubes[col].fillLevel - 1
                 val color = gameState.tubes[col].colorOfTopmostBall()
-                gameStateListener?.dropBall(col, row, color)
+                gameObserver?.dropBall(col, row, color)
                 up = false
             } else if (gameState.isMoveAllowed(upCol, col)) { // Normalfall A
                 val move = Move(upCol, col)
@@ -176,14 +176,14 @@ class GameController(private var gameState: GameState) {
                 val toRow = gameState.tubes[col].fillLevel - 1
                 val color = gameState.tubes[col].colorOfTopmostBall()
                 if (gameState.isSolved()) {
-                    gameStateListener?.tubeSolved(upCol, col, fromRow, toRow, color)
-                    gameStateListener?.puzzleSolved()
+                    gameObserver?.tubeSolved(upCol, col, fromRow, toRow, color)
+                    gameObserver?.puzzleSolved()
                 } else if(gameState.tubes[col].isSolved()) {
-                    gameStateListener?.tubeSolved(upCol, col, fromRow, toRow, color)
-                    gameStateListener?.enableUndoAndReset(true)
+                    gameObserver?.tubeSolved(upCol, col, fromRow, toRow, color)
+                    gameObserver?.enableUndoAndReset(true)
                 } else {
-                    gameStateListener?.holeBall(upCol, col, fromRow, toRow, color)
-                    gameStateListener?.enableUndoAndReset(true)
+                    gameObserver?.holeBall(upCol, col, fromRow, toRow, color)
+                    gameObserver?.enableUndoAndReset(true)
                 }
                 up = false
             } else { // Sonderfall C
@@ -193,8 +193,8 @@ class GameController(private var gameState: GameState) {
                 val upFromRow = gameState.tubes[col].fillLevel - 1
                 val upColor = gameState.tubes[col].colorOfTopmostBall()
 
-                gameStateListener?.dropBall(upCol, downToRow, downColor)
-                gameStateListener?.liftBall(col, upFromRow, upColor)
+                gameObserver?.dropBall(upCol, downToRow, downColor)
+                gameObserver?.liftBall(col, upFromRow, upColor)
                 upCol = col
             }
         } else { // erster Klick
@@ -203,7 +203,7 @@ class GameController(private var gameState: GameState) {
                 upCol = col
                 val fromRow = gameState.tubes[col].fillLevel - 1
                 val color = gameState.tubes[col].colorOfTopmostBall()
-                gameStateListener?.liftBall(col, fromRow, color)
+                gameObserver?.liftBall(col, fromRow, color)
             }
         }
     }

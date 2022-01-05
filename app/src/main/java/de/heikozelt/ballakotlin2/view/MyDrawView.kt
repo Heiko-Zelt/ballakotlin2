@@ -75,9 +75,9 @@ class MyDrawView @JvmOverloads constructor(
     fun selectBoardLayout(w: Int, h: Int) {
         val gs = gameController?.getGameState() ?: return
         val candidate1 = OneRowLayout(gs.numberOfTubes, gs.tubeHeight)
-        candidate1.calculateTranslation(w, h)
+        candidate1.calculateTransformation(w, h)
         val candidate2 = TwoRowsLayout(gs.numberOfTubes, gs.tubeHeight)
-        candidate2.calculateTranslation(w, h)
+        candidate2.calculateTransformation(w, h)
         Log.d(
             TAG,
             "OneRowLayout.scaleFactor=$candidate1.scaleFactor, TwoRowsLayout.scaleFactor=$candidate2.scaleFactor"
@@ -196,7 +196,7 @@ class MyDrawView @JvmOverloads constructor(
     */
 
     fun calculateTranslation() {
-        boardLayout?.calculateTranslation(width, height)
+        boardLayout?.calculateTransformation(width, height)
     }
 
     // wozu eigentlich?
@@ -348,7 +348,7 @@ class MyDrawView @JvmOverloads constructor(
         //Log.i(TAG, "onon canvas.height=${canvas.height}, canvas.width=${canvas.width}")
         //canvas.translate((canvas.width - boardWidth) / 2f, (canvas.height - boardHeight) / 2f)
 
-        canvas.translate(bL.transX, bL.transY)
+        canvas.translate(bL.translateX, bL.translateY)
 
         //Log.i(TAG, "onon circleX=${circleX}, circleY=${circleY}, radius=${radius}")
         //canvas.drawLine(0f, 0f, boardWidth.toFloat(), boardHeight.toFloat(), linePaint)

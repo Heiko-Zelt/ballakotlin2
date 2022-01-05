@@ -1,7 +1,7 @@
 package de.heikozelt.ballakotlin2
 
 import de.heikozelt.ballakotlin2.model.GameState
-import de.heikozelt.ballakotlin2.view.GameStateListenerMock
+import de.heikozelt.ballakotlin2.view.GameObserverMock
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -22,7 +22,7 @@ class GameControllerTest {
     fun registerGameStateListener() {
         val gs = GameState(3, 2, 3)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         assertFalse(controller.isUp())
@@ -34,7 +34,7 @@ class GameControllerTest {
         val gs = GameState(3, 2, 3)
         gs.tubes[0].addBall(1)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         controller.tubeClicked(0)
@@ -50,7 +50,7 @@ class GameControllerTest {
         val gs = GameState(3, 2, 3)
         gs.tubes[0].addBall(1)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         controller.tubeClicked(0)
@@ -67,7 +67,7 @@ class GameControllerTest {
         val gs = GameState(3, 2, 3)
         gs.tubes[0].addBall(1)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         controller.tubeClicked(0)
@@ -85,7 +85,7 @@ class GameControllerTest {
         val gs = GameState(3, 2, 3)
         gs.tubes[0].addBall(1)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         controller.tubeClicked(0)
@@ -105,7 +105,7 @@ class GameControllerTest {
     fun click_on_new_game_button() {
         val gs = GameState(3, 2, 3)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         controller.actionNewGame()
@@ -122,7 +122,7 @@ class GameControllerTest {
     fun click_on_reset_button() {
         val gs = GameState(3, 2, 3)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         controller.actionResetGame()
@@ -154,7 +154,7 @@ class GameControllerTest {
         gs.tubes[2].addBall(2)
         gs.tubes[3].addBall(1)
         val controller = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         controller.registerGameStateListener(listener)
 
         // Zug von Spalte 2 in Spalte 1
@@ -187,7 +187,7 @@ class GameControllerTest {
         gs.tubes[1].addBall(2)
         gs.tubes[2].addBall(2)
         val gs1Up = GameController(gs)
-        val listener = GameStateListenerMock()
+        val listener = GameObserverMock()
         gs1Up.registerGameStateListener(listener)
 
         // Zug von Spalte 2 in Spalte 1

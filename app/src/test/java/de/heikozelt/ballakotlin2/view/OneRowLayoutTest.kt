@@ -15,14 +15,25 @@ internal class OneRowLayoutTest {
     }
 
     @Test
-    fun calculateTranslation() {
+    fun calculateTransformation_factor1() {
         val layout = OneRowLayout(1, 1)
         val w = layout.boardWidth
         val h= layout.boardHeight
-        layout.calculateTranslation(w, h)
+        layout.calculateTransformation(w, h)
         assertEquals(1.0f, layout.scaleFactor)
-        assertEquals(0.0f, layout.transX)
-        assertEquals(0.0f, layout.transY)
+        assertEquals(0.0f, layout.translateX)
+        assertEquals(0.0f, layout.translateY)
+    }
+
+    @Test
+    fun calculateTransformation_factor3() {
+        val layout = OneRowLayout(1, 1)
+        val w = layout.boardWidth * 3
+        val h= layout.boardHeight * 3
+        layout.calculateTransformation(w, h)
+        assertEquals(3.0f, layout.scaleFactor)
+        assertEquals(0.0f, layout.translateX)
+        assertEquals(0.0f, layout.translateY)
     }
 
     @Test
@@ -56,7 +67,7 @@ internal class OneRowLayoutTest {
         val layout = OneRowLayout(1, 1)
         val w = layout.boardWidth
         val h= layout.boardHeight
-        layout.calculateTranslation(w, h)
+        layout.calculateTransformation(w, h)
         assertEquals(0, layout.virtualX(0.0f))
         assertEquals(3, layout.virtualX(3.0f))
     }
@@ -66,7 +77,7 @@ internal class OneRowLayoutTest {
         val layout = OneRowLayout(1, 1)
         val w = layout.boardWidth
         val h= layout.boardHeight
-        layout.calculateTranslation(w, h)
+        layout.calculateTransformation(w, h)
         assertEquals(0, layout.virtualY(0.0f))
         assertEquals(3, layout.virtualY(3.0f))
     }
@@ -76,7 +87,7 @@ internal class OneRowLayoutTest {
         val layout = OneRowLayout(1, 1)
         val w = layout.boardWidth
         val h= layout.boardHeight
-        layout.calculateTranslation(w, h)
+        layout.calculateTransformation(w, h)
         assertEquals(0, layout.column(0, 0))
         assertEquals(0, layout.column(3, 3))
     }

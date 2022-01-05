@@ -1,8 +1,8 @@
 package de.heikozelt.ballakotlin2.view
 
-import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
+import de.heikozelt.ballakotlin2.model.GameObserverInterface
 
-class GameStateListenerMock: GameStateListenerInterface {
+class GameObserverMock: GameObserverInterface {
 
     var observationsLog = mutableListOf<String>()
 

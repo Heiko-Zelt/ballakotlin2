@@ -4,7 +4,7 @@ package de.heikozelt.ballakotlin2.model
  * Methods of this Interface are called, whenever game state (GameState1Up) changes and something in the view(s) should be changed.
  */
 
-interface GameStateListenerInterface {
+interface GameObserverInterface {
 
     /**
      * called after new game, reset or cheat button clicked

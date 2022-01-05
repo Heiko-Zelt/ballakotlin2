@@ -32,8 +32,8 @@ class MainActivityAndSettingsActivityTest {
 
         val controller = (activity?.application as BallaApplication).gameController
         assertNotEquals(null, controller)
-        assertEquals(false, controller?.isUp())
-        assertNotEquals(null, controller?.getGameState())
+        assertEquals(false, controller.isUp())
+        assertNotEquals(null, controller.getGameState())
 
         onView(withId(R.id.main_btn_burger_menu)).perform(click())
         //sleep(1000)
@@ -48,6 +48,6 @@ class MainActivityAndSettingsActivityTest {
         onView(withId(R.id.settings_btn_ok)).perform(click())
 
         //sleep(1000)
-        assertEquals(8, controller?.getGameState()?.numberOfColors)
+        assertEquals(8, controller.getGameState().numberOfColors)
     }
 }

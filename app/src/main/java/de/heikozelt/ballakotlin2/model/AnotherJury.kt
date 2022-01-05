@@ -9,38 +9,45 @@ class AnotherJury(gs: GameState): NeutralJury(gs) {
      * @return niedrige Zahl: schlecht, hoche Zahl: gut
      */
     override fun rateBackwardMove(move: Move): Int {
-        Log.d(TAG,"rateBackwardMove(${move.from} --> ${move.to})")
+        //Log.d(TAG,"rateBackwardMove(${move.from} --> ${move.to})")
         var rating = 1
+        var type: String
         if(gs.tubes[move.to].isEmpty()) {
-            Log.d(TAG,"Zug in leere Röhre ist sehr gut")
+            //Log.d(TAG,"Zug in leere Röhre ist sehr gut")
+            type="empty"
             rating = gs.tubeHeight * FACTOR_EMPTY
         } else if((gs.tubes[move.to].fillLevel >= 1) && gs.isSameColor(move.from, move.to)) {
-            Log.d(TAG,"Zug auf einen Ball in gleicher Farbe von einer Säule in gleicher Farbe ist auch sehr gut")
+            //Log.d(TAG,"Zug auf einen Ball in gleicher Farbe von einer Säule in gleicher Farbe ist auch sehr gut")
+            type="same"
             rating = gs.tubes[move.to].countTopBallsWithSameColor() * FACTOR_SAME + gs.tubes[move.from].countTopBallsWithSameColor() * FACTOR_SAME
-
             // kein Eintraege in Move-Log!
             if(gs.moveLog.isNotEmpty()) {
                 if (gs.moveLog.last() == move) {
-                    Log.d(TAG, "Twice-Booster")
+                    //Log.d(TAG, "Twice-Booster")
+                    type = "twice"
                     rating += gs.tubeHeight * FACTOR_TWICE
                 }
             }
         } else if(gs.tubes[move.to].countTopBallsWithSameColor() == 1) {
-            Log.d(TAG,"oberer Ball ist einzelner")
+            //Log.d(TAG,"oberer Ball ist einzelner")
             if(gs.tubes[move.to].colorOfTopmostBall() != gs.tubes[move.from].colorOfTopmostBall()) {
-                Log.d(TAG,"Zug auf einzelnen Ball einer anderen Farbe ist auch sehr gut")
+                //Log.d(TAG,"Zug auf einzelnen Ball einer anderen Farbe ist auch sehr gut")
                 // je höher der Stapel gleichfarbiger Bälle in der Quell-Röhre desto besser
                 // je niedriger der Füllstand der Ziel-Röhre, desto besser
+                type = "single"
                 rating = gs.tubes[move.from].countTopBallsWithSameColor() * FACTOR_ONE + gs.tubes[move.to].freeCells() * FACTOR_ONE
             } else {
-                Log.e(TAG,"kann nicht vorkommen")
+                type = "???"
+                //Log.e(TAG,"kann nicht vorkommen")
             }
         }  else {
             // Es gibt schlechte und sehr schlechte Züge
+            type = "bad"
             rating = gs.tubeHeight - gs.tubes[move.to].countTopBallsWithSameColor()
-            Log.d(TAG, "schlechter Zug")
+            //Log.d(TAG, "schlechter Zug")
         }
-        Log.d(TAG,"rating=${rating}")
+        //Log.d(TAG,"${move.from} -> ${move.to}, $type, rating=${rating}")
+        Log.d(TAG,"%2d -> %2d, %-6s, rating=%2d".format(move.from, move.to, type, rating) )
         return rating
     }
 

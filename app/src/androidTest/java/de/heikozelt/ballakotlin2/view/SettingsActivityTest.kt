@@ -33,7 +33,7 @@ class SettingsActivityTest {
         // Existiert auch eine MainActivity?
         val controller = (activity?.application as BallaApplication).gameController
         assertNotEquals(null, controller)
-        assertEquals(false, controller?.isUp())
+        assertEquals(false, controller.isUp())
 
         activity?.findViewById<SeekBar>(R.id.settings_seekbar_number_of_colors)?.progress = 13
         val expectedStr15 = activity?.getString(R.string.label_number_of_colors, 15)

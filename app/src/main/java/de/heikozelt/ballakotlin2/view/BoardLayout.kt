@@ -1,6 +1,5 @@
 package de.heikozelt.ballakotlin2.view
 
-import android.util.Log
 import kotlin.math.min
 
 abstract class BoardLayout(var numberOfTubes: Int, var tubeHeight: Int) {
@@ -15,21 +14,10 @@ abstract class BoardLayout(var numberOfTubes: Int, var tubeHeight: Int) {
      * Transformations-Parameter zwischen Spielbrett- und DrawView-Koordinaten
      */
     var scaleFactor = 1.0f
-    var transX = 0.0f
-    var transY = 0.0f
+    var translateX = 0.0f
+    var translateY = 0.0f
 
     init {
-        calculateBoardDimensions()
-    }
-
-    /**
-     * wird aufgerufen wenn
-     * der Spieler schummelt / eine Röhre hinzufuegt
-     * oder unter Einstellungen die Dimensionen ändert.
-     */
-    fun setBoardDimensions(newNumberOfTubes: Int, newTubeHeight: Int) {
-        numberOfTubes = newNumberOfTubes
-        tubeHeight = newTubeHeight
         calculateBoardDimensions()
     }
 
@@ -42,17 +30,12 @@ abstract class BoardLayout(var numberOfTubes: Int, var tubeHeight: Int) {
      * Berechnet die Transformations-Paramater zur Umrechnung
      * zwischen realen Pixels und virtuellen Einheiten.
      */
-    fun calculateTranslation(w: Int, h: Int) {
-        //Log.i(TAG, "onon onSizeChanged(w=${w}, h=${h})")
-        //circleX = w / 2f
-        //circleY = h / 2f
-        //radius = 100f
-
+    fun calculateTransformation(w: Int, h: Int) {
         val scaleX = w / boardWidth.toFloat()
         val scaleY = h / boardHeight.toFloat()
         scaleFactor = min(scaleX, scaleY)
-        transX = w.div(scaleFactor).minus(boardWidth).div(2f)
-        transY = h.div(scaleFactor).minus(boardHeight).div(2f)
+        translateX = w.div(scaleFactor).minus(boardWidth).div(2f)
+        translateY = h.div(scaleFactor).minus(boardHeight).div(2f)
     }
 
     /**
@@ -77,14 +60,14 @@ abstract class BoardLayout(var numberOfTubes: Int, var tubeHeight: Int) {
      * Umrechnung von Maus-Klick/DrawView-X-Koordinate in virtuelle Spielbrett-Koordinate
      */
     fun virtualX(x: Float): Int {
-        return (x / scaleFactor - transX).toInt()
+        return (x / scaleFactor - translateX).toInt()
     }
 
     /**
      * Umrechnung von Maus-Klick/DrawView-Y-Koordinate in virtuelle Spielbrett-Koordinate
      */
     fun virtualY(y: Float): Int {
-        return (y / scaleFactor - transY).toInt()
+        return (y / scaleFactor - translateY).toInt()
     }
 
     /**

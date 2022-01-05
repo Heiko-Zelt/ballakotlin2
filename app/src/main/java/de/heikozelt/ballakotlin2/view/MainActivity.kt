@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
-import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
+import de.heikozelt.ballakotlin2.model.GameObserverInterface
 
 
 /**
@@ -20,7 +20,7 @@ import de.heikozelt.ballakotlin2.model.GameStateListenerInterface
  * Beim Drehen des Bildschirms wird die Activity zerstört.
  * Es können also keine Daten dauerhaft in einer Activity gespeichert werden. :-(
  */
-class MainActivity : AppCompatActivity(), GameStateListenerInterface {
+class MainActivity : AppCompatActivity(), GameObserverInterface {
 
     private var gameController: GameController? = null
 
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity(), GameStateListenerInterface {
                     val colors = resultBundle.getInt("number_of_colors")
                     val extra = resultBundle.getInt("extra_tubes")
                     val height = resultBundle.getInt("height")
-                    (application as BallaApplication).gameController?.actionNewGame(
+                    (application as BallaApplication).gameController.actionNewGame(
                         colors,
                         extra,
                         height

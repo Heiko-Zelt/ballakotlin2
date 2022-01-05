@@ -16,7 +16,10 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     private var jury: NeutralJury? = null
 
     init {
-        Log.i(TAG, "init: numberOfColors: ${numberOfColors}, numberOfExtraTubes: ${numberOfExtraTubes}, tubeHeight: $tubeHeight")
+        Log.i(
+            TAG,
+            "init: numberOfColors: ${numberOfColors}, numberOfExtraTubes: ${numberOfExtraTubes}, tubeHeight: $tubeHeight"
+        )
     }
 
     /**
@@ -56,7 +59,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         //setJury(AdvancedJury(this))
         //setJury(NeutralJury(this))
         randomizeBalls()
-        mixTubes()
+        shuffleTubes()
         // clear undo log
         moveLog = mutableListOf()
     }
@@ -110,7 +113,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     /**
      * vertauscht Röhren untereinander zufällig
      */
-    private fun mixTubes() {
+    private fun shuffleTubes() {
         Log.i(TAG, "mixTubes()")
         for (c in 0 until (numberOfTubes * 3)) {
             val i = Random.nextInt(numberOfTubes)
@@ -212,7 +215,8 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * ausgenommen ist der letzte Zug rückwärts (hin und her macht wenig Sinn)
      * und ausgenommen ist vom Boden einer Röhre zum Boden einer anderen Röhre
      */
-    fun allPossibleBackwardMoves(lastMove: Move?): List<Move> {
+    //fun allPossibleBackwardMoves(lastMove: Move?): List<Move> {
+    fun allPossibleBackwardMoves(): List<Move> {
         val allMoves = mutableListOf<Move>()
         for (from in 0 until numberOfTubes) {
             if (tubes[from].isReverseDonorCandidate()) {
@@ -221,8 +225,14 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
                         if (from != to) {
                             val move = Move(from, to)
                             // nicht hin-und-her und
+                            val isBackAndForth = if (moveLog.isEmpty()) {
+                                false
+                            } else {
+                                move.backwards() == moveLog.last()
+                            }
                             // nicht von Boden zu Boden
-                            if ((move.backwards() != lastMove) && !((tubes[from].fillLevel == 1) and (tubes[to].isEmpty()))) {
+                            val isGroundMove = (tubes[from].fillLevel == 1) and tubes[to].isEmpty()
+                            if (!(isBackAndForth || isGroundMove)) {
                                 allMoves.add(move)
                             }
                         }
@@ -289,8 +299,8 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      */
     fun areEqual(ints: List<Int>): Boolean {
         val firstRate = ints[0]
-        for(rate in ints) {
-            if(rate != firstRate) {
+        for (rate in ints) {
+            if (rate != firstRate) {
                 return false
             }
         }
@@ -300,14 +310,14 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     /**
      * plays game backwards with many moves
      */
-    // Todo: auch bei schlechten Zügen, gibt es Unterschiede. Mehr oder weniger schlechte Züge.
     private fun randomizeBalls() {
-        var lastMove: Move? = null
+        //var lastMove: Move? = null
         val maxMoves = numberOfTubes * tubeHeight * 3
         var executedMoveIndex = 0
         do {
             dump()
-            val possibleMoves = allPossibleBackwardMoves(lastMove)
+            //val possibleMoves = allPossibleBackwardMoves(lastMove)
+            val possibleMoves = allPossibleBackwardMoves()
             //Log.i(_TAG, "i: ${i}, possibleMoves: ${Gson().toJson(possibleMoves)}")
 
             // Kein Zug mehr möglich ist ein Abbruch-Kriterium
@@ -327,37 +337,45 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             var candidateMoves: List<Move>
             var candidateRates: List<Int>
             // wurden alle möglichen Züge gleich bewertet?
-            if(areEqual(ratings)) { // ja, alle gleich, z.B. am Anfang
+            if (areEqual(ratings)) { // ja, alle gleich, z.B. am Anfang
                 // alle gleich berücksichtigen
                 candidateMoves = possibleMoves
                 candidateRates = ratings
             } else { // nein, unterschiedlich
                 val average = ratings.average()
+                Log.d(TAG, "average rating=%2.2f".format(average))
                 // Nur die Züge auswählen, die überdurchschnittlich sind
                 candidateMoves = mutableListOf()
                 candidateRates = mutableListOf()
-                for(i in possibleMoves.indices) {
-                    if(ratings[i] > average) {
-                        Log.d(TAG, "#${i} ${possibleMoves[i].from}-->${possibleMoves[i].to} rating=${ratings[i]} add")
+                for (i in possibleMoves.indices) {
+                    if (ratings[i] > average) {
+                        //Log.d(TAG, "#${i} ${possibleMoves[i].from}-->${possibleMoves[i].to} rating=${ratings[i]} add")
                         candidateMoves.add(possibleMoves[i])
                         candidateRates.add(ratings[i])
-                    } else {
-                        Log.d(TAG, "#${i} ${possibleMoves[i].from}-->${possibleMoves[i].to} rating=${ratings[i]} ignore")
+                        //} else {
+                        //    Log.d(TAG, "#${i} ${possibleMoves[i].from}-->${possibleMoves[i].to} rating=${ratings[i]} ignore")
                     }
                 }
             }
 
             // Die Anzahl Lose richtet sich nach der jeweiligen Bewertung
             val lots = mutableListOf<Move>()
-            for(i in candidateMoves.indices) {
+            for (i in candidateMoves.indices) {
                 multiPush(lots, candidateMoves[i], candidateRates[i])
             }
 
             val selectedMove = lots.random()
-
-            Log.i(TAG, "=======> selected move #${executedMoveIndex}: ${selectedMove.from} --> ${selectedMove.to}")
+            Log.i(
+                TAG,
+                "round #%3d: num candidates=%d ==> selected move %2d -> %2d".format(
+                    executedMoveIndex,
+                    candidateMoves.size,
+                    selectedMove.from,
+                    selectedMove.to
+                )
+            )
             moveBallAndLog(selectedMove)
-            lastMove = selectedMove
+            //lastMove = selectedMove
             executedMoveIndex++
         } while (executedMoveIndex < maxMoves)
         // log wieder leeren, bevor das Spiel beginnt
@@ -373,7 +391,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * 1 2 3 _ _
      */
     fun dump() {
-        for(row in (tubeHeight - 1) downTo 0) {
+        for (row in (tubeHeight - 1) downTo 0) {
             var line = colorToString(tubes[0].cells[row])
             for (col in 1 until numberOfTubes) {
                 val color = tubes[col].cells[row]
@@ -384,13 +402,13 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     }
 
     /**
-     * wandelt 0 in "_", 1 in "1", 2 in "2", etc...
+     * wandelt 0 in " _", 1 in " 1", 2 in " 2", ... 15 in "15"
      */
     private fun colorToString(color: Int): String {
-        return if(color == 0) {
-            "_"
+        return if (color == 0) {
+            " _"
         } else {
-            color.toString()
+            "%2d".format(color)
         }
     }
 
