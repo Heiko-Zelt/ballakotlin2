@@ -26,16 +26,24 @@ class GameObserverMock: GameObserverInterface {
         observationsLog.add("liftAndHoleBall(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
     }
 
+    override fun holeBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        observationsLog.add("holeBallTubeSolved(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
+    }
+
+    override fun liftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        observationsLog.add("liftAndHoleBallTubeSolved(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
+    }
+
     override fun enableUndoAndReset(enabled: Boolean) {
         observationsLog.add("enableResetAndUndo(enabled=$enabled)")
     }
 
-    override fun enableCheat(enabled: Boolean) {
-        observationsLog.add("enableCheat(enabled=$enabled)")
+    override fun enableHelp(enabled: Boolean) {
+        observationsLog.add("enableHelp(enabled=$enabled)")
     }
 
-    override fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        observationsLog.add("tubeSolved(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
+    override fun enableCheat(enabled: Boolean) {
+        observationsLog.add("enableCheat(enabled=$enabled)")
     }
 
     override fun puzzleSolved() {
@@ -44,5 +52,11 @@ class GameObserverMock: GameObserverInterface {
 
     override fun newGameToast() {
         observationsLog.add("newGameToast()")
+    }
+
+    fun dump() {
+        for(o in observationsLog) {
+            println(o)
+        }
     }
 }

@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/burger_menu.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_action_name.xml" value="1.15" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_app_logo.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_lightbulb.xml" value="1.0" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/new_game.xml" value="1.0" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/plus_one.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/question_mark.xml" value="0.33" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/reset_game.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/undo.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/layout/activity_main.xml" value="0.20885416666666667" />
+      </map>
+    </option>
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/javadoc" />
   </component>

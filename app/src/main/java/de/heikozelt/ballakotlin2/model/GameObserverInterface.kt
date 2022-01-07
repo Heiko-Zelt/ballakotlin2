@@ -34,6 +34,31 @@ interface GameObserverInterface {
     fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
 
     /**
+     * called, when a tube is solved
+     * and correct ball was up.
+     * example:
+     * <pre>
+     *     2
+     * 1 _ _    1 2 _
+     * 1 2 _ => 1 2 _
+     * 1 2 _    1 2 _
+     * </pre>
+     */
+    fun holeBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+
+    /**
+     * called when a tube is solved and
+     * computer does help move and no or wrong ball is up.
+     * example:
+     * <pre>
+     * 1 _ _    1 2 _
+     * 1 2 _ => 1 2 _
+     * 1 2 2    1 2 _
+     * </pre>
+     */
+    fun liftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+
+    /**
      * method is called with parameter true after first move.
      * and with paramater false after last undo, when undo log is empty.
      */
@@ -45,11 +70,10 @@ interface GameObserverInterface {
     fun enableCheat(enabled: Boolean)
 
     /**
-     * called, when the puzzle is solved, game sucessfully finished.
-     * todo: beinhaltet Animation des letzetn Spielzuges
+     * method is called with parameter false when no more help is available.
+     * method is called with parameter true if help is available (and wasn't before)
      */
-    //fun tubeSolved(col: Int)
-    fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+    fun enableHelp(enabled: Boolean)
 
     /**
      * called, when the puzzle is solved, game sucessfully finished.

@@ -102,6 +102,10 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         if (allowed != null) {
             enableCheat(allowed)
         }
+        val helpAvailable = gameController?.isHelpAvailable()
+        if (helpAvailable != null) {
+            enableHelp(helpAvailable)
+        }
 
         settingsResult = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -161,9 +165,14 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
             gameController?.actionUndo()
         }
 
-        findViewById<View?>(R.id.btn_plus_one)?.setOnClickListener {
+        findViewById<View?>(R.id.main_btn_plus_one)?.setOnClickListener {
             Log.i(TAG, "user clicked on cheat button")
             gameController?.actionCheat()
+        }
+
+        findViewById<View?>(R.id.main_btn_lightbulb)?.setOnClickListener {
+            Log.i(TAG, "user clicked on light bulb button")
+            gameController?.actionHelp()
         }
 
         Log.i(TAG, "invalidating / redrawing view")
@@ -197,19 +206,31 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameOvbserverInterface geerbt
      */
-    override fun tubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+    override fun holeBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
         Log.i(
             TAG,
-            "tubeSoled(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
+            "holeBallTubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
         )
         val v = getMyDrawView()
-        v?.tubeSolved(fromCol, toCol, fromRow, toRow, color)
+        v?.holeBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameOvbserverInterface geerbt
+     */
+    override fun liftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+        Log.i(
+            TAG,
+            "liftAndHoleBallTubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
+        )
+        val v = getMyDrawView()
+        v?.liftAndHoleBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
+    }
+
+    /**
+     * Methode von GameObserverInterface geerbt
      */
     override fun puzzleSolved() {
         Log.i(TAG, "puzzle solved")
@@ -236,7 +257,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      * called after new game, reset or cheat button clicked
      */
     override fun redraw() {
@@ -263,7 +284,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      */
     override fun liftBall(col: Int, row: Int, color: Int) {
         val v = getMyDrawView()
@@ -271,7 +292,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      */
     override fun dropBall(col: Int, row: Int, color: Int) {
         val v = getMyDrawView()
@@ -279,7 +300,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      */
     override fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
         val v = getMyDrawView()
@@ -287,7 +308,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      */
     override fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
         val v = getMyDrawView()
@@ -295,7 +316,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      */
     override fun enableUndoAndReset(enabled: Boolean) {
         Log.i(TAG, "enableUndoAndReset(${enabled})")
@@ -304,15 +325,24 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     /**
-     * Methode von GameStateListenerInterface geerbt
+     * Methode von GameObserverInterface geerbt
      */
     override fun enableCheat(enabled: Boolean) {
         Log.i(TAG, "enableCheat(${enabled})")
-        enableView(R.id.btn_plus_one, enabled)
+        enableView(R.id.main_btn_plus_one, enabled)
+    }
+
+    /**
+     * Methode von GameObserverInterface geerbt
+     */
+    override fun enableHelp(enabled: Boolean) {
+        Log.i(TAG, "enableHelp(${enabled})")
+        enableView(R.id.main_btn_lightbulb, enabled)
     }
 
     /**
      * only to shorten / reuse code
+     * enables or disables button (which is a view)
      */
     private fun enableView(viewId: Int, enabled: Boolean) {
         val v = findViewById<View?>(viewId)
@@ -323,51 +353,6 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
             ALPHA_DISABLED
         }
     }
-
-    /*
-    fun tubeClicked(clickedCol: Int) {
-        Log.i(TAG, "tubeClicked(clickedCol=${clickedCol})")
-        val app = application as BallaApplication?
-        if (app == null) {
-            Log.e(TAG, "No reference to BallaApplication in MainActivity.tubeClicked() :-(")
-            return
-        }
-        val v = findViewById<MyDrawView?>(R.id.myDrawView)
-        if (donorIndex == -1) {
-            Log.i(TAG, "no first ball selected till now")
-            if (app.gameState.tubes[clickedCol].isEmpty()) {
-                Log.i(TAG, "clicked on empty tube, can't remove ball")
-            } else {
-                Log.i(TAG, "chose first tube")
-                //oder v?.liftBall(clickedCol, app.gameState.tubes[clickedCol].fillLevel - 1)
-                liftBall(clickedCol)
-            }
-        } else {
-            Log.i(TAG, "chose second tube")
-            if (app.gameState.isMoveAllowed(donorIndex, clickedCol)) {
-                Log.i(TAG, "move is allowed, normal move")
-                //console.debug('move from ' + donorIndex + ' to ' + clickedCol);
-                val move = Move(donorIndex, clickedCol)
-                app.gameState.moveBallAndLog(move)
-                v?.normalMove(move)
-                if (app.gameState.moveLog.size != 0) {
-                    Log.i(TAG, "enable undo button")
-                    //val undoButton = document.getElementById('undoButton')
-                    //undoButton.disabled = false
-                }
-                if (app.gameState.isSolved()) {
-                    puzzleSolved()
-                }
-            } else {
-                Log.i(TAG, "move not allowed, select new tube as first tube")
-                // Ball wieder runter
-                v?.dropBall(donorIndex)
-                // dafür anderer Ball hoch
-                v?.liftBall(clickedCol)
-            }
-        }
-    }
-    */
 
     /*
     fun newGame() {

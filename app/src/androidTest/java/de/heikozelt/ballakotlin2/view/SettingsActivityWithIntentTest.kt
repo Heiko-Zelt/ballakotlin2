@@ -13,7 +13,6 @@ import de.heikozelt.ballakotlin2.R
 import org.junit.After
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
-import java.lang.Thread.sleep
 
 class SettingsActivityWithIntentTest {
 
@@ -31,7 +30,7 @@ class SettingsActivityWithIntentTest {
         intent.putExtra("number_of_colors", 12)
         intent.putExtra("extra_tubes", 3)
         intent.putExtra("height", 3)
-        activityScenario = ActivityScenario.launch<SettingsActivity>(intent)
+        activityScenario = ActivityScenario.launch(intent)
         activityScenario.onActivity {
             activity = it
         }

@@ -1,7 +1,6 @@
 package de.heikozelt.ballakotlin2.view
 
 import android.util.Log
-import kotlin.math.min
 
 class TwoRowsLayout(numberOfTubes: Int, tubeHeight: Int) : BoardLayout(numberOfTubes, tubeHeight) {
 
@@ -103,16 +102,16 @@ class TwoRowsLayout(numberOfTubes: Int, tubeHeight: Int) : BoardLayout(numberOfT
     override fun column(virtualX: Int, virtualY: Int): Int {
         return if (virtualY < lowerTubesTop) {
             Log.d(TAG, "obere Reihe")
-            (virtualX / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING)).toInt()
+            (virtualX / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING))
         } else {
             Log.d(TAG, "untere Reihe")
             if (numberOfTubes % 2 == 0) {
                 Log.d(TAG, "gerade, unten gleich viele Röhren")
-                (virtualX / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING)).toInt() + numberOfUpperTubes
+                (virtualX / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING)) + numberOfUpperTubes
             } else {
                 Log.d(TAG, "ungerade, unten eine Röhre weniger")
                 Log.d(TAG, "virtualX=$virtualX, lowerTubesLeft=$lowerTubesLeft, numberOfUpperTubes=$numberOfUpperTubes")
-                ((virtualX - lowerTubesLeft) / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING)).toInt() + numberOfUpperTubes
+                ((virtualX - lowerTubesLeft) / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING)) + numberOfUpperTubes
             }
         }
     }

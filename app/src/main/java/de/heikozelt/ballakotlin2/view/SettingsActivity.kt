@@ -105,21 +105,18 @@ class SettingsActivity : AppCompatActivity() {
         val bundleColors = bundle?.getInt("number_of_colors")
         Log.d(TAG, "bundleColors: $bundleColors")
         if (bundleColors != null) {
-            val value = bundleColors - MIN_COLORS
-            colorsSeekBar?.progress = value
+            colorsSeekBar?.progress = bundleColors - MIN_COLORS
             updateColorsText(bundleColors)
         }
         val bundleExtra = bundle?.getInt("extra_tubes")
         Log.d(TAG, "bundleExtra: $bundleExtra")
         if (bundleExtra != null) {
-            val value = bundleExtra - MIN_EXTRA
-            extraTubesSeekBar?.progress = value
+            extraTubesSeekBar?.progress = bundleExtra - MIN_EXTRA
             updateExtraTubesText(bundleExtra)
         }
         val bundleHeight = bundle?.getInt("height")
         Log.d(TAG, "bundleHeight: $bundleHeight")
         if (bundleHeight != null) {
-            val value = bundleHeight - MIN_EXTRA
             heightSeekBar?.progress = bundleHeight - MIN_HEIGHT
             updateHeightText(bundleHeight)
         }

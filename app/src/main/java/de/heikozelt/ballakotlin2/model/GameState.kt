@@ -64,13 +64,19 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         moveLog = mutableListOf()
     }
 
-    fun clone(): GameState {
-        Log.i(TAG, "clone()")
+    fun cloneWithoutLog(): GameState {
+        Log.i(TAG, "cloneWithoutLog()")
         val miniMe = GameState(numberOfColors, numberOfExtraTubes, tubeHeight)
         for (i in 0 until numberOfTubes) {
             miniMe.tubes[i] = tubes[i].clone()
         }
-        // Die einzelnen Elemente sind die gleichen, wie beim Original.
+        return miniMe
+    }
+
+    fun cloneWithLog(): GameState {
+        Log.i(TAG, "cloneWithLog()")
+        val miniMe = cloneWithoutLog()
+        // Die einzelnen Elemente sind die gleichen, wie beim Original. Kein Deep Clone.
         // Da Einträge in einem Log aber normalerweise nicht nachträglich geändert werden, ist das kein Problem.
         miniMe.moveLog.addAll(moveLog)
         return miniMe
@@ -178,7 +184,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * kompliziertes Regelwerk
      */
     fun isMoveAllowed(from: Int, to: Int): Boolean {
-        Log.i(TAG, "isMoveAllowd(from=${from}, to=${to})")
+        Log.i(TAG, "isMoveAllowed(from=${from}, to=${to})")
 
         // kann keinen Ball aus leerer Röhre nehmen
         if (tubes[from].isEmpty()) {
@@ -198,6 +204,66 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             return true
         }
         return false
+    }
+
+    /**
+     * wie isMoveAllowed() jedoch ohne
+     * - Quell-Röhre und Ziel-Röhre identisch
+     * - Zug von Boden auf Boden
+     */
+    fun isMoveUseful(from: Int, to: Int): Boolean {
+        //Log.i(TAG, "isMoveUseful(from=${from}, to=${to})")
+
+        // kann keinen Ball aus leerer Röhre nehmen
+        if (tubes[from].isEmpty()) {
+            return false
+        }
+        // Ziel-Tube ist voll
+        if (tubes[to].isFull()) {
+            return false
+        }
+        // selbe Röhre, sinnlos
+        if (to == from) {
+            return false
+        }
+        // von Boden einer Röhre zu Boden einer anderen Röhre
+        if (tubes[from].fillLevel == 1 && tubes[to].isEmpty()) {
+            return false
+        }
+        if(moveLog.isNotEmpty()) {
+            if (Move(from, to).backwards() == moveLog.last()) {
+                return false
+            }
+        }
+        // oberster Ball hat selbe Farbe oder Ziel-Röhre ist leer
+        if (tubes[to].isEmpty() || isSameColor(from, to)) {
+            return true
+        }
+        return false
+    }
+
+    fun allPossibleMoves(): List<Move> {
+        val moves = mutableListOf<Move>()
+        for (from in 0 until numberOfTubes) {
+            for (to in 0 until numberOfTubes) {
+                if (isMoveAllowed(from, to)) {
+                    moves.add(Move(from, to))
+                }
+            }
+        }
+        return moves
+    }
+
+    fun allUsefulMoves(): List<Move> {
+        val moves = mutableListOf<Move>()
+        for (from in 0 until numberOfTubes) {
+            for (to in 0 until numberOfTubes) {
+                if (isMoveUseful(from, to)) {
+                    moves.add(Move(from, to))
+                }
+            }
+        }
+        return moves
     }
 
     /**
@@ -412,7 +478,99 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         }
     }
 
+    /**
+     * Liefert die Lösung als Liste von Zügen oder null, falls keine Lösung gefunden wurde.
+     * - Falls es mehrere Lösungen gibt, wird die Lösung mit den wenigsten Zügen geliefert.
+     * - Falls es mehrere Lösungen mit gleich vielen Zügen gibt, wird zufällig eine ausewählt.
+     * - Falls das Puzzle bereits gelöst ist, wird eine leere Liste zuruckegeliefert.
+     * vorläufige einfache Implementierung:
+     * - Die Rekursionstiefe bei der Suche in begrenzt.
+     * - Zyklen werden nicht erkannt.
+     * - Keine Unterscheidung zwischen sicher unlösbar und keine Lösung gefunden wegen Rekursionstiefenbegrenzung
+     */
+    fun findSolution(): List<Move>? {
+        val gs2 = this.cloneWithoutLog()
+        // erst einfache Lösung suchen, dann Rekursionstiefe erhöhen
+        for(recursionDepth in 0 .. MAX_RECURSION) {
+            //var elapsed = measureNanoTime {
+            //var elapsed = measureTime {
+            val startTime = System.nanoTime()
+            val solution = gs2.findSolutionNoBackAndForth(recursionDepth)
+            val endTime = System.nanoTime()
+            val elapsed = (endTime - startTime) / 1000000
+            if(solution != null) {
+                val str = solution.joinToString(prefix="[", separator = ", ", postfix="]")
+                Log.d(TAG, "findSolutionBackAndForth(recursionDepth=$recursionDepth) -> elapsed=$elapsed msec, $str")
+                return solution
+            } else {
+                Log.d(TAG, "findSolutionBackAndForth(recursionDepth=$recursionDepth) -> elapsed=$elapsed msec, null")
+            }
+            if(elapsed * numberOfTubes >= MAX_ESTIMATED_DURATION) {
+                return null
+            }
+        }
+        return null
+    }
+
+    /**
+     * Rekursion
+     * @param maxRecursionDepth gibt an, wieviele Züge maximal ausprobiert werden.
+     */
+    fun findSolutionNoBackAndForth(maxRecursionDepth: Int): MutableList<Move>? {
+        if (isSolved()) {
+            // 1. Abbruchkriterium: Lösung gefunden
+            return mutableListOf()
+        } else if (maxRecursionDepth == 0) {
+            // 2. Abbruchkriterium: Maximale Rekursionstiefe erreicht
+            return null
+        }
+        val maxRecursion = maxRecursionDepth - 1
+        val moves = allUsefulMoves()
+        if (moves.isEmpty()) {
+            // 3. Abbruchkriterium: keine Züge mehr möglich
+            return null
+        }
+        val solutions = mutableListOf<MutableList<Move>>()
+        for (move in moves) {
+            moveBallAndLog(move)
+            val solu = findSolutionNoBackAndForth(maxRecursion)
+            if (solu != null) {
+                solu.add(0, move)
+                solutions.add(solu)
+            }
+            undoLastMove()
+        }
+        if (solutions.isEmpty()) {
+            return null
+        } else {
+            return shortestList(solutions) as MutableList
+        }
+    }
+
+    /**
+     * liefert die kürzeste Liste aus einer Liste von Listen
+     * oder null falls die Liste der Listen leer ist.
+     * Todo: Zufällig eine auswählen, wenn 2 gleich lang sind.
+     */
+    fun shortestList(listOfLists: MutableList<MutableList<Move>>): MutableList<Move>? {
+        var length = Int.MAX_VALUE
+        var shortest: MutableList<Move>? = null
+        for (element in listOfLists) {
+            if (element.size < length) {
+                length = element.size
+                shortest = element
+            }
+        }
+        return shortest
+    }
+
     companion object {
         private const val TAG = "balla.GameState"
+        private const val MAX_RECURSION = 40
+
+        /**
+         * maximale geschätzte Dauer
+         */
+        private const val MAX_ESTIMATED_DURATION = 10000
     }
 }

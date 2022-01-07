@@ -14,4 +14,5 @@
     <string name="desc_rewind">rewind</string>
     <string name="desc_arrow_left">arrow left</string>
     <string name="desc_plus_one">plus one</string>
+    <string name="desc_lightbulb">light bulb</string>
 </resources>

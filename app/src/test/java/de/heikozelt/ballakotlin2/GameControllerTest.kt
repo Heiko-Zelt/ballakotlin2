@@ -62,6 +62,16 @@ class GameControllerTest {
         assertEquals("dropBall(col=0, row=0, color=1)", listener.observationsLog[1])
     }
 
+    /**
+     * <pre>
+     *              1
+     * _ _ _ _ _    _ _ _ _ _    _ _ _ _ _
+     * _ _ _ _ _ => _ _ _ _ _ => _ _ _ _ _
+     * 1 _ _ _ _    _ _ _ _ _    _ 1 _ _ _
+     * ^              ^
+     * click          click
+     * </pre>
+     */
     @Test
     fun click_on_tube_0_and_1() {
         val gs = GameState(3, 2, 3)
@@ -73,13 +83,25 @@ class GameControllerTest {
         controller.tubeClicked(0)
         controller.tubeClicked(1)
 
+        listener.dump()
         assertFalse(controller.isUp())
-        assertEquals(3, listener.observationsLog.size)
+        assertEquals(4, listener.observationsLog.size)
         assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
         assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
     }
 
+    /*
+    * <pre>
+    *              1
+    * _ _ _ _ _    _ _ _ _ _    _ _ _ _ _    _ _ _ _ _
+    * _ _ _ _ _ => _ _ _ _ _ => _ _ _ _ _ => _ _ _ _ _
+    * 1 _ _ _ _    _ _ _ _ _    _ 1 _ _ _    1 _ _ _ _
+    * ^              ^
+    * click          click      undo
+    * </pre>
+     */
     @Test
     fun click_on_undo_button() {
         val gs = GameState(3, 2, 3)
@@ -92,13 +114,19 @@ class GameControllerTest {
         controller.tubeClicked(1)
         controller.actionUndo()
 
+        listener.dump()
         assertFalse(controller.isUp())
-        assertEquals(5, listener.observationsLog.size)
+        assertEquals(7, listener.observationsLog.size)
+        // click
         assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
+        // click
         assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
-        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[3])
-        assertEquals("liftAndHoleBall(fromCol=1, toCol=0, fromRow=0, toRow=0, color=1)", listener.observationsLog[4])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+        // undo
+        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[4])
+        assertEquals("liftAndHoleBall(fromCol=1, toCol=0, fromRow=0, toRow=0, color=1)", listener.observationsLog[5])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[6])
     }
 
     @Test
@@ -110,12 +138,14 @@ class GameControllerTest {
 
         controller.actionNewGame()
 
+        listener.dump()
         assertFalse(controller.isUp())
-        assertEquals(4, listener.observationsLog.size)
+        assertEquals(5, listener.observationsLog.size)
         assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[0])
         assertEquals("enableCheat(enabled=true)", listener.observationsLog[1])
         assertEquals("redraw()", listener.observationsLog[2])
         assertEquals("newGameToast()", listener.observationsLog[3])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[4])
     }
 
     @Test
@@ -127,19 +157,24 @@ class GameControllerTest {
 
         controller.actionResetGame()
 
+        listener.dump()
         assertFalse(controller.isUp())
-        assertEquals(3, listener.observationsLog.size)
+        assertEquals(4, listener.observationsLog.size)
         assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[0])
         assertEquals("enableCheat(enabled=true)", listener.observationsLog[1])
         assertEquals("redraw()", listener.observationsLog[2])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
     }
 
 
     /**
      * <pre>
-     * _ _ _ _     _ 2 _ _
-     * 1 2 _ _ =>  1 2 _ _
-     * 1 2 2 1     1 2 _ 1
+     *                2
+     * _ _ _ _    _ _ _ _     _ 2 _ _
+     * 1 2 _ _ => 1 2 _ _ =>  1 2 _ _
+     * 1 2 2 1    1 2 2 1     1 2 _ 1
+     *     ^        ^
+     *   click    click
      * </pre>
      */
     @Test
@@ -161,19 +196,24 @@ class GameControllerTest {
         controller.tubeClicked(2)
         controller.tubeClicked(1)
 
+        listener.dump()
         assertFalse(controller.isUp())
-        assertEquals(3, listener.observationsLog.size)
+        assertEquals(4, listener.observationsLog.size)
         assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog[0])
         //assertEquals("holeBall(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
-        assertEquals("tubeSolved(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
+        assertEquals("holeBallTubeSolved(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2]) // weil erster Zug ueberhaupt
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
     }
 
     /**
      * <pre>
-     * 1 _ _      1 2 _
-     * 1 2 _  =>  1 2 _
-     * 1 2 2      1 2 _
+     *                2
+     * 1 _ _      1 _ _    1 2 _
+     * 1 2 _  =>  1 2 _ => 1 2 _
+     * 1 2 2      1 2 _    1 2 _
+     *     ^        ^
+     * click      click
      * </pre>
      */
     @Test
@@ -194,10 +234,12 @@ class GameControllerTest {
         gs1Up.tubeClicked(2)
         gs1Up.tubeClicked(1)
 
+        listener.dump()
         assertFalse(gs1Up.isUp())
-        assertEquals(3, listener.observationsLog.size)
+        assertEquals(4, listener.observationsLog.size)
         assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog[0])
-        assertEquals("tubeSolved(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
+        assertEquals("holeBallTubeSolved(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
         assertEquals("puzzleSolved()", listener.observationsLog[2])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
     }
 }

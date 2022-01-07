@@ -1,7 +1,6 @@
 package de.heikozelt.ballakotlin2.view
 
 import android.util.Log
-import kotlin.math.min
 
 class OneRowLayout(numberOfTubes: Int, tubeHeight: Int) : BoardLayout(numberOfTubes, tubeHeight) {
 
@@ -50,11 +49,11 @@ class OneRowLayout(numberOfTubes: Int, tubeHeight: Int) : BoardLayout(numberOfTu
      * Umrechnung von Spielbrett-X-Y-Koordinaten in Spalte
      */
     override fun column(virtualX: Int, virtualY: Int): Int {
-        return (virtualX / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING)).toInt()
+        return (virtualX / (MyDrawView.TUBE_WIDTH + MyDrawView.TUBE_PADDING))
     }
 
     override fun isInside(virtualX: Int, virtualY: Int): Boolean {
-        return virtualX >= 0 && virtualX < boardWidth && virtualY >= 0 && virtualY < boardHeight
+        return (virtualX in 0 until boardWidth) && (virtualY in 0 until boardHeight)
     }
 
     companion object {
