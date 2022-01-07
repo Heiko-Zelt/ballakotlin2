@@ -14,4 +14,5 @@
     <string name="desc_arrow_left">flèche de gauche</string>
     <string name="desc_plus_one">encore un</string>
     <string name="desc_burger_menu">buton menu hamburger</string>
+    <string name="desc_lightbulb">ampoule</string>
 </resources>
