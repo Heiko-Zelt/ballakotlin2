@@ -13,6 +13,8 @@ import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.currentCoroutineContext
 
 
 /**
@@ -83,7 +85,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
 
         Log.i(TAG, "injecting game state")
         v?.setGameController(gameController)
-        gameController?.registerGameStateListener(this)
+        gameController?.registerFeedbackContext(Main)
+        gameController?.registerGameObserver(this)
 
         // Wenn der Bildschirm gedreht wird, dann wird die Activity neu instanziiert.
         // Status-Informationen der View gehen verloren.

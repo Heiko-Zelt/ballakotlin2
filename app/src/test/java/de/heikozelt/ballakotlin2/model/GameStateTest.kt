@@ -4,10 +4,25 @@ package de.heikozelt.ballakotlin2.model
 //import org.junit.Assert.assertTrue
 //import org.junit.Assert.assertFalse
 //import org.junit.Test
+
+import kotlinx.coroutines.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.IndexOutOfBoundsException
 
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.test.runTest
+
+//import kotlinx.coroutines.GlobalScope
+//import kotlinx.coroutines.Job
+//import kotlinx.coroutines.launch
+//import kotlinx.coroutines.delay
+//import kotlinx.coroutines.runBlocking geht nicht in Test
+//import kotlinx.coroutines.test.runBlockingTest is deprecated
+
+
+//@get:Rule
+//val coroutineTestRule = CoroutineTestRule()
 
 class GameStateTest {
     @Test
@@ -349,6 +364,7 @@ class GameStateTest {
      * 2 1 _    2 1 _
      * 2 1 1 => 2 1 _
      */
+    @ExperimentalCoroutinesApi
     @Test
     fun findSolutionNoBackAndForth_recursionDepth_0_not_found() {
         var gs = GameState(2, 1, 3).apply {
@@ -361,12 +377,15 @@ class GameStateTest {
             tubes[2].addBall(1)
         }
 
-        val solution = gs.findSolutionNoBackAndForth(0)
-        val solutionStr = if (solution == null) {
-            "null"
-        } else {
-            solution.joinToString(prefix = "[", separator = ", ", postfix = "]")
+        var solution: MutableList<Move>? = null
+        runTest {
+            val job: Job = GlobalScope.launch(Default) {
+                solution = gs.findSolutionNoBackAndForth(0)
+            }
+            job.join()
         }
+
+        val solutionStr = solution?.joinToString(prefix = "[", separator = ", ", postfix = "]") ?: "null"
         println("solution: $solutionStr")
 
         assertEquals(null, solution)
@@ -380,7 +399,7 @@ class GameStateTest {
      */
     @Test
     fun findSolutionNoBackAndForth_recursionDepth_1_found() {
-        var gs = GameState(2, 1, 3).apply {
+        val gs = GameState(2, 1, 3).apply {
             tubes[0].apply {
                 addBall(2); addBall(2); addBall(2)
             }
@@ -391,12 +410,17 @@ class GameStateTest {
         }
         val expectedSolution = arrayOf(Move(2, 1))
 
-        val solution = gs.findSolutionNoBackAndForth(1)
-        val solutionStr = if (solution == null) {
-            "null"
-        } else {
-            solution.joinToString(prefix = "[", separator = ", ", postfix = "]")
+        //val solution = gs.findSolutionNoBackAndForth(1)
+
+        var solution: MutableList<Move>? = null
+        runTest {
+            val job = GlobalScope.launch(Default) {
+                solution = gs.findSolutionNoBackAndForth(1)
+            }
+            job.join()
         }
+
+        val solutionStr = solution?.joinToString(prefix = "[", separator = ", ", postfix = "]") ?: "null"
         println("solution: $solutionStr")
 
         val solutionArray = solution?.toTypedArray()
@@ -424,6 +448,7 @@ class GameStateTest {
      * 1 2 _    1 _ _    _ 1 _    2 1 _
      * 2 1 _ => 2 1 2 => 2 1 2 => 2 1 _
      */
+    @ExperimentalCoroutinesApi
     @Test
     fun findSolution_3_moves() {
         val gs = GameState(2, 1, 2).apply {
@@ -439,12 +464,17 @@ class GameStateTest {
         val solution2a = arrayOf(Move(1, 2), Move(0, 1), Move(0, 2))
         val solution2b = arrayOf(Move(1, 2), Move(0, 1), Move(2, 0))
 
-        val solution = gs.findSolution()
-        val solutionStr = if (solution == null) {
-            "null"
-        } else {
-            solution.joinToString(prefix = "[", separator = ", ", postfix = "]")
+        //val solution = gs.findSolution()
+
+        var solution: List<Move>? = null
+        runTest {
+            val job = GlobalScope.launch(Default) {
+                solution = gs.findSolution()
+            }
+            job.join()
         }
+
+        val solutionStr = solution?.joinToString(prefix = "[", separator = ", ", postfix = "]") ?: "null"
         println("solution: $solutionStr")
 
         val solutionArray = solution?.toTypedArray()
@@ -456,6 +486,39 @@ class GameStateTest {
         assertTrue(match1a || match1b || match2a || match2b)
     }
 
+    /**
+     * _ _ _ _ _ _
+     * 1 2 _ _ _ _
+     * 1 2 _ _ _ _
+     */
+    @ExperimentalCoroutinesApi
+    @Test
+    fun findSolution_unsolvable() {
+        val gs = GameState(2, 4, 3).apply {
+            tubes[0].apply {
+                addBall(1); addBall(1)
+            }
+            tubes[1].apply {
+                addBall(2); addBall(2)
+            }
+        }
+
+        var solution: List<Move>? = null
+        runTest {
+            val job = GlobalScope.launch(Default) {
+                solution = gs.findSolution()
+            }
+            delay(100L)
+            job.cancel()
+            job.join()
+        }
+
+        val solutionStr = solution?.joinToString(prefix = "[", separator = ", ", postfix = "]") ?: "null"
+        println("solution: $solutionStr")
+
+        assertEquals(null, solution)
+    }
+
     @Test
     fun shortesList_empty() {
         val gs = GameState(2, 1, 2)
@@ -464,7 +527,7 @@ class GameStateTest {
     }
 
     @Test
-    fun shortesList_one() {
+    fun shortestList_one() {
         val gs = GameState(2, 1, 2)
         val moves = mutableListOf(Move(0, 1))
         val listOfLists = mutableListOf(moves)
@@ -472,7 +535,7 @@ class GameStateTest {
     }
 
     @Test
-    fun shortesList_two() {
+    fun shortestList_two() {
         val gs = GameState(2, 1, 2)
         val moves0 = mutableListOf(Move(0, 1))
         val moves1 = mutableListOf(Move(0, 1), Move(1, 0))
@@ -481,7 +544,7 @@ class GameStateTest {
     }
 
     @Test
-    fun shortesList_three() {
+    fun shortestList_three() {
         val gs = GameState(2, 1, 2)
         val moves0 = mutableListOf(Move(0, 1))
         val moves1 = mutableListOf(Move(0, 1), Move(1, 0))

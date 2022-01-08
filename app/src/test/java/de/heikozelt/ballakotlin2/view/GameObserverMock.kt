@@ -1,5 +1,6 @@
 package de.heikozelt.ballakotlin2.view
 
+import android.util.Log
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 
 class GameObserverMock: GameObserverInterface {
@@ -55,8 +56,13 @@ class GameObserverMock: GameObserverInterface {
     }
 
     fun dump() {
-        for(o in observationsLog) {
-            println(o)
+        Log.d(TAG, "ObservationsLog: size=${observationsLog.size}")
+        for(i in observationsLog.indices) {
+            Log.d(TAG, "# $i: ${observationsLog[i]}")
         }
+    }
+
+    companion object {
+        private const val TAG = "balla.GameObserverMock"
     }
 }

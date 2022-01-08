@@ -1,14 +1,41 @@
 package de.heikozelt.ballakotlin2
 
+import android.util.Log
 import de.heikozelt.ballakotlin2.model.GameState
+import de.heikozelt.ballakotlin2.model.Move
 import de.heikozelt.ballakotlin2.view.GameObserverMock
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 //import org.junit.Assert.*
 //import org.junit.Test
 
 class GameControllerTest {
+
+    /*
+    //private val dispatcher = newSingleThreadContext("UI thread")
+    @ExperimentalCoroutinesApi
+    private val testDispatcher = StandardTestDispatcher()
+    // private val dispatcher = TestCoroutineDispatcher() deprecated
+
+    @BeforeEach
+    fun setip() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+        testDispatcher.cancelChildren()
+        //dispatcher.close()
+        //dispatcher.cleanupTestCoroutines()
+    }
+
+     */
 
     @Test
     fun constructor_simple() {
@@ -24,7 +51,7 @@ class GameControllerTest {
         val controller = GameController(gs)
 
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         assertFalse(controller.isUp())
         assertTrue(listener.observationsLog.isEmpty())
@@ -37,7 +64,7 @@ class GameControllerTest {
         }
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         controller.tubeClicked(0)
 
@@ -54,7 +81,7 @@ class GameControllerTest {
         }
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         controller.tubeClicked(0)
         controller.tubeClicked(0)
@@ -83,7 +110,7 @@ class GameControllerTest {
         val listener = GameObserverMock()
         val controller = GameController(gs)
 
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
         controller.tubeClicked(0)
         assertTrue(controller.isUp())
         assertEquals(0, controller.getUpCol())
@@ -116,7 +143,7 @@ class GameControllerTest {
         }
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         controller.tubeClicked(0)
         controller.tubeClicked(1)
@@ -145,7 +172,7 @@ class GameControllerTest {
         val gs = GameState(3, 2, 3)
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         controller.actionNewGame()
 
@@ -164,7 +191,7 @@ class GameControllerTest {
         val gs = GameState(3, 2, 3)
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         controller.actionResetGame()
 
@@ -203,7 +230,7 @@ class GameControllerTest {
         }
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         // Zug von Spalte 2 in Spalte 1
         controller.tubeClicked(2)
@@ -248,7 +275,7 @@ class GameControllerTest {
         }
         val controller = GameController(gs)
         val listener = GameObserverMock()
-        controller.registerGameStateListener(listener)
+        controller.registerGameObserver(listener)
 
         // Zug von Spalte 2 in Spalte 1
         controller.tubeClicked(2)
@@ -264,5 +291,99 @@ class GameControllerTest {
         )
         assertEquals("puzzleSolved()", listener.observationsLog[2])
         assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+    }
+
+    /**
+     * <pre>
+     * 1 _ _      1 2 _
+     * 1 2 _   => 1 2 _
+     * 1 2 2      1 2 _
+     * findHelp() actionHelp()
+     * </pre>
+     */
+    @ExperimentalCoroutinesApi
+    @Test
+    fun findHelp_easy() {
+        val gs = GameState(2, 1, 3).apply {
+            tubes[0].apply {
+                addBall(1); addBall(1); addBall(1)
+            }
+            tubes[1].apply {
+                addBall(2); addBall(2)
+            }
+            tubes[2].addBall(2)
+        }
+        val controller = GameController(gs)
+        val listener = GameObserverMock()
+        controller.registerGameObserver(listener)
+
+        runBlocking {
+            controller.registerFeedbackContext(currentCoroutineContext())
+            controller.findHelp()
+            // eine Sekunde sollte normalerweise ausreichen, um eine Lösung zu finden
+            delay(1000L)
+            Log.d(TAG, "in runTest: eine Sekunde später")
+        }
+        Log.d(TAG, "nach runTest: eine Sekunde später")
+        listener.dump()
+        assertEquals(2, listener.observationsLog.size)
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[0])
+        assertEquals("enableHelp(enabled=true)", listener.observationsLog[1])
+        assertEquals(Move(2, 1), controller.helpMove)
+
+        controller.actionHelp()
+        listener.dump()
+        assertEquals(7, listener.observationsLog.size)
+        assertEquals(
+            "liftAndHoleBallTubeSolved(fromCol=2, toCol=1, toRow=2, color=2)",
+            listener.observationsLog[2]
+        )
+        assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[3])
+        assertEquals("puzzleSolved()", listener.observationsLog[4])
+        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[5])
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[6])
+        assertEquals(null, controller.helpMove)
+    }
+
+    /**
+     * _ _ _ _ _ _
+     * 1 2 _ _ _ _
+     * 1 2 _ _ _ _
+     * findHelp() actionHelp()
+     * </pre>
+     */
+    @ExperimentalCoroutinesApi
+    @Test
+    fun findHelp_unsolvable() {
+        val gs = GameState(2, 4, 3).apply {
+            tubes[0].apply {
+                addBall(1); addBall(1)
+            }
+            tubes[1].apply {
+                addBall(2); addBall(2)
+            }
+        }
+        val controller = GameController(gs)
+        val listener = GameObserverMock()
+        controller.registerGameObserver(listener)
+
+        runBlocking {
+            controller.registerFeedbackContext(currentCoroutineContext())
+            controller.findHelp()
+            // eine Sekunde sollte normalerweise ausreichen, um eine Lösung zu finden
+            delay(500L)
+        }
+        listener.dump()
+        assertEquals(1, listener.observationsLog.size)
+        assertEquals("enableHelp(enabled=false)", listener.observationsLog[0])
+        assertEquals(null, controller.helpMove)
+
+        controller.actionHelp()
+        listener.dump()
+        assertEquals(1, listener.observationsLog.size)
+    }
+
+    companion object {
+        private const val TAG = "balla.GameControllerTest"
     }
 }

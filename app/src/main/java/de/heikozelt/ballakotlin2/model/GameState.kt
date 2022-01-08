@@ -1,6 +1,7 @@
 package de.heikozelt.ballakotlin2.model
 
 import android.util.Log
+import kotlinx.coroutines.yield
 import kotlin.collections.List
 import kotlin.random.Random
 
@@ -488,7 +489,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * - Zyklen werden nicht erkannt.
      * - Keine Unterscheidung zwischen sicher unlösbar und keine Lösung gefunden wegen Rekursionstiefenbegrenzung
      */
-    fun findSolution(): List<Move>? {
+    suspend fun findSolution(): List<Move>? {
         val gs2 = this.cloneWithoutLog()
         // erst einfache Lösung suchen, dann Rekursionstiefe erhöhen
         for(recursionDepth in 0 .. MAX_RECURSION) {
@@ -516,7 +517,10 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * Rekursion
      * @param maxRecursionDepth gibt an, wieviele Züge maximal ausprobiert werden.
      */
-    fun findSolutionNoBackAndForth(maxRecursionDepth: Int): MutableList<Move>? {
+    suspend fun findSolutionNoBackAndForth(maxRecursionDepth: Int): MutableList<Move>? {
+        // Job canceled?
+        yield()
+
         if (isSolved()) {
             // 1. Abbruchkriterium: Lösung gefunden
             return mutableListOf()

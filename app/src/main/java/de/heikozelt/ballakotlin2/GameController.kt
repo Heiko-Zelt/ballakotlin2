@@ -1,14 +1,16 @@
 package de.heikozelt.ballakotlin2
 
 import android.util.Log
+import androidx.core.app.RemoteInput
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import de.heikozelt.ballakotlin2.model.Move
+import kotlinx.coroutines.*
+//import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
+
 
 /**
  * Represents the state of the game.
@@ -18,6 +20,8 @@ import kotlinx.coroutines.withContext
 class GameController(private var gameState: GameState) {
 
     private var gameObserver: GameObserverInterface? = null
+
+    private var feedbackContext: CoroutineContext? = null
 
     /**
      * true, if one ball ist lifted.
@@ -40,7 +44,12 @@ class GameController(private var gameState: GameState) {
      * todo: There may be more than one move possible
      * todo: show arrows
      */
-    private var helpMove: Move? = null
+    var helpMove: Move? = null
+
+    /**
+     * Hintergrund-Coroutine, um naechten Zug zu berechnen
+     */
+    private var job: Job? = null
 
     init {
         Log.i(TAG, "init")
@@ -50,12 +59,13 @@ class GameController(private var gameState: GameState) {
         return (helpMove != null)
     }
 
-    private fun findHelp() {
+    fun findHelp() {
         Log.d(TAG, "findHelp()")
         helpMove = null
         gameObserver?.enableHelp(false)
 
-        GlobalScope.launch(Default) {
+        job?.cancel()
+        job = GlobalScope.launch(Default) {
             Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
             val moves = gameState.findSolution()
             Log.d(TAG, "findSolution finished")
@@ -70,13 +80,24 @@ class GameController(private var gameState: GameState) {
                 moves[0]
             }
 
-            if (isHelpAvailable()) {
-                withContext(Main) {
-                    Log.d(TAG, "back in main scope")
-                    gameObserver?.enableHelp(true)
+            feedbackContext?.let {
+                withContext(it) {
+                    Log.d(TAG, "withContext(Main)")
+                    if (isHelpAvailable()) {
+                        Log.d(TAG, "help is available")
+                        gameObserver?.enableHelp(true)
+                    }
                 }
             }
+            // todo: Event-Handler zuerst (und ein einziges Mal) registrieren, dann Job starten, aber wie?
+            // todo: in welchem Thread läuft invokeOnCompletion?
+            // switch to Main/GUI thread
+            // doesn't work in unit tests
+            //withContext(Main) {
+            //            delay(100L)
+            //job?.invokeOnCompletion {
         }
+
     }
 
     fun getNumberOfColors(): Int {
@@ -100,8 +121,15 @@ class GameController(private var gameState: GameState) {
     /**
      * muss aufgerufen werden, wenn eine Activity zum Leben kommt
      */
-    fun registerGameStateListener(gsl: GameObserverInterface) {
+    fun registerGameObserver(gsl: GameObserverInterface) {
         gameObserver = gsl
+    }
+
+    /**
+     * wegen Rückmeldung von findHelp() wenn Hintergrundjob fertig ist.
+     */
+    fun registerFeedbackContext(fd: CoroutineContext) {
+        feedbackContext = fd
     }
 
     /**
@@ -235,7 +263,13 @@ class GameController(private var gameState: GameState) {
                 if (up) {
                     if (upCol == move.from) {
                         Log.d(TAG, "richtiger Ball oben")
-                        gameObserver?.holeBallTubeSolved(move.from, move.to, fromRow, toRow, color)
+                        gameObserver?.holeBallTubeSolved(
+                            move.from,
+                            move.to,
+                            fromRow,
+                            toRow,
+                            color
+                        )
                     } else {
                         Log.d(TAG, "falscher Ball oben")
                         val downToRow = gameState.tubes[upCol].fillLevel - 1
@@ -250,7 +284,7 @@ class GameController(private var gameState: GameState) {
                         )
                     }
                 } else {
-                    Log.d(TAG,"kein Ball oben")
+                    Log.d(TAG, "kein Ball oben")
                     gameObserver?.liftAndHoleBallTubeSolved(
                         move.from,
                         move.to,
@@ -273,7 +307,7 @@ class GameController(private var gameState: GameState) {
                         gameObserver?.liftAndHoleBall(move.from, move.to, fromRow, toRow, color)
                     }
                 } else {
-                    Log.d(TAG,"kein Ball oben")
+                    Log.d(TAG, "kein Ball oben")
                     gameObserver?.liftAndHoleBall(move.from, move.to, fromRow, toRow, color)
                 }
                 gameObserver?.enableUndoAndReset(true)
