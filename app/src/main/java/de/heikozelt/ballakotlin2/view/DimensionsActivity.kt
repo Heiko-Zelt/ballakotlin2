@@ -16,7 +16,7 @@ import de.heikozelt.ballakotlin2.R
  * Beim Drehen des Bildschirms wird die Activity zerstört.
  * Es können also keine Daten dauerhaft in einer Activity gespeichert werden. :-(
  */
-class SettingsActivity : AppCompatActivity() {
+class DimensionsActivity : AppCompatActivity() {
     /**
      * Methode von Activity geerbt
      * wird z.B. aufgerufen, wenn Bildschirm gedreht wird
@@ -24,14 +24,14 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate()")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        setContentView(R.layout.activity_dimensions)
 
-        val colorsTextView = findViewById<TextView?>(R.id.settings_label_number_of_colors)
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.settings_seekbar_number_of_colors)
-        val extraTubesTextView = findViewById<TextView?>(R.id.settings_label_additional_tubes)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.settings_seekbar_additional_tubes)
-        val heightTextView = findViewById<TextView?>(R.id.settings_label_height)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.settings_seekbar_height)
+        val colorsTextView = findViewById<TextView?>(R.id.dimensions_label_number_of_colors)
+        val colorsSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_number_of_colors)
+        val extraTubesTextView = findViewById<TextView?>(R.id.dimensions_label_additional_tubes)
+        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_additional_tubes)
+        val heightTextView = findViewById<TextView?>(R.id.dimensions_label_height)
+        val heightSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_height)
 
         fun updateColorsText(i: Int) {
             colorsTextView?.text = getString(R.string.label_number_of_colors, i)
@@ -90,103 +90,65 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
-
-        /*
-        val controller = (application as BallaApplication).gameController
-        if (controller != null) {
-            colorsSeekBar?.progress = controller.getNumberOfColors() - MIN_COLORS
-            extraTubesSeekBar?.progress = controller.getInitialExtraTubes() - MIN_EXTRA
-            heightSeekBar?.progress = controller.getTubeHeight() - MIN_HEIGHT
-        }
-        */
-
-        // get data from intent instead of "global variable"
+        // get data from intent instead of "global variables"
         val bundle = intent.extras
         val bundleColors = bundle?.getInt("number_of_colors")
+        //val bundleColors = intent.getIntExtra("number_of_colors")
         Log.d(TAG, "bundleColors: $bundleColors")
-        if (bundleColors != null) {
-            colorsSeekBar?.progress = bundleColors - MIN_COLORS
-            updateColorsText(bundleColors)
+        bundleColors?.let {
+            colorsSeekBar?.progress = it - MIN_COLORS
+            updateColorsText(it)
         }
         val bundleExtra = bundle?.getInt("extra_tubes")
         Log.d(TAG, "bundleExtra: $bundleExtra")
-        if (bundleExtra != null) {
-            extraTubesSeekBar?.progress = bundleExtra - MIN_EXTRA
-            updateExtraTubesText(bundleExtra)
+        bundleExtra?.let {
+            extraTubesSeekBar?.progress = it - MIN_EXTRA
+            updateExtraTubesText(it)
         }
         val bundleHeight = bundle?.getInt("height")
         Log.d(TAG, "bundleHeight: $bundleHeight")
-        if (bundleHeight != null) {
-            heightSeekBar?.progress = bundleHeight - MIN_HEIGHT
-            updateHeightText(bundleHeight)
+        bundleHeight?.let {
+            heightSeekBar?.progress = it - MIN_HEIGHT
+            updateHeightText(it)
         }
 
-        findViewById<View?>(R.id.settings_btn_ok)?.setOnClickListener {
+        initButtonsOnClick()
+    }
+
+    private fun initButtonsOnClick() {
+        val colorsSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_number_of_colors)
+        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_additional_tubes)
+        val heightSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_height)
+
+        findViewById<View?>(R.id.dimensions_btn_ok)?.setOnClickListener {
             Log.i(TAG, "user clicked on ok button")
             if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
-                /*
-                val colors = colorsSeekBar.progress + MIN_COLORS
-                val extra = extraTubesSeekBar.progress + MIN_EXTRA
-                val height = heightSeekBar.progress + MIN_HEIGHT
-                (application as BallaApplication).gameController?.actionNewGame(
-                    colors,
-                    extra,
-                    height
-                )
-                */
-                val resultIntent = Intent()
-                val resultBundle = Bundle()
-                resultBundle.putInt("number_of_colors", colorsSeekBar.progress + MIN_COLORS)
-                resultBundle.putInt("extra_tubes", extraTubesSeekBar.progress + MIN_EXTRA)
-                resultBundle.putInt("height", heightSeekBar.progress + MIN_HEIGHT)
-                resultIntent.putExtras(resultBundle)
+                val resultIntent = Intent().apply {
+                    putExtra("number_of_colors", colorsSeekBar.progress + MIN_COLORS)
+                    putExtra("extra_tubes", extraTubesSeekBar.progress + MIN_EXTRA)
+                    putExtra("height", heightSeekBar.progress + MIN_HEIGHT)
+                }
                 setResult(RESULT_OK, resultIntent)
             }
             finish()
         }
 
-        findViewById<View?>(R.id.settings_btn_cancel)?.setOnClickListener {
+        findViewById<View?>(R.id.dimensions_btn_cancel)?.setOnClickListener {
             Log.i(TAG, "user clicked on cancel button")
             setResult(RESULT_CANCELED, intent)
             finish()
         }
 
-        findViewById<View?>(R.id.settings_btn_defaults)?.setOnClickListener {
+        findViewById<View?>(R.id.dimensions_btn_defaults)?.setOnClickListener {
             Log.i(TAG, "user clicked on defaults button")
             colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS - MIN_COLORS
             extraTubesSeekBar?.progress = BallaApplication.NUMBER_OF_EXTRA_TUBES - MIN_EXTRA
             heightSeekBar?.progress = BallaApplication.TUBE_HEIGHT - MIN_HEIGHT
         }
-
-
-    }
-
-    /**
-     * Methode von Activity geerbt
-     */
-    override fun onPause() {
-        Log.d(TAG, "onPause()")
-        super.onPause()
-    }
-
-    /**
-     * Methode von Activity geerbt
-     */
-    override fun onStop() {
-        Log.d(TAG, "onStop()")
-        super.onStop()
-    }
-
-    /**
-     * Methode von Activity geerbt
-     */
-    override fun onDestroy() {
-        Log.d(TAG, "onDestroy()")
-        super.onDestroy()
     }
 
     companion object {
-        private const val TAG = "balla.SettingsActivity"
+        private const val TAG = "balla.DimsActivity"
 
         private const val MIN_COLORS = 2
         //private const val MAX_COLORS = 13

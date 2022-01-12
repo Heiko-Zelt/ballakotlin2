@@ -3,6 +3,8 @@ package de.heikozelt.ballakotlin2.view
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import androidx.core.content.ContextCompat
+import de.heikozelt.ballakotlin2.R
 
 // import android.util.Log
 
@@ -43,6 +45,7 @@ class Ball(var coordinates: Coordinates, color: Int) {
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = Color.YELLOW
+                    //color = ContextCompat.getColor(context, R.color.ball1)
                     style = Paint.Style.FILL
                 },
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {

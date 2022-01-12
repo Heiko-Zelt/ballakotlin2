@@ -181,4 +181,26 @@ class TubeTest {
         assertEquals(3, t.freeCells())
     }
 
+    @Test
+    fun contentEquals_true() {
+        val t1 = Tube(3).apply{
+            addBall(1); addBall(2)
+        }
+        val t2 = Tube(3).apply{
+            addBall(1); addBall(2)
+        }
+        assertTrue(t1.contentEquals(t2))
+    }
+
+    @Test
+    fun contentEquals_false() {
+        val t1 = Tube(3).apply{
+            addBall(1); addBall(2)
+        }
+        val t2 = Tube(3).apply{
+            addBall(1)
+        }
+        assertFalse(t1.contentEquals(t2))
+    }
+
 }

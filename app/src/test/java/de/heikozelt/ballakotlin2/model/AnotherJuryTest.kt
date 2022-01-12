@@ -17,8 +17,10 @@ class AnotherJuryTest {
      */
     @Test
     fun rateBackwardMove_first_move() {
-        val gs = GameState(3, 1, 3)
-        gs.initTubes()
+        val gs = GameState().apply {
+            resize(3, 1, 3)
+            rainbow()
+        }
         val jury = AnotherJury(gs)
         // jeweils Zug in leere Röhre
         assertEquals(3 * AnotherJury.FACTOR_EMPTY, jury.rateBackwardMove(Move(0, 3)))
@@ -35,9 +37,11 @@ class AnotherJuryTest {
      */
     @Test
     fun rateBackwardMove_b() {
-        val gs = GameState(3, 1, 3)
-        gs.initTubes()
-        gs.moveBall(Move(0, 3))
+        val gs = GameState().apply {
+            resize(3, 1, 3)
+            rainbow()
+            moveBall(Move(0, 3))
+        }
         val jury = AnotherJury(gs)
 
         // Zug auf einen Ball in gleicher Farbe von einer Säule in gleicher Farbe
@@ -56,6 +60,7 @@ class AnotherJuryTest {
         assertEquals((3 + 2) * AnotherJury.FACTOR_ONE, jury.rateBackwardMove(Move(2, 3)))
     }
 
+
     /**
      * <pre>
      * 1 _ _ 4 _
@@ -66,23 +71,25 @@ class AnotherJuryTest {
      */
     @Test
     fun rateBackwardMove_c() {
-        val gs = GameState(4, 1, 4)
-        gs.tubes[0].addBall(1)
-        gs.tubes[0].addBall(1)
-        gs.tubes[0].addBall(1)
-        gs.tubes[0].addBall(1)
-        gs.tubes[1].addBall(2)
-        gs.tubes[1].addBall(2)
-        gs.tubes[1].addBall(2)
-        gs.tubes[2].addBall(3)
-        gs.tubes[2].addBall(2)
-        gs.tubes[3].addBall(4)
-        gs.tubes[3].addBall(4)
-        gs.tubes[3].addBall(4)
-        gs.tubes[3].addBall(4)
-        gs.tubes[4].addBall(3)
-        gs.tubes[4].addBall(3)
-        gs.tubes[4].addBall(3)
+        val gs = GameState().apply {
+            resize(4, 1, 4)
+            tubes[0].apply {
+                addBall(1); addBall(1); addBall(1); addBall(1)
+            }
+            tubes[1].apply {
+                addBall(2); addBall(2); addBall(2)
+            }
+            tubes[2].apply {
+                addBall(3); addBall(2)
+            }
+            tubes[3].apply {
+                addBall(4); addBall(4); addBall(4); addBall(4)
+            }
+            tubes[4].apply {
+                addBall(3); addBall(3); addBall(3)
+            }
+            //dump()
+        }
         val jury = AnotherJury(gs)
 
         assertEquals(1, jury.rateBackwardMove(Move(0, 1)))

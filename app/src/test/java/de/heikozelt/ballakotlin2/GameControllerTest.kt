@@ -39,16 +39,20 @@ class GameControllerTest {
 
     @Test
     fun constructor_simple() {
-        val gs = GameState(3, 2, 3)
-        val controller = GameController(gs)
+        val gs = GameState()
+        gs.resize(3,2,3)
+        val controller = GameController()
+        controller.setGameState(gs)
         assertEquals(gs, controller.getGameState())
         assertFalse(controller.isUp())
     }
 
     @Test
     fun registerGameStateListener() {
-        val gs = GameState(3, 2, 3)
-        val controller = GameController(gs)
+        val gs = GameState()
+        gs.resize(3,2,3)
+        val controller = GameController()
+        controller.setGameState(gs)
 
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
@@ -59,10 +63,12 @@ class GameControllerTest {
 
     @Test
     fun click_on_tube_0_once() {
-        val gs = GameState(3, 2, 3).apply {
+        val gs = GameState().apply {
+            resize(3,2,3)
             tubes[0].addBall(1)
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -76,10 +82,12 @@ class GameControllerTest {
 
     @Test
     fun click_on_tube_0_twice() {
-        val gs = GameState(3, 2, 3).apply {
+        val gs = GameState().apply {
+            resize(3,2,3)
             tubes[0].addBall(1)
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -104,12 +112,13 @@ class GameControllerTest {
      */
     @Test
     fun click_on_tube_0_and_1() {
-        val gs = GameState(3, 2, 3).apply {
+        val gs = GameState().apply {
+            resize(3,2,3)
             tubes[0].addBall(1)
         }
         val listener = GameObserverMock()
-        val controller = GameController(gs)
-
+        val controller = GameController()
+        controller.setGameState(gs)
         controller.registerGameObserver(listener)
         controller.tubeClicked(0)
         assertTrue(controller.isUp())
@@ -138,10 +147,12 @@ class GameControllerTest {
      */
     @Test
     fun click_on_undo_button() {
-        val gs = GameState(3, 2, 3).apply {
+        val gs = GameState().apply {
+            resize(3,2,3)
             tubes[0].addBall(1)
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -169,8 +180,10 @@ class GameControllerTest {
 
     @Test
     fun click_on_new_game_button() {
-        val gs = GameState(3, 2, 3)
-        val controller = GameController(gs)
+        val gs = GameState()
+        gs.resize(3,2,3)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -188,8 +201,10 @@ class GameControllerTest {
 
     @Test
     fun click_on_reset_button() {
-        val gs = GameState(3, 2, 3)
-        val controller = GameController(gs)
+        val gs = GameState()
+        gs.resize(3,2,3)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -218,7 +233,8 @@ class GameControllerTest {
      */
     @Test
     fun tube_solved() {
-        val gs = GameState(2, 2, 3).apply {
+        val gs = GameState().apply {
+            resize(3,2,3)
             tubes[0].apply {
                 addBall(1); addBall(1); addBall(1)
             }
@@ -228,7 +244,8 @@ class GameControllerTest {
             tubes[2].addBall(2)
             tubes[3].addBall(1)
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -264,7 +281,8 @@ class GameControllerTest {
      */
     @Test
     fun puzzle_solved() {
-        val gs = GameState(2, 1, 3).apply {
+        val gs = GameState().apply {
+            resize(2,1,3)
             tubes[0].apply {
                 addBall(1); addBall(1); addBall(1)
             }
@@ -273,7 +291,8 @@ class GameControllerTest {
             }
             tubes[2].addBall(2)
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -304,7 +323,8 @@ class GameControllerTest {
     @ExperimentalCoroutinesApi
     @Test
     fun findHelp_easy() {
-        val gs = GameState(2, 1, 3).apply {
+        val gs = GameState().apply {
+            resize(2,1,3)
             tubes[0].apply {
                 addBall(1); addBall(1); addBall(1)
             }
@@ -313,7 +333,8 @@ class GameControllerTest {
             }
             tubes[2].addBall(2)
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 
@@ -355,7 +376,8 @@ class GameControllerTest {
     @ExperimentalCoroutinesApi
     @Test
     fun findHelp_unsolvable() {
-        val gs = GameState(2, 4, 3).apply {
+        val gs = GameState().apply {
+            resize(2, 4, 3)
             tubes[0].apply {
                 addBall(1); addBall(1)
             }
@@ -363,7 +385,8 @@ class GameControllerTest {
                 addBall(2); addBall(2)
             }
         }
-        val controller = GameController(gs)
+        val controller = GameController()
+        controller.setGameState(gs)
         val listener = GameObserverMock()
         controller.registerGameObserver(listener)
 

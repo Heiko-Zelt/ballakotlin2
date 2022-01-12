@@ -14,6 +14,7 @@ import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.GeneralClickAction
 import androidx.test.espresso.ViewAction
 import org.junit.Assert.assertNotEquals
+import java.lang.Thread.sleep
 
 
 class MainActivityTest {
@@ -49,16 +50,19 @@ class MainActivityTest {
             view = it.findViewById(R.id.my_draw_view)
         }
 
+        sleep(1000)
         onView(withId(R.id.main_btn_reset_game)).perform(click())
+        sleep(1000)
         onView(withId(R.id.main_btn_undo)).perform(click())
-        onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        //sleep(1000)
-        onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        //sleep(1000)
-        onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        //sleep(1000)
-        onView(withId(R.id.my_draw_view)).perform(clickIn(500,500))
-        //sleep(1000)
+        sleep(1000)
+        onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
+        sleep(1000)
+        onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
+        sleep(1000)
+        onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
+        sleep(1000)
+        onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
+        sleep(1000)
 
         val v = view
         val a = activity

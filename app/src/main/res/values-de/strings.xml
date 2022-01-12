@@ -15,4 +15,9 @@
     <string name="desc_rewind">zurückspulen</string>
     <string name="desc_burger_menu">Hamburger Menü Icon</string>
     <string name="desc_lightbulb">Glühbirne</string>
+    <string name="menu_close">Speichern &amp; Beenden</string>
+    <string name="menu_new_game">Neues Spiel</string>
+    <string name="menu_dimensions">Dimensionen</string>
+    <string name="menu_cheat">Schummeln</string>
+    <string name="menu_sound_and_animations">Ton &amp; Animationen</string>
 </resources>

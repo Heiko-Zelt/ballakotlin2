@@ -6,21 +6,49 @@ import kotlin.collections.List
 import kotlin.random.Random
 
 /**
- * Represents the State of the game.
+ * Represents the state of the game.
  * All balls are placed in tubes.
+ * The standard contructor creates a zero x zero matrix.
+ * Other constructors(?) & methods create a useful game state.
  */
-class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHeight: Int) {
+class GameState {
+    var numberOfColors = 0
+    var numberOfTubes = 0
+    var numberOfExtraTubes = 0
+    var tubeHeight = 0
 
-    var numberOfTubes = numberOfColors + numberOfExtraTubes
-    var tubes = MutableList(numberOfTubes) { Tube(tubeHeight) }
-    var moveLog = mutableListOf<Move>()
+    //var tubes = MutableList(numberOfTubes) { Tube(0) }
+    var tubes = mutableListOf<Tube>()
+
+    /**
+     * Operationen:
+     * constructor / initialisieren
+     * leeren
+     * klonen / addAll()
+     * push / add()
+     * pop / removeLast() / removeAt(moveLog.size - 1)
+     * isNotEmpty()
+     * last()
+     * size()
+     */
+    val moveLog = Moves()
     private var jury: NeutralJury? = null
 
     init {
-        Log.i(
-            TAG,
-            "init: numberOfColors: ${numberOfColors}, numberOfExtraTubes: ${numberOfExtraTubes}, tubeHeight: $tubeHeight"
-        )
+        Log.i(TAG, "GameState primary constructor")
+    }
+
+    /**
+     * erzeugt ein leeres Spielfeld in den angegebenen Dimensionen
+     */
+    fun resize(_numberOfColors: Int, _numberOfExtraTubes: Int, _tubeHeight: Int) {
+        Log.i(TAG, "GameState secondary constructor")
+        numberOfColors = _numberOfColors
+        numberOfExtraTubes = _numberOfExtraTubes
+        numberOfTubes = _numberOfColors + _numberOfExtraTubes
+        tubeHeight = _tubeHeight
+        tubes = MutableList(numberOfTubes) { Tube(tubeHeight) }
+        moveLog.clear()
     }
 
     /**
@@ -34,12 +62,12 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * Füllt die Röhren mit Bällen, wie wenn Spiel fertig ist.
      * Beispiel:
      * <pre>
-     * 1 2 3 0 0
-     * 1 2 3 0 0
-     * 1 2 3 0 0
+     * 1 2 3 _ _
+     * 1 2 3 _ _
+     * 1 2 3 _ _
      * </pre>
      */
-    fun initTubes() {
+    fun rainbow() {
         Log.i(TAG, "initTubes()")
         // tubes filled with balls of same color
         for (i in 0 until numberOfColors) {
@@ -55,19 +83,20 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
 
     fun newGame() {
         Log.i(TAG, "newGame()")
-        initTubes()
+        rainbow()
         setJury(AnotherJury(this))
         //setJury(AdvancedJury(this))
         //setJury(NeutralJury(this))
         randomizeBalls()
         shuffleTubes()
         // clear undo log
-        moveLog = mutableListOf()
+        moveLog.clear()
     }
 
     fun cloneWithoutLog(): GameState {
         Log.i(TAG, "cloneWithoutLog()")
-        val miniMe = GameState(numberOfColors, numberOfExtraTubes, tubeHeight)
+        val miniMe = GameState()
+        miniMe.resize(numberOfColors, numberOfExtraTubes, tubeHeight)
         for (i in 0 until numberOfTubes) {
             miniMe.tubes[i] = tubes[i].clone()
         }
@@ -156,7 +185,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         // wenn Quelle und Ziel gleich sind.
         if (move.to != move.from) {
             moveBall(move)
-            moveLog.add(move)
+            moveLog.push(move)
             //Log.i("moveLog: ${Gson.toJson(moveLog)}")
         }
     }
@@ -166,7 +195,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      */
     fun undoLastMove(): Move {
         //val forwardMove = moveLog.removeLast()
-        val forwardMove = moveLog.removeAt(moveLog.size - 1)
+        val forwardMove = moveLog.pop()
         val backwardMove = forwardMove.backwards()
         moveBall(backwardMove)
         return backwardMove
@@ -185,7 +214,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * kompliziertes Regelwerk
      */
     fun isMoveAllowed(from: Int, to: Int): Boolean {
-        Log.i(TAG, "isMoveAllowed(from=${from}, to=${to})")
+        //Log.i(TAG, "isMoveAllowed(from=${from}, to=${to})")
 
         // kann keinen Ball aus leerer Röhre nehmen
         if (tubes[from].isEmpty()) {
@@ -210,7 +239,10 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
     /**
      * wie isMoveAllowed() jedoch ohne
      * - Quell-Röhre und Ziel-Röhre identisch
-     * - Zug von Boden auf Boden
+     * - letzten Zug rückwärts (einfacher hin- und her-Zyklus)
+     * - Zug von einfarbiger Röhre in leere Röhre
+     * - bei 2 einfarbige Röhren, Zug von Röhre mit niedrigerem Füllstand in Röhre mit höherem Füllstand
+     * todo: bei 2 Röhren, die unten gleich sind, aber oben unterschiedlich viele Bälle der gleichen Farbe haben, von niedrigerem zu höherem Füllstand.
      */
     fun isMoveUseful(from: Int, to: Int): Boolean {
         //Log.i(TAG, "isMoveUseful(from=${from}, to=${to})")
@@ -227,15 +259,38 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         if (to == from) {
             return false
         }
-        // von Boden einer Röhre zu Boden einer anderen Röhre
-        if (tubes[from].fillLevel == 1 && tubes[to].isEmpty()) {
+        // von einer einfarbigen Röhre zu leerer Röhre
+        // einfachstes Beispiel:
+        // _ _    _ _
+        // 1 _ => _ 1
+        // komplexeres Beispiel:
+        // _ _    _ _
+        // 1 _    _ _
+        // 1 _ => 1 1
+        if ((tubes[from].unicolor() != 0) && tubes[to].isEmpty()) {
             return false
         }
-        if(moveLog.isNotEmpty()) {
+
+        // nicht erlaubt, weil es zu unnötig vielen Zügen führt:
+        // bei 2 einfarbige Röhren, Zug von Röhre mit höherem Füllstand in Röhre mit niedrigeren Füllstand.
+        // _ _    _ _
+        // 1 _ => _ 1
+        // 1 1    1 1
+        if (
+            !tubes[from].isEmpty() && !tubes[to].isEmpty() &&
+            (tubes[from].cells[0] == tubes[to].cells[0]) &&
+            (tubes[from].unicolor() > tubes[to].unicolor())
+        ) {
+            return false
+        }
+
+        // hin- und her, einfachster Zyklus
+        if (moveLog.isNotEmpty()) {
             if (Move(from, to).backwards() == moveLog.last()) {
                 return false
             }
         }
+
         // oberster Ball hat selbe Farbe oder Ziel-Röhre ist leer
         if (tubes[to].isEmpty() || isSameColor(from, to)) {
             return true
@@ -243,6 +298,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         return false
     }
 
+    /* never used
     fun allPossibleMoves(): List<Move> {
         val moves = mutableListOf<Move>()
         for (from in 0 until numberOfTubes) {
@@ -254,17 +310,140 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
         }
         return moves
     }
+    */
 
+    /**
+     * Liefert eine Menge an Röhren ohne Duplikate.
+     * Aber nicht die Röhren selber, sondern Indexe.
+     * Beispiel:
+     * _ 2 _ _ _ _ 2 _    _ 2 _ _ 2 _
+     * _ 3 2 _ _ _ 3 4 => _ 3 2 _ 3 4
+     * 1 1 4 _ 1 _ 3 4    1 1 4 _ 3 4
+     * ---------------    -----------
+     * 0 1 2 3 4 5 6 7    0 1 2 3 6 7
+     * Röhren 4 und 5 sind Duplikate.
+     */
+    fun tubesSet(): MutableList<Int> {
+        val result = mutableListOf<Int>()
+        for (candidate in 0 until tubes.size) {
+            var dup = false
+            for (other in 0 until candidate) {
+                if (tubes[candidate].contentEquals(tubes[other])) {
+                    dup = true
+                }
+            }
+            if (!dup) {
+                result.add(candidate)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Liefert eine Menge an Röhren (Indexe), die geeignet sind.
+     * - ohne Dupletten
+     * - ohne leere Röhren
+     * - ohne gelöste Röhren
+     */
+    fun usefulSourceTubes(): List<Int> {
+        val tSet = tubesSet()
+        val result = mutableListOf<Int>()
+        for (i in tSet) {
+            if (!tubes[i].isEmpty() && !tubes[i].isSolved()) {
+                result.add(i)
+            }
+        }
+        return result
+    }
+
+    /**
+     * liefert eine Menge an Röhren (Indexe).
+     * - mit Dupletten
+     * - ohne volle Röhren
+     * mit Dupletten, wegen diesem Fall:
+     * 1 _ _
+     * 1 2 2
+     * Optimierungs-Potential, aber zu kompliziert:
+     * - Tripletten koennten ausgeschlossen werden.
+     * - Nur Dupletten zulassen, wenn nicht voll.
+     */
+    fun usefulTargetTubes(): List<Int> {
+        val result = mutableListOf<Int>()
+        for (i in tubes.indices) {
+            if (!tubes[i].isFull()) {
+                result.add(i)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Beispiel 1: Quell-Röhren der beiden möglichen Züge sind Inhalts-gleich
+     * 1 1 _
+     * 2 2 _
+     * input: 0->2, 1->2
+     * output: 0->2
+     *
+     * Beispiel 2: Ziel-Röhren der beiden möglichen Züge sind Inhalts-gleich
+     * 1 _ _
+     * 1 _ _
+     * input: 0->1, 0->2
+     * output: 0->1
+     */
+    fun contentDistinctMoves(moves: MutableList<Move>): MutableList<Move> {
+        // alle Züge miteinander vergleichen
+        // also jeden Zug mit Zügen, die vorher in der Liste stehen
+
+        val result = mutableListOf<Move>()
+        // ersten Zug unbedingt hinzufügen (wenn Liste nicht leer ist)
+        //if(moves.size >= 1) {
+        //    result.add(moves[1])
+        //}
+
+        for (candidateIndex in 0 until moves.size) {
+            val candidate = moves[candidateIndex]
+            var dup = false
+            for (otherIndex in 0 until candidateIndex) {
+                val other = moves[otherIndex]
+                //Log.d(TAG,"compare $candidateIndex with $otherIndex, ${candidate.toAscii()} with ${other.toAscii()}")
+                if (tubes[candidate.from].contentEquals(tubes[other.from]) && tubes[candidate.to].contentEquals(
+                        tubes[other.to]
+                    )
+                ) {
+                    //Log.d(TAG, "#$candidateIndex, ${candidate.toAscii()} is duplicate")
+                    dup = true
+                    break
+                }
+            }
+            if (!dup) {
+                //Log.d(TAG, "#$candidateIndex, ${candidate.toAscii()} is unique ")
+                result.add(candidate)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Liefert eine Liste mit Zügen, die als nächster Zug sinnvoll erscheinen.
+     * Das sind alle möglichen Züge außer:
+     * - inhaltsgleiche Züge
+     * - Zug von einfarbiger Röhre in leere Röhre
+     */
     fun allUsefulMoves(): List<Move> {
+        val sourceTubes = usefulSourceTubes()
+        val targetTubes = usefulTargetTubes()
         val moves = mutableListOf<Move>()
-        for (from in 0 until numberOfTubes) {
-            for (to in 0 until numberOfTubes) {
+        for (from in sourceTubes) {
+            for (to in targetTubes) {
                 if (isMoveUseful(from, to)) {
-                    moves.add(Move(from, to))
+                    val m = Move(from, to)
+                    //Log.d(TAG, "add ${m.toAscii()}")
+                    moves.add(m)
                 }
             }
         }
-        return moves
+        val distinct = contentDistinctMoves(moves)
+        return distinct
     }
 
     /**
@@ -446,7 +625,7 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             executedMoveIndex++
         } while (executedMoveIndex < maxMoves)
         // log wieder leeren, bevor das Spiel beginnt
-        moveLog = mutableListOf()
+        moveLog.clear()
         Log.i(TAG, "randomize finished with number of backward moves: $executedMoveIndex")
     }
 
@@ -458,25 +637,44 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * 1 2 3 _ _
      */
     fun dump() {
-        for (row in (tubeHeight - 1) downTo 0) {
-            var line = colorToString(tubes[0].cells[row])
-            for (col in 1 until numberOfTubes) {
-                val color = tubes[col].cells[row]
-                line += " ${colorToString(color)}"
-            }
-            Log.d(TAG, line)
+        Log.d(TAG, "\n${toAscii()}")
+    }
+
+    /**
+     * wandelt 0 in '_', 1 in '1', 2 in '2', ... 10 in 'a' ... 15 in 'f' ... 35 in 'z'
+     */
+    fun colorToChar(color: Int): Char {
+        return if (color == 0) {
+            '_'
+        } else if (color in 1..9) {
+            '0' + color
+        } else if (color in 10..35) {
+            'a' - 10 + color
+        } else {
+            throw IllegalArgumentException("only numbers between 0 and 35 are allowed")
         }
     }
 
     /**
-     * wandelt 0 in " _", 1 in " 1", 2 in " 2", ... 15 in "15"
+     * Wandelt ASCII-Zeichen in Farbnummer um.
+     * '_' -> 0
+     * '1'..'9' -> 1..9
+     * 'a'..'z' -> 10..35
+     * Vorsicht: GUI unterstützt aktuell maximal 15 Farben
      */
-    private fun colorToString(color: Int): String {
-        return if (color == 0) {
-            " _"
+    fun charToColor(char: Char): Int {
+        //Log.d(TAG, "char=>>$char<<")
+        val digit = if (char == '_') {
+            0
+        } else if (char in '1'..'9') {
+            char - '0'
+        } else if (char in 'a'..'z') {
+            char - 'a' + 10
         } else {
-            "%2d".format(color)
+            throw IllegalArgumentException("character must be '_', decimal digit or English lower case letter")
         }
+        //Log.d(TAG, "digit=$digit")
+        return digit
     }
 
     /**
@@ -489,66 +687,129 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
      * - Zyklen werden nicht erkannt.
      * - Keine Unterscheidung zwischen sicher unlösbar und keine Lösung gefunden wegen Rekursionstiefenbegrenzung
      */
-    suspend fun findSolution(): List<Move>? {
+    suspend fun findSolution(): SearchResult {
+        Log.d(TAG, "find Solution for\n${toAscii()}")
         val gs2 = this.cloneWithoutLog()
+        var result = SearchResult()
         // erst einfache Lösung suchen, dann Rekursionstiefe erhöhen
-        for(recursionDepth in 0 .. MAX_RECURSION) {
+        // 1. Abbruchkriterium: Maximale Rekursionstiefe erreicht
+        for (recursionDepth in 0..MAX_RECURSION) {
             //var elapsed = measureNanoTime {
             //var elapsed = measureTime {
             val startTime = System.nanoTime()
-            val solution = gs2.findSolutionNoBackAndForth(recursionDepth)
+            result = gs2.findSolutionNoBackAndForth(recursionDepth)
             val endTime = System.nanoTime()
             val elapsed = (endTime - startTime) / 1000000
-            if(solution != null) {
-                val str = solution.joinToString(prefix="[", separator = ", ", postfix="]")
-                Log.d(TAG, "findSolutionBackAndForth(recursionDepth=$recursionDepth) -> elapsed=$elapsed msec, $str")
-                return solution
-            } else {
-                Log.d(TAG, "findSolutionBackAndForth(recursionDepth=$recursionDepth) -> elapsed=$elapsed msec, null")
+            // 2. Abbruchkriterium: Lösung gefunden
+            when (result.status) {
+                SearchResult.STATUS_FOUND_SOLUTION -> {
+                    Log.d(
+                        TAG,
+                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, found ${result.move?.toAscii()}"
+                    )
+                    return result
+                }
+                SearchResult.STATUS_OPEN -> {
+                    Log.d(
+                        TAG,
+                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, open"
+                    )
+                }
+                SearchResult.STATUS_UNSOLVABLE -> {
+                    Log.d(
+                        TAG,
+                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, unsolvable! :-("
+                    )
+                    return result
+                }
+                else -> {
+                    Log.e(
+                        TAG,
+                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, ???????"
+                    )
+                    return result
+                }
             }
-            if(elapsed * numberOfTubes >= MAX_ESTIMATED_DURATION) {
-                return null
+            // 3. Abbruchkriterium: Zeit-Überschreitung
+            // todo: von was haengt die Anzahl der Verzweigungen ab?
+            if (elapsed * numberOfTubes >= MAX_ESTIMATED_DURATION) {
+                return result
             }
         }
-        return null
+        return result
     }
 
     /**
      * Rekursion
      * @param maxRecursionDepth gibt an, wieviele Züge maximal ausprobiert werden.
+     * todo: Unterscheidung zwischen keine Lösung gefunden wegen Rekursionstiefe ueberschritten und absolut keine Lösung möglich.
+     * todo: mehr Infos im Ergebnis. Wie tief wurde gesucht? Wie viele offene Pfade gibt es?
+     * todo: Zyklen erkennen
+     * todo: Spezialfall: Wenn eine Röhre mit wenigen Zügen(?) gefüllt werden kann, dann diesen Zug bevorzugen. Wo liegt die Grenze?
      */
-    suspend fun findSolutionNoBackAndForth(maxRecursionDepth: Int): MutableList<Move>? {
+    suspend fun findSolutionNoBackAndForth(maxRecursionDepth: Int): SearchResult {
         // Job canceled?
         yield()
 
         if (isSolved()) {
-            // 1. Abbruchkriterium: Lösung gefunden
-            return mutableListOf()
+            //Log.d(TAG,"1. Abbruchkriterium: Lösung gefunden")
+            val resultFound = SearchResult()
+            resultFound.status = SearchResult.STATUS_FOUND_SOLUTION
+            return resultFound
         } else if (maxRecursionDepth == 0) {
-            // 2. Abbruchkriterium: Maximale Rekursionstiefe erreicht
-            return null
+            //Log.d(TAG, "2. Abbruchkriterium: Maximale Rekursionstiefe erreicht")
+            val resultCancel = SearchResult()
+            resultCancel.status = SearchResult.STATUS_OPEN
+            return resultCancel
         }
         val maxRecursion = maxRecursionDepth - 1
         val moves = allUsefulMoves()
+        //Log.d(TAG, "gameState=\n${toAscii()}")
+        //Log.d(TAG, "usefulMoves=")
+        //for(m in moves) {
+        //Log.d(TAG, "  ${m.toAscii()}")
+        //}
         if (moves.isEmpty()) {
-            // 3. Abbruchkriterium: keine Züge mehr möglich
-            return null
+            //Log.d(TAG,"3. Abbruchkriterium: keine Züge mehr möglich")
+            val resultUnsolvable = SearchResult()
+            resultUnsolvable.status = SearchResult.STATUS_UNSOLVABLE
+            return resultUnsolvable
         }
-        val solutions = mutableListOf<MutableList<Move>>()
+        val results = mutableListOf<SearchResult>()
         for (move in moves) {
+            //Log.d(TAG, "Rekursion")
             moveBallAndLog(move)
-            val solu = findSolutionNoBackAndForth(maxRecursion)
-            if (solu != null) {
-                solu.add(0, move)
-                solutions.add(solu)
+            val result = findSolutionNoBackAndForth(maxRecursion)
+            result.move = move
+
+            if (result.status == SearchResult.STATUS_FOUND_SOLUTION) {
+                //Log.d(TAG, "eine Lösung")
+                return result
+            } else {
+                //Log.d(TAG, "keine Lösung")
+                results.add(result)
             }
             undoLastMove()
         }
-        if (solutions.isEmpty()) {
-            return null
-        } else {
-            return shortestList(solutions) as MutableList
+
+        if (allUnsolvable(results)) {
+            return results[0]
         }
+
+        val resultOpen = SearchResult()
+        resultOpen.status = SearchResult.STATUS_OPEN
+        return resultOpen
+    }
+
+    fun allUnsolvable(results: MutableList<SearchResult>): Boolean {
+        var unsolvable = true
+        for (r in results) {
+            if (r.status == SearchResult.STATUS_OPEN) {
+                unsolvable = false
+                break
+            }
+        }
+        return unsolvable
     }
 
     /**
@@ -566,6 +827,122 @@ class GameState(val numberOfColors: Int, var numberOfExtraTubes: Int, val tubeHe
             }
         }
         return shortest
+    }
+
+    /**
+     * exportiert Spielstatus als ASCII-Grafik
+     */
+    fun toAscii(): String {
+        val ascii = StringBuilder()
+        for (row in (tubeHeight - 1) downTo 0) {
+            for (column in 0 until numberOfTubes) {
+                val color = tubes[column].cells[row]
+                val char = colorToChar(color)
+                if (column != 0) {
+                    ascii.append(' ')
+                }
+                ascii.append(char)
+            }
+            // letzte Zeile (Reihe 0) nicht mit newline character abschließen
+            if (row != 0) {
+                ascii.append("\n")
+            }
+            // Log.d(TAG, "toAscii() -> ${ascii.toString()}")
+        }
+        return ascii.toString()
+    }
+
+    /**
+     * Beispiel:
+     * <pre>
+     * val lines = arrayOf<String>(
+     *   "_ 5 5 _ _ 1 _ 3 6",
+     *   "_ 4 7 _ _ 2 _ 6 5",
+     *   "3 7 2 3 2 6 2 4 7",
+     *   "1 4 3 4 5 6 7 1 1"
+     * )
+     * </pre>
+     * todo: pruefen, ob es keine Lücken bei den Farben gibt 1, 2, 3, 7!
+     * todo: Wenn Exception auftritt, ist der Zustand inkonsistent
+     */
+    fun fromAsciiLines(lines: Array<String>) {
+        if (lines.size < 2) {
+            throw IllegalArgumentException("height of game state is less than 2")
+        }
+        val trimmedLines = Array<String>(lines.size) { "" }
+        for (i in lines.indices) {
+            trimmedLines[i] = lines[i].trim().replace(" ", "").replace("\t", "")
+        }
+        numberOfTubes = trimmedLines[0].length
+        Log.d(TAG, "numberOfTubes=$numberOfTubes")
+        for (i in 1 until trimmedLines.size) {
+            if (trimmedLines[i].length != numberOfTubes) {
+                throw IllegalArgumentException("different number of balls in lines of game state")
+            }
+        }
+        if (numberOfTubes < 2) {
+            throw IllegalArgumentException("less than 2 tubes in game state")
+        }
+
+        val allColors = mutableSetOf<Int>()
+        //Log.d(TAG, "allColors begin, trimmedLines.size=${trimmedLines.size}")
+        for (line in trimmedLines) {
+            for (char in line) {
+                val color = charToColor(char)
+                //Log.d(TAG, "char=$char, color=$color)")
+                if ((color != 0) && !allColors.contains(color)) {
+                    //Log.d(TAG, "add")
+                    allColors.add(color)
+                }
+            }
+        }
+        //Log.d(TAG, "allColors end allColors=$allColors")
+        numberOfColors = allColors.size
+
+        if (numberOfColors > numberOfTubes) {
+            throw IllegalArgumentException("more colors than tubes")
+        }
+
+        numberOfExtraTubes = numberOfTubes - numberOfColors
+        tubeHeight = trimmedLines.size
+
+        tubes = MutableList(numberOfTubes) { Tube(tubeHeight) }
+        moveLog.clear()
+
+        // fillLevel wird automatisch berechnet
+        // Schwebende Bälle werden ignoriert
+        // Tube ist konsistent
+        for (column in tubes.indices) {
+            //Log.d(TAG, "column=$column")
+            for (row in 0 until tubeHeight) {
+                val lineNum = tubeHeight - row - 1
+                //Log.d(TAG, "row=$row, lineNum=$lineNum")
+                val line = trimmedLines[lineNum]
+                val color = charToColor(line[column])
+                if (color == 0) {
+                    break
+                }
+                tubes[column].addBall(color)
+            }
+        }
+    }
+
+    /**
+     * importiert Spielstatus von ASCII-Grafik
+     * Beispiel:
+     * <pre>
+     * _ 5 5 _ _ 1 _ 3 6\n
+     * _ 4 7 _ _ 2 _ 6 5\n
+     * 3 7 2 3 2 6 2 4 7\n
+     * 1 4 3 4 5 6 7 1 7\n
+     * </pre>
+     * Leerzeichen und Tabs werden ignoriert.
+     * todo: keine schwebenden Bälle erlauben
+     */
+    fun fromAscii(ascii: String) {
+        Log.d(TAG, "fromAscii(ascii=\n$ascii)")
+        val lines = ascii.split("\n")
+        fromAsciiLines(lines.toTypedArray())
     }
 
     companion object {

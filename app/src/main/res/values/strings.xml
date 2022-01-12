@@ -15,4 +15,15 @@
     <string name="desc_arrow_left">arrow left</string>
     <string name="desc_plus_one">plus one</string>
     <string name="desc_lightbulb">light bulb</string>
+    <string name="menu_new_game">New Game</string>
+    <string name="menu_dimensions">Dimensions</string>
+    <string name="menu_cheat">Cheat</string>
+    <string name="menu_sound_and_animations">Sound &amp; Animations</string>
+    <string name="menu_close">Save &amp; Quit</string>
+
+    <!-- Preference Titles -->
+
+    <!-- Messages Preferences -->
+
+    <!-- Sync Preferences -->
 </resources>

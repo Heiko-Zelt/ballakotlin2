@@ -183,6 +183,10 @@ class Tube(val tubeHeight: Int) {
         return miniMe
     }
 
+    fun contentEquals(other: Tube): Boolean {
+        return cells contentEquals other.cells
+    }
+
     companion object {
         private const val TAG = "balla.Tube"
     }

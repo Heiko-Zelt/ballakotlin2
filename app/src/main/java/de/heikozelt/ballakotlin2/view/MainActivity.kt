@@ -3,18 +3,25 @@ package de.heikozelt.ballakotlin2.view
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
 import android.util.Log
-import android.view.View
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+//import androidx.appcompat.widget.PopupMenu
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.currentCoroutineContext
+import android.app.Activity
+import android.content.Context
+import android.view.*
+import android.widget.PopupWindow
 
 
 /**
@@ -46,8 +53,10 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         return findViewById(R.id.my_draw_view)
     }
 
+    val popup: MenuInflater? = null
 
     private var settingsResult: ActivityResultLauncher<Intent>? = null
+    private var togglesResult: ActivityResultLauncher<Intent>? = null
 
     /**
      * Methode von Activity geerbt
@@ -110,6 +119,109 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
             enableHelp(helpAvailable)
         }
 
+        registerDimensionsResult()
+        registerTogglesResult()
+        initPopupMenu()
+        initOnClick()
+
+        Log.i(TAG, "invalidating / redrawing view")
+        v?.invalidate()
+    }
+
+    private fun initOnClick() {
+        /*
+        findViewById<View?>(R.id.main_btn_new_game)?.setOnClickListener {
+            Log.i(TAG, "user clicked on new game button")
+            gameController?.actionNewGame()
+        }
+        */
+
+        findViewById<View?>(R.id.main_btn_reset_game)?.setOnClickListener {
+            Log.i(TAG, "user clicked on reset game button")
+            gameController?.actionResetGame()
+        }
+
+        findViewById<View?>(R.id.main_btn_undo)?.setOnClickListener {
+            Log.i(TAG, "user clicked on undo button")
+            gameController?.actionUndo()
+        }
+
+        /*
+        findViewById<View?>(R.id.main_btn_plus_one)?.setOnClickListener {
+            Log.i(TAG, "user clicked on cheat button")
+            gameController?.actionCheat()
+        }
+        */
+
+        findViewById<View?>(R.id.main_btn_lightbulb)?.setOnClickListener {
+            Log.i(TAG, "user clicked on light bulb button")
+            gameController?.actionHelp()
+        }
+    }
+
+    private fun initPopupMenu() {
+        // Klick auf Burger Menu öffnet Settings-Activity
+        val imageView = findViewById<View?>(R.id.main_btn_burger_menu)
+        // ?.setOnClickListener {imageView: View ->
+
+        val popupMenu = PopupMenu(this, imageView)
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.item_new_game -> gameController?.actionNewGame()
+                R.id.item_dimensions -> openDimensionsActivity()
+                R.id.item_cheat -> gameController?.actionCheat()
+                R.id.item_sound_and_animations -> openTogglesActivity()
+                R.id.item_close -> {
+                    (application as BallaApplication).saveSettings()
+                    finishAndRemoveTask()
+                }
+                else -> {
+                    Toast.makeText(
+                        applicationContext,
+                        "not implemented",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            }
+            true
+        }
+
+        /*
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val layout = inflater.inflate(R.layout.activity_main, findViewById<ViewGroup>(R.id.popup_menu))
+        val pWindow = PopupWindow(layout, 200,370, true)
+        pWindow.showAtLocation(layout, Gravity.CENTER, 0, 0)
+         */
+
+        popupMenu.inflate(R.menu.popup_menu)
+
+        for (i in 0 until popupMenu.menu.size()) {
+            val item = popupMenu.menu.getItem(i)
+            val spanString = SpannableString(item.getTitle().toString())
+            val end = spanString.length
+            spanString.setSpan(RelativeSizeSpan(1.2f), 0, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            item.title = spanString
+        }
+        // .setOnLongClickListener
+        imageView.setOnClickListener {
+            Log.i(TAG, "user clicked on menu button")
+            try {
+                val popup = PopupMenu::class.java.getDeclaredField("mPopup")
+                popup.isAccessible = true
+                val menu = popup.get(popupMenu)
+                menu.javaClass
+                    .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+                    .invoke(menu, true)
+            } catch (e: Exception) {
+                Log.getStackTraceString(e)
+            } finally {
+                popupMenu.show()
+            }
+        }
+    }
+
+    private fun registerDimensionsResult() {
         settingsResult = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         )
@@ -123,6 +235,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                     val colors = resultBundle.getInt("number_of_colors")
                     val extra = resultBundle.getInt("extra_tubes")
                     val height = resultBundle.getInt("height")
+                    // todo: nur wenn sich etwas geändert hat?
                     (application as BallaApplication).gameController.actionNewGame(
                         colors,
                         extra,
@@ -135,53 +248,77 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                 Log.e(TAG, "unknown activity result code")
             }
         }
-
-        // Klick auf Burger Menu öffnet Settings-Activity
-        findViewById<View?>(R.id.main_btn_burger_menu)?.setOnClickListener {
-            Log.i(TAG, "user clicked on menu button")
-            val launchIntent = Intent(this, SettingsActivity::class.java)
-            val gC = gameController
-            if (gC != null) {
-                val launchBundle = Bundle()
-                launchBundle.putInt("number_of_colors", gC.getNumberOfColors())
-                launchBundle.putInt("extra_tubes", gC.getInitialExtraTubes())
-                Log.d(TAG, "launchBundle.extra_tubes: ${gC.getInitialExtraTubes()}")
-                launchBundle.putInt("height", gC.getTubeHeight())
-                launchIntent.putExtras(launchBundle)
-                // start settings activity
-                settingsResult?.launch(launchIntent)
-            }
-        }
-
-        findViewById<View?>(R.id.main_btn_new_game)?.setOnClickListener {
-            Log.i(TAG, "user clicked on new game button")
-            gameController?.actionNewGame()
-        }
-
-        findViewById<View?>(R.id.main_btn_reset_game)?.setOnClickListener {
-            Log.i(TAG, "user clicked on reset game button")
-            gameController?.actionResetGame()
-        }
-
-        findViewById<View?>(R.id.main_btn_undo)?.setOnClickListener {
-            Log.i(TAG, "user clicked on undo button")
-            gameController?.actionUndo()
-        }
-
-        findViewById<View?>(R.id.main_btn_plus_one)?.setOnClickListener {
-            Log.i(TAG, "user clicked on cheat button")
-            gameController?.actionCheat()
-        }
-
-        findViewById<View?>(R.id.main_btn_lightbulb)?.setOnClickListener {
-            Log.i(TAG, "user clicked on light bulb button")
-            gameController?.actionHelp()
-        }
-
-        Log.i(TAG, "invalidating / redrawing view")
-        v?.invalidate()
     }
 
+    private fun registerTogglesResult() {
+        togglesResult = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        )
+        {
+            Log.d(TAG, "activity result code: ${it.resultCode}")
+            if (it.resultCode == RESULT_OK) {
+                Log.d(TAG, "RESULT_OK")
+                val resultIntent = it.data
+                val resultBundle = resultIntent?.extras
+                if (resultBundle != null) {
+                    val sound = resultBundle.getBoolean("sound")
+                    val animations = resultBundle.getBoolean("animations")
+                    val computer_support = resultBundle.getBoolean("computer_support")
+                    // todo: Reaktion auf neue Einstellungen
+                }
+            } else if (it.resultCode == RESULT_CANCELED) {
+                Log.d(TAG, "RESULT_CANCELED")
+            } else {
+                Log.e(TAG, "unknown activity result code")
+            }
+        }
+    }
+
+    private fun openDimensionsActivity() {
+        gameController?.let { gc ->
+            val launchIntent = Intent(this, DimensionsActivity::class.java)
+            launchIntent.putExtra("number_of_colors", gc.getNumberOfColors())
+            launchIntent.putExtra("extra_tubes", gc.getInitialExtraTubes())
+            launchIntent.putExtra("height", gc.getTubeHeight())
+            settingsResult?.launch(launchIntent)
+        }
+    }
+
+    private fun openTogglesActivity() {
+        //gameController?.let {gc ->
+        val launchIntent = Intent(this, TogglesActivity::class.java)
+        /*
+            launchIntent.putExtra("sound", true)
+            launchIntent.putExtra("animations", true)
+            launchIntent.putExtra("computer_help", true)
+         */
+        togglesResult?.launch(launchIntent)
+        //}
+    }
+
+/*
+ * Hauptmenü initialisieren
+
+override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    val inflater = menuInflater
+    val popup = inflater.inflate(R.menu.burger_menu, menu)
+    return true
+}
+
+override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    when(item.itemId) {
+        R.id.item_new_game -> gameController?.actionNewGame()
+    }
+    return super.onOptionsItemSelected(item)
+}
+*/
+
+    fun onMenuItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.item_new_game -> gameController?.actionNewGame()
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     /**
      * Methode von Activity geerbt
@@ -211,7 +348,13 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     /**
      * Methode von GameOvbserverInterface geerbt
      */
-    override fun holeBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+    override fun holeBallTubeSolved(
+        fromCol: Int,
+        toCol: Int,
+        fromRow: Int,
+        toRow: Int,
+        color: Int
+    ) {
         Log.i(
             TAG,
             "holeBallTubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
@@ -223,7 +366,13 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     /**
      * Methode von GameOvbserverInterface geerbt
      */
-    override fun liftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+    override fun liftAndHoleBallTubeSolved(
+        fromCol: Int,
+        toCol: Int,
+        fromRow: Int,
+        toRow: Int,
+        color: Int
+    ) {
         Log.i(
             TAG,
             "liftAndHoleBallTubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
@@ -332,7 +481,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
      */
     override fun enableCheat(enabled: Boolean) {
         Log.i(TAG, "enableCheat(${enabled})")
-        enableView(R.id.main_btn_plus_one, enabled)
+        //enableView(R.id.main_btn_plus_one, enabled)
+        // todo: menu item enable / disable
     }
 
     /**
@@ -357,31 +507,31 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         }
     }
 
-    /*
-    fun newGame() {
-        val app = application as BallaApplication?
-        if (app == null) {
-            Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
-            return
-        }
-        app.gameState = GameState(app.numberOfColors, app.numberOfExtraTubes, app.tubeHeight)
-        app.gameState.newGame()
-        app.originalGameState = app.gameState.clone()
+/*
+fun newGame() {
+    val app = application as BallaApplication?
+    if (app == null) {
+        Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
+        return
     }
-    */
+    app.gameState = GameState(app.numberOfColors, app.numberOfExtraTubes, app.tubeHeight)
+    app.gameState.newGame()
+    app.originalGameState = app.gameState.clone()
+}
+*/
 
-    /*
-    fun resetGame(view: View) {
-        val app = application as BallaApplication?
-        if (app == null) {
-            Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
-            return
-        }
-        app.gameState = app.originalGameState.clone()
-        val v = findViewById<MyDrawView?>(R.id.myDrawView)
-        v?.resetGameView()
+/*
+fun resetGame(view: View) {
+    val app = application as BallaApplication?
+    if (app == null) {
+        Log.e(TAG, "No reference to BallaApplication in MainActivity.newGame() :-(")
+        return
     }
-     */
+    app.gameState = app.originalGameState.clone()
+    val v = findViewById<MyDrawView?>(R.id.myDrawView)
+    v?.resetGameView()
+}
+ */
 
     companion object {
         private const val TAG = "balla.MainActivity"

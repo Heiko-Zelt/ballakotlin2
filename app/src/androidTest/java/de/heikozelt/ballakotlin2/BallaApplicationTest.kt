@@ -1,7 +1,6 @@
 package de.heikozelt.ballakotlin2
 
 import android.content.Context
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
@@ -46,17 +45,17 @@ class BallaApplicationTest {
         assertEquals("Balla Balla", str)
     }
 
+    /* Initialisierung nicht mehr im Konstruktor von BallaApplication sondern in der onCreate()-Methode
     @Test
     fun getGameController() {
         val ctx = ApplicationProvider.getApplicationContext<Context>()
         val app = ctx.applicationContext as BallaApplication
-        val gameController = app.gameController
-        assertFalse (gameController == null)
-        if(gameController != null) {
-            assertFalse(gameController.isUp())
-            assertEquals(BallaApplication.NUMBER_OF_COLORS ,gameController.getNumberOfColors())
-        }
+        val controller = app.gameController
+
+        assertFalse(controller.isUp())
+        assertEquals(BallaApplication.NUMBER_OF_COLORS, controller.getNumberOfColors())
     }
+    */
 
     companion object {
         private const val TAG = "balla.BallaApplicationTest"

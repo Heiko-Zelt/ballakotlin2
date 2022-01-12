@@ -13,14 +13,14 @@ class MyBallAnimators {
      * find an animator by the position of it's ball
      */
     private fun findAnimator(col: Int, row: Int): MyBallAnimator? {
-        Log.d(TAG, "findAnimator(col=$col, row=$row)")
+        //Log.d(TAG, "findAnimator(col=$col, row=$row)")
         for (mba in animators) {
             if ((col == mba.col) && (row == mba.row)) {
-                Log.d(TAG, "found")
+                //Log.d(TAG, "found")
                 return mba
             }
         }
-        Log.d(TAG, "not found")
+        //Log.d(TAG, "not found")
         return null
     }
 
@@ -34,7 +34,7 @@ class MyBallAnimators {
      */
     @Synchronized
     fun endRemove(col: Int, row: Int) {
-        Log.d(TAG, "endAndRemoveAnimator(col=$col, row=$row)")
+        //Log.d(TAG, "endAndRemoveAnimator(col=$col, row=$row)")
         val mba = findAnimator(col, row)
         if (mba != null) {
             mba.end()
@@ -61,7 +61,7 @@ class MyBallAnimators {
      */
     @Synchronized
     fun endRemoveAddStart(animator: ObjectAnimator, col: Int, row: Int) {
-        Log.d(TAG, "endRemoveAddStart(col=$col, row=$row)")
+        //Log.d(TAG, "endRemoveAddStart(col=$col, row=$row)")
         endRemove(col, row)
         val mba = MyBallAnimator(animator, col, row)
         animators.add(mba)

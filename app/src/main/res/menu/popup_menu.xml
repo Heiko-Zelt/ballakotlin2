@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/popup_menu"
+    android:tag="popup_menu">
+    <item
+        android:id="@+id/item_new_game"
+        android:icon="@drawable/ic_new_game"
+        android:title="@string/menu_new_game"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/item_cheat"
+        android:icon="@drawable/ic_plus_one"
+        android:title="@string/menu_cheat"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/item_dimensions"
+        android:icon="@drawable/ic_unfold_more"
+        android:title="@string/menu_dimensions"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/item_sound_and_animations"
+        android:icon="@drawable/ic_toggle_on"
+        android:title="@string/menu_sound_and_animations"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/item_close"
+        android:icon="@drawable/ic_close"
+        android:title="@string/menu_close"
+        app:showAsAction="never" />
+</menu>

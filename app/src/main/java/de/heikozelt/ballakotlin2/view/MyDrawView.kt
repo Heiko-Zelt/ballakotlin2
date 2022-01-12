@@ -18,7 +18,9 @@ import android.view.SoundEffectConstants
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
+import androidx.core.content.ContextCompat
 import de.heikozelt.ballakotlin2.GameController
+import de.heikozelt.ballakotlin2.R
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -98,38 +100,36 @@ class MyDrawView @JvmOverloads constructor(
      */
     fun calculateBalls() {
         val bL = boardLayout ?: return
-
-        val controller = gameController
-        if (controller != null) {
-            val gs = controller.getGameState()
-            gs.dump()
-            viewTubes = MutableList(gs.numberOfTubes) { ViewTube(gs.tubeHeight) }
-            val vts = viewTubes
-            if (vts != null) {
-                for (col in vts.indices) {
-                    //Log.d(TAG, "tubeHeight=${gs.tubeHeight}")
-                    for (row in 0 until gs.tubeHeight) {
-                        val color = gs.tubes[col].cells[row]
-                        vts[col].cells[row] = if (color == 0) {
-                            null
-                        } else {
-                            val coords =
-                                Coordinates(bL.ballX(col).toFloat(), bL.ballY(col, row).toFloat())
-                            Ball(coords, color)
-                        }
+        val controller = gameController ?: return
+        val gs = gameController?.getGameState() ?: return
+        gs.dump()
+        viewTubes = MutableList(gs.numberOfTubes) { ViewTube(gs.tubeHeight) }
+        val vts = viewTubes
+        if (vts != null) {
+            for (col in vts.indices) {
+                //Log.d(TAG, "tubeHeight=${gs.tubeHeight}")
+                for (row in 0 until gs.tubeHeight) {
+                    val color = gs.tubes[col].cells[row]
+                    vts[col].cells[row] = if (color == 0) {
+                        null
+                    } else {
+                        val coords =
+                            Coordinates(bL.ballX(col).toFloat(), bL.ballY(col, row).toFloat())
+                        Ball(coords, color)
                     }
                 }
             }
-
-            // Spezialfall: ein Ball könnte gerade oben sein
-            if (controller.isUp()) {
-                val liftedBallCol = controller.getUpCol()
-                val liftedBallRow = gs.tubes[controller.getUpCol()].fillLevel - 1 // oberer Ball
-                val liftedBall = viewTubes?.get(liftedBallCol)?.cells?.get(liftedBallRow)
-                liftedBall?.coordinates?.y = bL.liftedBallY(liftedBallCol)
-                    .toFloat() // Position korrigieren, oberhalb der Röhre
-            }
         }
+
+        // Spezialfall: ein Ball könnte gerade oben sein
+        if (controller.isUp()) {
+            val liftedBallCol = controller.getUpCol()
+            val liftedBallRow = gs.tubes[controller.getUpCol()].fillLevel - 1 // oberer Ball
+            val liftedBall = viewTubes?.get(liftedBallCol)?.cells?.get(liftedBallRow)
+            liftedBall?.coordinates?.y = bL.liftedBallY(liftedBallCol)
+                .toFloat() // Position korrigieren, oberhalb der Röhre
+        }
+
     }
 
     /**
@@ -234,12 +234,12 @@ class MyDrawView @JvmOverloads constructor(
     private fun drawTubes(canvas: Canvas) {
         //Log.d(TAG, "drawTubes()")
         val bL = boardLayout ?: return
-
         val gs = gameController?.getGameState()
         if (gs == null) {
             Log.e(TAG, "Kein GameState!")
             return
         }
+
         val numTub = gs.numberOfTubes
         //Log.d(TAG, "numTub=${numTub}")
         val tubHei = gs.tubeHeight
@@ -289,6 +289,7 @@ class MyDrawView @JvmOverloads constructor(
      */
     private fun drawBalls(canvas: Canvas) {
         //Log.d(TAG, "drawBalls()")
+        //val yellow = ContextCompat.getColor(context, R.color.ball1)
 
         val gs = gameController?.getGameState()
         if (gs == null) {
@@ -704,7 +705,13 @@ class MyDrawView @JvmOverloads constructor(
     }
 
     // todo: ein Ball verschwindet
-    private fun animateHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+    private fun animateHoleBallTubeSolved(
+        fromCol: Int,
+        toCol: Int,
+        fromRow: Int,
+        toRow: Int,
+        color: Int
+    ) {
         Log.i(
             TAG,
             "tubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
@@ -809,7 +816,13 @@ class MyDrawView @JvmOverloads constructor(
     /**
      * Ball hoch, seitlich oder diagonal, runter und La Ola
      */
-    private fun animateLiftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
+    private fun animateLiftAndHoleBallTubeSolved(
+        fromCol: Int,
+        toCol: Int,
+        fromRow: Int,
+        toRow: Int,
+        color: Int
+    ) {
         Log.i(
             TAG,
             "animateLiftAndHoleBallTubeSolved(fromCol=${fromCol}, toCol=${toCol}, fromRow=${fromRow}, toRow=${toRow}, color=${color})"

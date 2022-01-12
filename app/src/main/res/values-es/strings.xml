@@ -15,4 +15,9 @@
     <string name="desc_plus_one">uno mas</string>
     <string name="desc_burger_menu">menú de hamburguesa</string>
     <string name="desc_lightbulb">bombilla</string>
+    <string name="menu_close">Guardar &amp; Cerrar</string>
+    <string name="menu_new_game">Nuevo Juego</string>
+    <string name="menu_dimensions">Dimensións</string>
+    <string name="menu_cheat">Engañar</string>
+    <string name="menu_sound_and_animations">Sonido &amp; Animacións</string>
 </resources>

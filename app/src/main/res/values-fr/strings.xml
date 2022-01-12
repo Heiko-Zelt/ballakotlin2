@@ -15,4 +15,9 @@
     <string name="desc_plus_one">encore un</string>
     <string name="desc_burger_menu">buton menu hamburger</string>
     <string name="desc_lightbulb">ampoule</string>
+    <string name="menu_close">Enregister &amp; Fermer</string>
+    <string name="menu_new_game">Nouveau Jeu</string>
+    <string name="menu_cheat">Tricher</string>
+    <string name="menu_dimensions">Dimensions</string>
+    <string name="menu_sound_and_animations">Son &amp; Animations</string>
 </resources>

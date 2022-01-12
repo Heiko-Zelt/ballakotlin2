@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/toggles_layout"
+    android:tag="toggles_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.TogglesActivity">
+
+    <TextView
+        android:id="@+id/toggles_label_sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_number_of_colors"
+        app:layout_constraintBottom_toTopOf="@id/toggles_switch_sound"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- android:textAppearance="@style/TextAppearance.AppCompat.Medium" -->
+    <!-- android:textAppearance="@style/TextviewStyle" -->
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/toggles_switch_sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch 1"
+        app:layout_constraintTop_toBottomOf="@id/toggles_label_sound"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/toggles_label_animations" />
+
+    <TextView
+        android:id="@+id/toggles_label_animations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_additional_tubes"
+        app:layout_constraintTop_toBottomOf="@id/toggles_switch_sound"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/toggles_switch_animations" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/toggles_switch_animations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch"
+        app:layout_constraintTop_toBottomOf="@id/toggles_label_animations"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/toggles_label_computer_support"
+        />
+
+    <TextView
+        android:id="@+id/toggles_label_computer_support"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_height"
+        app:layout_constraintTop_toBottomOf="@id/toggles_switch_animations"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/toggles_switch_computer_support" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/toggles_switch_computer_support"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch"
+        app:layout_constraintTop_toBottomOf="@id/toggles_label_computer_support"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/toggles_btn_ok" />
+
+    <Button
+        android:id="@+id/toggles_btn_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_ok"
+        app:layout_constraintTop_toBottomOf="@id/toggles_switch_computer_support"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/toggles_btn_cancel"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/toggles_btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_cancel"
+        app:layout_constraintTop_toBottomOf="@id/toggles_switch_computer_support"
+        app:layout_constraintLeft_toRightOf="@id/toggles_btn_ok"
+        app:layout_constraintRight_toLeftOf="@id/toggles_btn_defaults"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/toggles_btn_defaults"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_defaults"
+        app:layout_constraintTop_toBottomOf="@id/toggles_switch_computer_support"
+        app:layout_constraintLeft_toRightOf="@id/toggles_btn_cancel"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
