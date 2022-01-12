@@ -20,4 +20,7 @@
     <string name="menu_dimensions">Dimensións</string>
     <string name="menu_cheat">Engañar</string>
     <string name="menu_sound_and_animations">Sonido &amp; Animacións</string>
+    <string name="toggles_label_sound">Sonido:</string>
+    <string name="toggles_label_animations">Animacións</string>
+    <string name="toggles_label_computer_support">Asistido por ordenador:</string>
 </resources>
