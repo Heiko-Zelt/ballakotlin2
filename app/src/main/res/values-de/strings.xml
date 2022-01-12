@@ -20,4 +20,7 @@
     <string name="menu_dimensions">Dimensionen</string>
     <string name="menu_cheat">Schummeln</string>
     <string name="menu_sound_and_animations">Ton &amp; Animationen</string>
+    <string name="toggles_label_computer_support">Computerunterstützung:</string>
+    <string name="toggles_label_animations">Animationen abspielen:</string>
+    <string name="toggles_label_sound">Ton:</string>
 </resources>

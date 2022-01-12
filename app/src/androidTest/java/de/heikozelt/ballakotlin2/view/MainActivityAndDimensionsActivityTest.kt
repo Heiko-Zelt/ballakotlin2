@@ -74,7 +74,7 @@ class MainActivityAndDimensionsActivityTest {
                 )
             )
         )
-        sleep(1000)
+        //sleep(1000)
         // Activity schließen mit Ergebnis successful
         onView(withId(R.id.dimensions_btn_ok)).perform(click())
 

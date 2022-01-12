@@ -645,6 +645,32 @@ class GameStateTest {
         //todo: weitere result-properties pruefen
     }
 
+    @ExperimentalCoroutinesApi
+    @Test
+    fun findSolution_unsolvable2() {
+        val boardAscii = """
+            5 _ 7 _ _ 2 _ _
+            5 5 1 1 6 7 3 4
+            7 5 2 3 6 5 2 4
+            7 6 2 4 6 3 1 4
+            7 3 2 1 6 3 1 4
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(boardAscii)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+
+        }
+        assertEquals(SearchResult.STATUS_UNSOLVABLE, result.status)
+        assertEquals(null, result.move)
+        //todo: weitere result-properties pruefen
+    }
+
     /**
      * einzig sinnvoller Zug ist 4 (a) -> 11 (auf a)
      */
@@ -691,6 +717,7 @@ class GameStateTest {
     /**
      * todo: method shortestList() is never used, delete method and tests
      */
+    /*
     @Test
     fun shortesList_empty() {
         val gs = GameState()
@@ -727,6 +754,8 @@ class GameStateTest {
         val listOfLists = mutableListOf(moves0, moves1, moves2)
         assertEquals(moves2, gs.shortestList(listOfLists))
     }
+*/
+
 
     @Test
     fun colorToChar() {

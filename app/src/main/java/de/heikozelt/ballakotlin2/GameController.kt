@@ -5,6 +5,7 @@ import androidx.core.app.RemoteInput
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import de.heikozelt.ballakotlin2.model.Move
+import de.heikozelt.ballakotlin2.model.SearchResult
 import kotlinx.coroutines.*
 //import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
@@ -83,9 +84,11 @@ class GameController() {
             job = GlobalScope.launch(Default) {
                 Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
                 val searchResult = gs.findSolution()
-                //todo: in der view unterscheiden zwischen keine Lösung gefunden und keine Lösung möglich
-                helpMove = searchResult.move
                 Log.d(TAG, "findSolution finished")
+                //todo: in der view unterscheiden zwischen keine Lösung gefunden und keine Lösung möglich
+                if(searchResult.status == SearchResult.STATUS_FOUND_SOLUTION) {
+                    helpMove = searchResult.move
+                }
 
                 feedbackContext?.let {
                     withContext(it) {

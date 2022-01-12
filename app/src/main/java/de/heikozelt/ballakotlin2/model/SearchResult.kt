@@ -20,7 +20,7 @@ class SearchResult {
     var openEnds = 0
 
     /**
-     * next move to solution, only if solution found and not already solved
+     * next move to solution, only if solution found and not already solved.
      */
     var move: Move? = null
 

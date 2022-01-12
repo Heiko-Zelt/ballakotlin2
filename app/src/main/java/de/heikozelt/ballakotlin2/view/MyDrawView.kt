@@ -37,21 +37,25 @@ class MyDrawView @JvmOverloads constructor(
      */
     private var gameController: GameController? = null
 
-    /*
-     * Board Dimensions depend on number of tubes and tube height
+    /**
+     * verantwortlich für die Anordnung der Röhren und Bälle
      */
-    //private var boardWidth = 0
-    //private var boardHeight = 0
-
     var boardLayout: BoardLayout? = null
 
+    /**
+     * registriert und verwaltet Animators
+     */
     private var myBallAnimators = MyBallAnimators()
 
-    //private var scaleFactor = 0f
-    //private var transY = 0f
-    //private var transX = 0f
-
+    /**
+     * Tubes
+     */
     private var viewTubes: MutableList<ViewTube>? = null
+
+    /**
+     * wird von MainActivity injiziert
+     */
+    var playAnimations: Boolean = true
 
     /**
      * selbst definierte Methode. Setter injection.
@@ -170,7 +174,6 @@ class MyDrawView @JvmOverloads constructor(
         val bL = boardLayout ?: return true
 
         val virtualX = bL.virtualX(event.x)
-        //Log.i(TAG, "virtualX=${virtualX}")
         val virtualY = bL.virtualY(event.y)
 
         if (bL.isInside(virtualX, virtualY)) {
@@ -381,8 +384,11 @@ class MyDrawView @JvmOverloads constructor(
      */
     fun liftBall(col: Int, row: Int, color: Int) {
         Log.i(TAG, "liftBall(col=${col})")
-        dumpi()
-        animateLiftBall(col, row, color)
+        if(playAnimations) {
+            animateLiftBall(col, row, color)
+        } else {
+            immediateLiftBall(col, row)
+        }
     }
 
     /**
@@ -392,8 +398,11 @@ class MyDrawView @JvmOverloads constructor(
      */
     fun dropBall(col: Int, row: Int, color: Int) {
         Log.i(TAG, "dropBall(col=${col}, row=${row}, color=${color})")
-        dumpi()
-        animateDropBall(col, row, color)
+        if(playAnimations) {
+            animateDropBall(col, row, color)
+        } else {
+            immediateDropBall(col, row)
+        }
     }
 
     /**
@@ -410,8 +419,11 @@ class MyDrawView @JvmOverloads constructor(
         val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
         viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
 
-        dumpi()
-        animateHoleBall(fromCol, toCol, fromRow, toRow, color)
+        if(playAnimations) {
+            animateHoleBall(fromCol, toCol, fromRow, toRow, color)
+        } else {
+            immediateHoleBall(toCol, toRow)
+        }
     }
 
     /**
@@ -428,8 +440,11 @@ class MyDrawView @JvmOverloads constructor(
         val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
         viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
 
-        dumpi()
-        animateLiftAndHoleBall(fromCol, toCol, fromRow, toRow, color)
+        if(playAnimations) {
+            animateLiftAndHoleBall(fromCol, toCol, fromRow, toRow, color)
+        } else {
+            immediateHoleBall(toCol, toRow)
+        }
     }
 
     /**
@@ -441,7 +456,11 @@ class MyDrawView @JvmOverloads constructor(
         val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
         viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
 
-        animateHoleBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
+        if(playAnimations) {
+            animateHoleBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
+        } else {
+            immediateHoleBall(toCol, toRow)
+        }
     }
 
     /**
@@ -453,7 +472,40 @@ class MyDrawView @JvmOverloads constructor(
         val animatedBall = viewTubes?.get(fromCol)?.eraseTopmostBall()
         viewTubes?.get(toCol)?.cells?.set(toRow, animatedBall)
 
-        animateLiftAndHoleBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
+        if(playAnimations) {
+            animateLiftAndHoleBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
+        } else {
+            immediateHoleBall(toCol, toRow)
+        }
+    }
+
+    private fun immediateLiftBall(col: Int, row: Int) {
+        boardLayout?.let { bl ->
+            val topY = bl.liftedBallY(col).toFloat()
+            viewTubes?.get(col)?.cells?.get(row)?.coordinates?.y = topY
+            Log.i(TAG, "Ball hat Position geändert / Spielbrett neu zeichnen")
+            invalidate()
+        }
+    }
+
+    private fun immediateDropBall(col: Int, row: Int) {
+        boardLayout?.let { bl ->
+            val endY = bl.ballY(col, row).toFloat()
+            viewTubes?.get(col)?.cells?.get(row)?.coordinates?.y = endY
+            Log.i(TAG, "Ball hat Position geändert / Spielbrett neu zeichnen")
+            invalidate()
+        }
+    }
+
+    private fun immediateHoleBall(toCol: Int, toRow: Int) {
+        boardLayout?.let { bl ->
+            val stopY = bl.ballY(toCol, toRow).toFloat()
+            val stopX = bl.ballX(toCol).toFloat()
+            viewTubes?.get(toCol)?.cells?.get(toRow)?.coordinates?.y = stopY
+            viewTubes?.get(toCol)?.cells?.get(toRow)?.coordinates?.x = stopX
+            Log.i(TAG, "Ball hat Position geändert / Spielbrett neu zeichnen")
+            invalidate()
+        }
     }
 
     /**

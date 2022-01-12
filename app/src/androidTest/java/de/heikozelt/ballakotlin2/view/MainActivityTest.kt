@@ -50,19 +50,19 @@ class MainActivityTest {
             view = it.findViewById(R.id.my_draw_view)
         }
 
-        sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.main_btn_reset_game)).perform(click())
-        sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.main_btn_undo)).perform(click())
-        sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
-        sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
-        sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
-        sleep(1000)
+        //sleep(1000)
         onView(withId(R.id.my_draw_view)).perform(clickIn(50,50))
-        sleep(1000)
+        //sleep(1000)
 
         val v = view
         val a = activity

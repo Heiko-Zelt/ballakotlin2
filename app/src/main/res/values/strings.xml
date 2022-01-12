@@ -20,6 +20,9 @@
     <string name="menu_cheat">Cheat</string>
     <string name="menu_sound_and_animations">Sound &amp; Animations</string>
     <string name="menu_close">Save &amp; Quit</string>
+    <string name="toggles_label_computer_support">Computer support:</string>
+    <string name="toggles_label_animations">Play animations:</string>
+    <string name="toggles_label_sound">Play sound:</string>
 
     <!-- Preference Titles -->
 

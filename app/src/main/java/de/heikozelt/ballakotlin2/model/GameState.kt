@@ -694,8 +694,6 @@ class GameState {
         // erst einfache Lösung suchen, dann Rekursionstiefe erhöhen
         // 1. Abbruchkriterium: Maximale Rekursionstiefe erreicht
         for (recursionDepth in 0..MAX_RECURSION) {
-            //var elapsed = measureNanoTime {
-            //var elapsed = measureTime {
             val startTime = System.nanoTime()
             result = gs2.findSolutionNoBackAndForth(recursionDepth)
             val endTime = System.nanoTime()
@@ -707,7 +705,14 @@ class GameState {
                         TAG,
                         "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, found ${result.move?.toAscii()}"
                     )
-                    return result
+                    break
+                }
+                SearchResult.STATUS_UNSOLVABLE -> {
+                    Log.d(
+                        TAG,
+                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, unsolvable! :-("
+                    )
+                    break
                 }
                 SearchResult.STATUS_OPEN -> {
                     Log.d(
@@ -715,25 +720,18 @@ class GameState {
                         "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, open"
                     )
                 }
-                SearchResult.STATUS_UNSOLVABLE -> {
-                    Log.d(
-                        TAG,
-                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, unsolvable! :-("
-                    )
-                    return result
-                }
                 else -> {
                     Log.e(
                         TAG,
                         "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, ???????"
                     )
-                    return result
+                    break
                 }
             }
             // 3. Abbruchkriterium: Zeit-Überschreitung
             // todo: von was haengt die Anzahl der Verzweigungen ab?
             if (elapsed * numberOfTubes >= MAX_ESTIMATED_DURATION) {
-                return result
+                break
             }
         }
         return result
@@ -764,11 +762,7 @@ class GameState {
         }
         val maxRecursion = maxRecursionDepth - 1
         val moves = allUsefulMoves()
-        //Log.d(TAG, "gameState=\n${toAscii()}")
-        //Log.d(TAG, "usefulMoves=")
-        //for(m in moves) {
-        //Log.d(TAG, "  ${m.toAscii()}")
-        //}
+
         if (moves.isEmpty()) {
             //Log.d(TAG,"3. Abbruchkriterium: keine Züge mehr möglich")
             val resultUnsolvable = SearchResult()
@@ -793,6 +787,8 @@ class GameState {
         }
 
         if (allUnsolvable(results)) {
+            // recycling eines Objekts
+            results[0].move = null
             return results[0]
         }
 
@@ -815,8 +811,7 @@ class GameState {
     /**
      * liefert die kürzeste Liste aus einer Liste von Listen
      * oder null falls die Liste der Listen leer ist.
-     * Todo: Zufällig eine auswählen, wenn 2 gleich lang sind.
-     */
+     * method is never used
     fun shortestList(listOfLists: MutableList<MutableList<Move>>): MutableList<Move>? {
         var length = Int.MAX_VALUE
         var shortest: MutableList<Move>? = null
@@ -828,6 +823,7 @@ class GameState {
         }
         return shortest
     }
+    */
 
     /**
      * exportiert Spielstatus als ASCII-Grafik

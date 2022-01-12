@@ -10,18 +10,14 @@ class BallaApplication : Application() {
     /**
      * Der Spielstand muss erhalten bleiben, auch wenn der Bildschirm gedreht wird.
      * Activity und View sind eher temporäre Objekte.
-     * Deswegen ist Spielstand von Application statt Activity oder View referenziert.
+     * Deswegen ist der Spielstand in Application referenziert.
      */
 
-    /*
-    private var gamei: GameController? = null
-    var gameController: GameController?
-        get() = gamei
-        set(value) {
-            gamei = value
-        }
-     */
     var gameController = GameController()
+
+    var playSound = true
+    var playAnimations = true
+    var computerSupport = true
 
     init {
         Log.i(TAG, "primary constructor")
@@ -47,6 +43,7 @@ class BallaApplication : Application() {
      *  - Spiel-Status
      *  - initialen Spiel-Status (für Reset)
      *  - Log mit Spielzügen (Undo Log)
+     *  etc...
      */
     fun saveSettings() {
         Log.d(TAG, "saveSettings()")
@@ -59,7 +56,11 @@ class BallaApplication : Application() {
                 putString(PREF_INITIAL_GAMESTATE, initialGs.toAscii())
                 putString(PREF_GAMESTATE, gs.toAscii())
                 putString(PREF_MOVE_LOG, gs.moveLog.toAscii())
-                commit()
+                putBoolean(PREF_PLAY_SOUND, playSound)
+                putBoolean(PREF_PLAY_ANIMATIONS, playAnimations)
+                putBoolean(PREF_COMPUTER_SUPPORT, computerSupport)
+                apply() // asynchron
+                //commit() synchron
             }
             Log.d(TAG, "Settings erfolgreich gespeichert.")
         }
@@ -72,19 +73,30 @@ class BallaApplication : Application() {
      *  - Log mit Spielzügen (Undo Log)
      */
     fun loadSettings(): Boolean {
-        Log.d(TAG, "lodSettings()")
+        Log.d(TAG, "loadSettings()")
         val prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
+
+        // einfach direkt setzen:
+        playSound = prefs.getBoolean(PREF_PLAY_SOUND, true)
+        Log.d(TAG, "play sound=$playSound")
+        playAnimations = prefs.getBoolean(PREF_PLAY_ANIMATIONS, true)
+        Log.d(TAG, "play animations=$playAnimations")
+        computerSupport = prefs.getBoolean(PREF_COMPUTER_SUPPORT, true)
+        Log.d(TAG, "computer support=$computerSupport")
+
+        // 1. laden, 2. parsen, 3. übernehmen:
         val boardAscii = prefs.getString(PREF_GAMESTATE, null)
+        val initialBoardAscii = prefs.getString(PREF_INITIAL_GAMESTATE, null)
         val moveLogAscii = prefs.getString(PREF_MOVE_LOG, null)
         Log.d(TAG, "boardAscii=$boardAscii")
         Log.d(TAG, "moveLogAscii=$moveLogAscii")
-        if (boardAscii == null || moveLogAscii == null) {
+        if (boardAscii == null || moveLogAscii == null || initialBoardAscii == null) {
             return false
         } else {
             val gs = GameState()
             val initialGs = GameState()
             try {
-                initialGs.fromAscii(boardAscii)
+                initialGs.fromAscii(initialBoardAscii)
                 gs.fromAscii(boardAscii)
                 gs.moveLog.fromAscii(moveLogAscii)
             } catch (e: IllegalArgumentException) {
@@ -113,6 +125,9 @@ class BallaApplication : Application() {
         private const val PREF_INITIAL_GAMESTATE = "initial_gamestate"
         private const val PREF_GAMESTATE = "gamestate"
         private const val PREF_MOVE_LOG = "move_log"
+        private const val PREF_PLAY_SOUND = "play_sound"
+        private const val PREF_PLAY_ANIMATIONS = "play_animations"
+        private const val PREF_COMPUTER_SUPPORT = "computer_support"
         const val NUMBER_OF_COLORS = 7
         const val NUMBER_OF_EXTRA_TUBES = 2
         const val TUBE_HEIGHT = 4

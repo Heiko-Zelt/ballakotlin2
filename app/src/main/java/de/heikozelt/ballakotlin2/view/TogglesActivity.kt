@@ -2,6 +2,7 @@ package de.heikozelt.ballakotlin2.view
 
 
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -29,25 +30,37 @@ class TogglesActivity : AppCompatActivity() {
         val computerSupportSwitch = findViewById<SwitchMaterial?>(R.id.toggles_switch_computer_support)
 
         val bundle = intent.extras
-        val bundleSound = bundle?.getBoolean("sound")
+        val bundleSound = bundle?.getBoolean(BUNDLE_SOUND, true)
         Log.d(TAG, "bundleSound: $bundleSound")
         bundleSound?.let {
             soundSwitch?.isChecked = it
         }
-        val bundleAnimations = bundle?.getBoolean("animations")
+        val bundleAnimations = bundle?.getBoolean(BUNDLE_ANIMATIONS, true)
         bundleAnimations?.let {
             animationsSwitch?.isChecked = it
         }
-        val bundleComputerSupport = bundle?.getBoolean("computer_support")
+        val bundleComputerSupport = bundle?.getBoolean(BUNDLE_COMPUTER_SUPPORT, true)
         bundleComputerSupport?.let {
             computerSupportSwitch?.isChecked = it
         }
     }
 
     private fun initButtonsOnClick() {
+        val soundSwitch = findViewById<SwitchMaterial?>(R.id.toggles_switch_sound)
+        val animationsSwitch = findViewById<SwitchMaterial?>(R.id.toggles_switch_animations)
+        val computerSupportSwitch = findViewById<SwitchMaterial?>(R.id.toggles_switch_computer_support)
 
         findViewById<View?>(R.id.toggles_btn_ok)?.setOnClickListener {
             Log.i(TAG, "user clicked on ok button")
+            if (soundSwitch != null && animationsSwitch != null && computerSupportSwitch != null) {
+                val resultIntent = Intent().apply {
+                    putExtra(BUNDLE_SOUND, soundSwitch.isChecked)
+                    putExtra(BUNDLE_ANIMATIONS, animationsSwitch.isChecked)
+                    putExtra(BUNDLE_COMPUTER_SUPPORT, computerSupportSwitch.isChecked)
+                }
+                setResult(RESULT_OK, resultIntent)
+            }
+
             finish()
         }
 
@@ -69,5 +82,8 @@ class TogglesActivity : AppCompatActivity() {
          */
         private const val TAG = "balla.TogglesActivity"
 
+        const val BUNDLE_SOUND = "sound"
+        const val BUNDLE_ANIMATIONS = "animations"
+        const val BUNDLE_COMPUTER_SUPPORT = "computer_support"
     }
 }
