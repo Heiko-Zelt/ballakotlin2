@@ -54,9 +54,47 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     private var drawView: MyDrawView? = null
 
     /**
+     * Töne abspielen oder nicht?
+     */
+    private var playSound: Boolean = true
+
+    /**
      * Animationen abspielen oder nicht?
      */
     private var playAnimations: Boolean = true
+
+    /**
+     * Soll der Computer unterstützen?
+     */
+    private var computerSupport: Boolean = true
+
+    /**
+     * enables or disables sound effects
+     */
+    fun enableSound(enabled: Boolean) {
+        playSound = enabled
+        drawView?.playSound = enabled
+        btnBurger?.isSoundEffectsEnabled = enabled
+        btnUndo?.isSoundEffectsEnabled = enabled
+        btnReset?.isSoundEffectsEnabled = enabled
+        btnLightbulb?.isSoundEffectsEnabled = enabled
+    }
+
+    /**
+     * enables or disables animations
+     */
+    fun enableAnimations(enabled: Boolean) {
+        playAnimations = enabled
+        drawView?.playAnimations = enabled
+    }
+
+    /**
+     * enables or disables computer support
+     */
+    fun enableComputerSupport(enabled: Boolean) {
+        computerSupport = enabled
+        gameController?.enableComputerSupport(enabled)
+    }
 
     /**
      * Methode von Activity geerbt
@@ -89,10 +127,11 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         initPopupMenu()
         initOnClick()
 
+        // todo: injection?
         val app = application as BallaApplication
-        Log.d(TAG, "MainActivity.onCreate() playAnimations=$playAnimations")
-        playAnimations = app.playAnimations
-        injectSettings()
+        enableSound(app.playSound)
+        enableAnimations(app.playAnimations)
+        enableComputerSupport(app.computerSupport)
 
         Log.i(TAG, "invalidating / redrawing view")
         drawView?.invalidate()
@@ -101,7 +140,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     }
 
     private fun injectSettings() {
-        drawView?.playAnimations = playAnimations
+
     }
 
     private fun restoreWidgetsStatus() {
@@ -252,8 +291,10 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                     app.playSound = sound
                     app.playAnimations = animations
                     app.computerSupport = compSupport
-                    playAnimations = animations
-                    injectSettings()
+
+                    enableSound(sound)
+                    enableAnimations(animations)
+                    enableComputerSupport(compSupport)
                 }
             } else if (it.resultCode == RESULT_CANCELED) {
                 Log.d(TAG, "received RESULT_CANCELED")

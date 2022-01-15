@@ -56,9 +56,16 @@ class MyDrawView @JvmOverloads constructor(
     private var viewTubes: MutableList<ViewTube>? = null
 
     /**
-     * wird von MainActivity injiziert
+     * wird von MainActivity injiziert.
+     * Animationen abspielen oder nicht?
      */
     var playAnimations: Boolean = true
+
+    /**
+     * wird von MainActivity injiziert
+     * Töne abspielen oder nicht?
+     */
+    var playSound: Boolean = true
 
     /**
      * Geräusche
@@ -89,15 +96,27 @@ class MyDrawView @JvmOverloads constructor(
         soundPool = null
     }
 
+    /**
+     * Spiel (sofort) einen Bounce-Ton ab.
+     * (wenn Töne aktiviert sind)
+     */
     private fun playBounceSound() {
-        soundPool?.play(bounceSound, 1f, 1f, 0, 0, 1f)
-        Log.d(TAG, "playing bounce sound now")
+        if(playSound) {
+            soundPool?.play(bounceSound, 1f, 1f, 0, 0, 1f)
+            Log.d(TAG, "playing bounce sound now")
+        }
     }
 
+    /**
+     * Spiel nach der angegebene Zeit einen Bounce-Ton ab.
+     * @param time Zeitverzögerung in Millisekunden
+     */
     private fun playBounceSoundAfter(time: Float) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            playBounceSound()
-        }, time.toLong())
+        if(playSound) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                playBounceSound()
+            }, time.toLong())
+        }
     }
 
     /**
@@ -222,7 +241,10 @@ class MyDrawView @JvmOverloads constructor(
         if (bL.isInside(virtualX, virtualY)) {
             val column = bL.column(virtualX, virtualY)
             Log.i(TAG, "clicked on col=${column}")
-            playSoundEffect(SoundEffectConstants.CLICK)
+            if(playSound) {
+                Log.d(TAG, "play click sound")
+                playSoundEffect(SoundEffectConstants.CLICK)
+            }
             gameController?.tubeClicked(column)
         }
 

@@ -54,6 +54,11 @@ class GameController {
     private var initialGameState: GameState? = null
 
     /**
+     * Should computer help solve the puzzle
+     */
+    private var isComputerSupportive = true
+
+    /**
      * computer found solution, next possible move
      * todo: There may be more than one move possible
      * todo: show arrows
@@ -61,7 +66,7 @@ class GameController {
     var helpMove: Move? = null
 
     /**
-     * Hintergrund-Coroutine, um naechten Zug zu berechnen
+     * Hintergrund-Coroutine, um nächsten Zug zu berechnen
      */
     private var job: Job? = null
 
@@ -73,40 +78,46 @@ class GameController {
         return (helpMove != null)
     }
 
+    /**
+     * nach jeder Spielstandsänderung (Spielzug, Undo, etc...)
+     * Computer-Unterstützung anfordern.
+     * (auch wenn Computer-Unterstützung deaktiviert war und jetzt aktiviert wird.)
+     */
     fun findHelp() {
         Log.d(TAG, "findHelp()")
         helpMove = null
         gameObserver?.enableHelp(false)
-        gameState?.let { gs ->
-            job?.cancel()
-            job = GlobalScope.launch(Default) {
-                Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
-                val searchResult = gs.findSolution()
-                Log.d(TAG, "findSolution finished")
-                //todo: in der view unterscheiden zwischen keine Lösung gefunden und keine Lösung möglich
-                if(searchResult.status == SearchResult.STATUS_FOUND_SOLUTION) {
-                    helpMove = searchResult.move
-                }
+        job?.cancel()
+        if(isComputerSupportive) {
+            gameState?.let { gs ->
+                job = GlobalScope.launch(Default) {
+                    Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
+                    val searchResult = gs.findSolution()
+                    Log.d(TAG, "findSolution finished")
+                    //todo: in der view unterscheiden zwischen keine Lösung gefunden und keine Lösung möglich
+                    if (searchResult.status == SearchResult.STATUS_FOUND_SOLUTION) {
+                        helpMove = searchResult.move
+                    }
 
-                feedbackContext?.let {
-                    withContext(it) {
-                        Log.d(TAG, "withContext(Main)")
-                        if (isHelpAvailable()) {
-                            Log.d(TAG, "help is available")
-                            gameObserver?.enableHelp(true)
+                    feedbackContext?.let {
+                        withContext(it) {
+                            Log.d(TAG, "withContext(Main)")
+                            if (isHelpAvailable()) {
+                                Log.d(TAG, "help is available")
+                                gameObserver?.enableHelp(true)
+                            }
                         }
                     }
                 }
+                // todo: Event-Handler zuerst (und ein einziges Mal) registrieren, dann Job starten, aber wie?
+                // todo: in welchem Thread läuft invokeOnCompletion?
+                // switch to Main/GUI thread
+                // doesn't work in unit tests
+                //withContext(Main) {
+                //            delay(100L)
+                //job?.invokeOnCompletion {
             }
-            // todo: Event-Handler zuerst (und ein einziges Mal) registrieren, dann Job starten, aber wie?
-            // todo: in welchem Thread läuft invokeOnCompletion?
-            // switch to Main/GUI thread
-            // doesn't work in unit tests
-            //withContext(Main) {
-            //            delay(100L)
-            //job?.invokeOnCompletion {
         }
-
     }
 
     fun getNumberOfColors(): Int {
@@ -184,11 +195,11 @@ class GameController {
      * Dimensionen wie letztes Spiel
      */
     fun actionNewGame() {
-        initialGameState?.let { gs ->
+        initialGameState?.let { igs ->
             actionNewGame(
-                gs.numberOfColors,
-                gs.numberOfExtraTubes,
-                gs.tubeHeight
+                igs.numberOfColors,
+                igs.numberOfExtraTubes,
+                igs.tubeHeight
             )
         }
     }
@@ -426,6 +437,23 @@ class GameController {
                     gameObserver?.liftBall(column, fromRow)
                 }
             }
+        }
+    }
+
+    /**
+     * Should computer try to help with solving the puzzle?
+     */
+    fun enableComputerSupport(enabled: Boolean) {
+        // war ausgeschaltet und wird jetzt eingeschaltet
+        if(!isComputerSupportive && enabled) {
+            isComputerSupportive = true
+            findHelp()
+        }
+        if(!enabled) {
+            isComputerSupportive = false
+            helpMove = null
+            gameObserver?.enableHelp(false)
+            job?.cancel()
         }
     }
 
