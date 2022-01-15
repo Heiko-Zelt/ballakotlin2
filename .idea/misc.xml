@@ -3,9 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.18125" />
         <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/burger_menu.xml" value="0.1" />
         <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_action_name.xml" value="1.15" />
         <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_app_logo.xml" value="0.1" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_burger_menu.xml" value="0.18125" />
+        <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_close.xml" value="0.18125" />
         <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_lightbulb.xml" value="1.0" />
         <entry key="..\:/heiko/Adroid_Projects/ballakotlin2/app/src/main/res/drawable/ic_plus_one.xml" value="0.22" />

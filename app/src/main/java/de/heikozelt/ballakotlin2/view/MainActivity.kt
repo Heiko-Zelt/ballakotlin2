@@ -1,5 +1,6 @@
 package de.heikozelt.ballakotlin2.view
 
+//import androidx.appcompat.widget.PopupMenu
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -7,22 +8,18 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.util.Log
+import android.view.MenuItem
+import android.view.View
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-//import androidx.appcompat.widget.PopupMenu
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import kotlinx.coroutines.Dispatchers.Main
-import android.media.AudioAttributes
-import android.media.AudioManager
-import android.media.SoundPool
-import android.os.Build
-import android.view.*
 
 
 /**
@@ -62,16 +59,6 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     private var playAnimations: Boolean = true
 
     /**
-     * Geräusche
-     */
-    private var soundPool: SoundPool? = null
-
-    /**
-     * Dotzender Tennisball in Röhre
-     */
-    private var bounceSound = 0
-
-    /**
      * Methode von Activity geerbt
      * wird z.B. aufgerufen, wenn Bildschirm gedreht wird
      */
@@ -80,22 +67,6 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-            soundPool =
-                SoundPool.Builder().setMaxStreams(PARALLEL_SOUNDS).setAudioAttributes(audioAttributes).build()
-        } else {
-            // deprecated
-            soundPool = SoundPool(PARALLEL_SOUNDS, AudioManager.STREAM_MUSIC, 0)
-        }
-
-        soundPool?.let { sp ->
-            bounceSound = sp.load(this, R.raw.bounce, 1)
-        }
 
         btnReset = findViewById(R.id.main_btn_reset_game)
         btnUndo = findViewById(R.id.main_btn_undo)
@@ -125,6 +96,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
 
         Log.i(TAG, "invalidating / redrawing view")
         drawView?.invalidate()
+
+        drawView?.initSoundPool(this)
     }
 
     private fun injectSettings() {
@@ -344,37 +317,33 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
      * Methode von GameOvbserverInterface geerbt
      */
     override fun holeBallTubeSolved(
-        fromCol: Int,
-        toCol: Int,
+        fromColumn: Int,
+        toColumn: Int,
         fromRow: Int,
-        toRow: Int,
-        color: Int
+        toRow: Int
     ) {
         Log.i(
             TAG,
-            "holeBallTubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
+            "holeBallTubeSolved(fromCol=$fromColumn, toCol=$toColumn, fromRow=$fromRow, toRow=$toRow)"
         )
-        drawView?.holeBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
-        playBounceSound()
+        drawView?.holeBallTubeSolved(fromColumn, toColumn, fromRow, toRow)
     }
 
     /**
      * Methode von GameOvbserverInterface geerbt
      */
     override fun liftAndHoleBallTubeSolved(
-        fromCol: Int,
-        toCol: Int,
+        fromColumn: Int,
+        toColumn: Int,
         fromRow: Int,
-        toRow: Int,
-        color: Int
+        toRow: Int
     ) {
         Log.i(
             TAG,
-            "liftAndHoleBallTubeSolved(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)"
+            "liftAndHoleBallTubeSolved(fromCol=$fromColumn, toCol=$toColumn, fromRow=$fromRow, toRow=$toRow)"
         )
 
-        drawView?.liftAndHoleBallTubeSolved(fromCol, toCol, fromRow, toRow, color)
-        playBounceSound()
+        drawView?.liftAndHoleBallTubeSolved(fromColumn, toColumn, fromRow, toRow)
     }
 
     /**
@@ -427,36 +396,29 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
     /**
      * Methode von GameObserverInterface geerbt
      */
-    override fun liftBall(col: Int, row: Int, color: Int) {
-        drawView?.liftBall(col, row, color)
+    override fun liftBall(column: Int, row: Int) {
+        drawView?.liftBall(column, row)
     }
 
     /**
      * Methode von GameObserverInterface geerbt
      */
-    override fun dropBall(col: Int, row: Int, color: Int) {
-        drawView?.dropBall(col, row, color)
-        playBounceSound()
-    }
-
-    private fun playBounceSound() {
-        soundPool?.play(bounceSound, 1f,1f,0, 0, 1f)
+    override fun dropBall(column: Int, row: Int) {
+        drawView?.dropBall(column, row)
     }
 
     /**
      * Methode von GameObserverInterface geerbt
      */
-    override fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        drawView?.holeBall(fromCol, toCol, fromRow, toRow, color)
-        playBounceSound()
+    override fun holeBall(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int) {
+        drawView?.holeBall(fromColumn, toColumn, fromRow, toRow)
     }
 
     /**
      * Methode von GameObserverInterface geerbt
      */
-    override fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        drawView?.liftAndHoleBall(fromCol, toCol, fromRow, toRow, color)
-        playBounceSound()
+    override fun liftAndHoleBall(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int) {
+        drawView?.liftAndHoleBall(fromColumn, toColumn, fromRow, toRow)
     }
 
     /**
@@ -502,8 +464,7 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
      */
     override fun onDestroy() {
         super.onDestroy()
-        soundPool?.release()
-        soundPool = null
+        drawView?.destroySoundPool()
         gameController?.unregisterGameStateListener()
 
     }
@@ -512,6 +473,5 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
         private const val TAG = "balla.MainActivity"
         private const val ALPHA_ENABLED = 1.0f
         private const val ALPHA_DISABLED = 0.5f
-        private const val PARALLEL_SOUNDS = 3
     }
 }

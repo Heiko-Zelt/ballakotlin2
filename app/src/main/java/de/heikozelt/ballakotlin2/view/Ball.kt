@@ -3,8 +3,6 @@ package de.heikozelt.ballakotlin2.view
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import androidx.core.content.ContextCompat
-import de.heikozelt.ballakotlin2.R
 
 // import android.util.Log
 

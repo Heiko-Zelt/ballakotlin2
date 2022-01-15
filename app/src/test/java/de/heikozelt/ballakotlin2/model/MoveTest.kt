@@ -2,7 +2,6 @@ package de.heikozelt.ballakotlin2.model
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.lang.IndexOutOfBoundsException
 
 //import org.junit.Test
 //import org.junit.Assert.*

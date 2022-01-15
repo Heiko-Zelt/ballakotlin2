@@ -11,28 +11,28 @@ class GameObserverMock: GameObserverInterface {
         observationsLog.add("redraw()")
     }
 
-    override fun liftBall(col: Int, row: Int, color: Int) {
-        observationsLog.add("liftBall(col=$col, row=$row, color=$color)")
+    override fun liftBall(column: Int, row: Int) {
+        observationsLog.add("liftBall(column=$column, row=$row)")
     }
 
-    override fun dropBall(col: Int, row: Int, color: Int) {
-        observationsLog.add("dropBall(col=$col, row=$row, color=$color)")
+    override fun dropBall(column: Int, row: Int) {
+        observationsLog.add("dropBall(column=$column, row=$row)")
     }
 
-    override fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        observationsLog.add("holeBall(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
+    override fun holeBall(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int) {
+        observationsLog.add("holeBall(fromColumn=$fromColumn, toColumn=$toColumn, toRow=$toRow)")
     }
 
-    override fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        observationsLog.add("liftAndHoleBall(fromCol=$fromCol, toCol=$toCol, fromRow=$fromRow, toRow=$toRow, color=$color)")
+    override fun liftAndHoleBall(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int) {
+        observationsLog.add("liftAndHoleBall(fromColumn=$fromColumn, toColumn=$toColumn, fromRow=$fromRow, toRow=$toRow)")
     }
 
-    override fun holeBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        observationsLog.add("holeBallTubeSolved(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
+    override fun holeBallTubeSolved(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int) {
+        observationsLog.add("holeBallTubeSolved(fromColumn=$fromColumn, toColumn=$toColumn, toRow=$toRow)")
     }
 
-    override fun liftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int) {
-        observationsLog.add("liftAndHoleBallTubeSolved(fromCol=$fromCol, toCol=$toCol, toRow=$toRow, color=$color)")
+    override fun liftAndHoleBallTubeSolved(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int) {
+        observationsLog.add("liftAndHoleBallTubeSolved(fromColumn=$fromColumn, toColumn=$toColumn, toRow=$toRow)")
     }
 
     override fun enableUndoAndReset(enabled: Boolean) {

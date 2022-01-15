@@ -1,6 +1,5 @@
 package de.heikozelt.ballakotlin2.model
 
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

@@ -1,7 +1,6 @@
 package de.heikozelt.ballakotlin2
 
 import android.util.Log
-import androidx.core.app.RemoteInput
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import de.heikozelt.ballakotlin2.model.Move
@@ -9,7 +8,6 @@ import de.heikozelt.ballakotlin2.model.SearchResult
 import kotlinx.coroutines.*
 //import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.Main
 import kotlin.coroutines.CoroutineContext
 
 
@@ -20,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
  * Primary constructor creates GameController without GameState.
  * GameState is loaded later (asynchronously)
  */
-class GameController() {
+class GameController {
     /**
      * Initial gibt es keinen Spielstatus.
      * Er muss erst vom persistenten Speicher geladen werden.
@@ -47,7 +45,7 @@ class GameController() {
      * Only relevant, if one ball is lifted.
      * Contains column number of lifted Ball.
      */
-    private var upCol = 0
+    private var upColumn = 0
 
     /**
      * remember initial game state for reset.
@@ -179,7 +177,7 @@ class GameController() {
     }
 
     fun getUpCol(): Int {
-        return upCol
+        return upColumn
     }
 
     /**
@@ -240,9 +238,8 @@ class GameController() {
         gameState?.let { gs ->
             if (up) {
                 gameObserver?.dropBall(
-                    upCol,
-                    gs.tubes[upCol].fillLevel - 1,
-                    gs.tubes[upCol].colorOfTopmostBall()
+                    upColumn,
+                    gs.tubes[upColumn].fillLevel - 1
                 )
                 up = false
             } else if (gs.moveLog.isNotEmpty()) {
@@ -254,8 +251,7 @@ class GameController() {
                     move.from,
                     move.to,
                     gs.tubes[move.from].fillLevel,
-                    gs.tubes[move.to].fillLevel - 1,
-                    gs.tubes[move.to].colorOfTopmostBall()
+                    gs.tubes[move.to].fillLevel - 1
                 )
                 helpMove = null
                 findHelp()
@@ -313,29 +309,25 @@ class GameController() {
                 gs.moveBallAndLog(move)
                 val fromRow = gs.tubes[move.from].fillLevel
                 val toRow = gs.tubes[move.to].fillLevel - 1
-                val color = gs.tubes[move.to].colorOfTopmostBall()
                 if (gs.tubes[move.to].isSolved()) {
                     if (up) {
-                        if (upCol == move.from) {
+                        if (upColumn == move.from) {
                             Log.d(TAG, "richtiger Ball oben")
                             gameObserver?.holeBallTubeSolved(
                                 move.from,
                                 move.to,
                                 fromRow,
-                                toRow,
-                                color
+                                toRow
                             )
                         } else {
                             Log.d(TAG, "falscher Ball oben")
-                            val downToRow = gs.tubes[upCol].fillLevel - 1
-                            val downColor = gs.tubes[upCol].cells[downToRow]
-                            gameObserver?.dropBall(upCol, downToRow, downColor)
+                            val downToRow = gs.tubes[upColumn].fillLevel - 1
+                            gameObserver?.dropBall(upColumn, downToRow)
                             gameObserver?.liftAndHoleBallTubeSolved(
                                 move.from,
                                 move.to,
                                 fromRow,
-                                toRow,
-                                color
+                                toRow
                             )
                         }
                     } else {
@@ -344,26 +336,24 @@ class GameController() {
                             move.from,
                             move.to,
                             fromRow,
-                            toRow,
-                            color
+                            toRow
                         )
                     }
                     gameObserver?.enableUndoAndReset(true)
                 } else { // keine Röhre gelöst. Also keine La Ola.
                     if (up) {
-                        if (upCol == move.from) {
+                        if (upColumn == move.from) {
                             Log.d(TAG, "richtiger Ball oben")
-                            gameObserver?.holeBall(move.from, move.to, fromRow, toRow, color)
+                            gameObserver?.holeBall(move.from, move.to, fromRow, toRow)
                         } else {
                             Log.d(TAG, "falscher Ball oben")
-                            val downToRow = gs.tubes[upCol].fillLevel - 1
-                            val downColor = gs.tubes[upCol].cells[downToRow]
-                            gameObserver?.dropBall(upCol, downToRow, downColor)
-                            gameObserver?.liftAndHoleBall(move.from, move.to, fromRow, toRow, color)
+                            val downToRow = gs.tubes[upColumn].fillLevel - 1
+                            gameObserver?.dropBall(upColumn, downToRow)
+                            gameObserver?.liftAndHoleBall(move.from, move.to, fromRow, toRow)
                         }
                     } else {
                         Log.d(TAG, "kein Ball oben")
-                        gameObserver?.liftAndHoleBall(move.from, move.to, fromRow, toRow, color)
+                        gameObserver?.liftAndHoleBall(move.from, move.to, fromRow, toRow)
                     }
                     gameObserver?.enableUndoAndReset(true)
                 }
@@ -393,54 +383,47 @@ class GameController() {
      *
      * Sonderfall A.2: Spiel beendet. Hurra!
      */
-    fun tubeClicked(col: Int) {
+    fun tubeClicked(column: Int) {
         gameState?.let { gs ->
             if (up) { // zweiter Klick
                 when {
-                    col == upCol -> { // Sonderfall B
-                        val row = gs.tubes[col].fillLevel - 1
-                        val color = gs.tubes[col].colorOfTopmostBall()
-                        gameObserver?.dropBall(col, row, color)
+                    column == upColumn -> { // Sonderfall B
+                        val row = gs.tubes[column].fillLevel - 1
+                        gameObserver?.dropBall(column, row)
                         up = false
                     }
-                    gs.isMoveAllowed(upCol, col) -> { // Normalfall A
-                        val move = Move(upCol, col)
+                    gs.isMoveAllowed(upColumn, column) -> { // Normalfall A
+                        val move = Move(upColumn, column)
                         gs.moveBallAndLog(move)
-                        val fromRow = gs.tubes[upCol].fillLevel
-                        val toRow = gs.tubes[col].fillLevel - 1
-                        val color = gs.tubes[col].colorOfTopmostBall()
+                        val fromRow = gs.tubes[upColumn].fillLevel
+                        val toRow = gs.tubes[column].fillLevel - 1
                         if (gs.isSolved()) {
-                            gameObserver?.holeBallTubeSolved(upCol, col, fromRow, toRow, color)
+                            gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
                             gameObserver?.puzzleSolved()
-                        } else if (gs.tubes[col].isSolved()) {
-                            gameObserver?.holeBallTubeSolved(upCol, col, fromRow, toRow, color)
+                        } else if (gs.tubes[column].isSolved()) {
+                            gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
                             gameObserver?.enableUndoAndReset(true)
                         } else {
-                            gameObserver?.holeBall(upCol, col, fromRow, toRow, color)
+                            gameObserver?.holeBall(upColumn, column, fromRow, toRow)
                             gameObserver?.enableUndoAndReset(true)
                         }
                         up = false
                         findHelp()
                     }
                     else -> { // Sonderfall C
-                        val downToRow = gs.tubes[upCol].fillLevel - 1
-                        val downColor = gs.tubes[upCol].colorOfTopmostBall()
-
-                        val upFromRow = gs.tubes[col].fillLevel - 1
-                        val upColor = gs.tubes[col].colorOfTopmostBall()
-
-                        gameObserver?.dropBall(upCol, downToRow, downColor)
-                        gameObserver?.liftBall(col, upFromRow, upColor)
-                        upCol = col
+                        val downToRow = gs.tubes[upColumn].fillLevel - 1
+                        val upFromRow = gs.tubes[column].fillLevel - 1
+                        gameObserver?.dropBall(upColumn, downToRow)
+                        gameObserver?.liftBall(column, upFromRow)
+                        upColumn = column
                     }
                 }
             } else { // erster Klick
-                if (!gs.tubes[col].isEmpty()) {
+                if (!gs.tubes[column].isEmpty()) {
                     up = true
-                    upCol = col
-                    val fromRow = gs.tubes[col].fillLevel - 1
-                    val color = gs.tubes[col].colorOfTopmostBall()
-                    gameObserver?.liftBall(col, fromRow, color)
+                    upColumn = column
+                    val fromRow = gs.tubes[column].fillLevel - 1
+                    gameObserver?.liftBall(column, fromRow)
                 }
             }
         }

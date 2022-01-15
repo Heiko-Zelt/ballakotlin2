@@ -1,20 +1,17 @@
 package de.heikozelt.ballakotlin2.view
 
-import android.util.Log
-import android.view.View
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.activityScenarioRule
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.R
+import org.hamcrest.CoreMatchers.*
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
-import android.view.ViewGroup
-import androidx.test.espresso.Espresso.onData
-import androidx.test.espresso.matcher.ViewMatchers.*
-import org.hamcrest.CoreMatchers.*
 import java.lang.Thread.sleep
 
 

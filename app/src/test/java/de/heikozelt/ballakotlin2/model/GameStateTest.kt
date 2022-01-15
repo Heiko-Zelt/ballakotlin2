@@ -757,28 +757,10 @@ class GameStateTest {
 */
 
 
-    @Test
-    fun colorToChar() {
-        val gs = GameState()
-        assertEquals('_', gs.colorToChar(0))
-        assertEquals('1', gs.colorToChar(1))
-        assertEquals('9', gs.colorToChar(9))
-        assertEquals('a', gs.colorToChar(10))
-        assertEquals('f', gs.colorToChar(15))
-    }
-
-    fun charToColor() {
-        val gs = GameState()
-        assertEquals(0, gs.charToColor('_'))
-        assertEquals(1, gs.charToColor('1'))
-        assertEquals(9, gs.charToColor('9'))
-        assertEquals(10, gs.charToColor('a'))
-        assertEquals(15, gs.charToColor('f'))
-    }
 
     @Test
     fun fromAsciiLines_with_spaces() {
-        val lines = arrayOf<String>(
+        val lines = arrayOf(
             "_ 5 5 _ _ 1 _ 3 6",
             "_ 4 7 _ _ 2 _ 6 5",
             "3 7 2 3 2 6 2 4 7",
@@ -806,7 +788,7 @@ class GameStateTest {
     // todo: Lücken bei den Zahlen testen
     @Test
     fun fromAsciiLines_no_spaces() {
-        val lines = arrayOf<String>(
+        val lines = arrayOf(
             "_2_",
             "12_",
             "121"

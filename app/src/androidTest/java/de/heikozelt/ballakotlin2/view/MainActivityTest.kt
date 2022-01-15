@@ -14,7 +14,7 @@ import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.GeneralClickAction
 import androidx.test.espresso.ViewAction
 import org.junit.Assert.assertNotEquals
-import java.lang.Thread.sleep
+//import java.lang.Thread.sleep
 
 
 class MainActivityTest {

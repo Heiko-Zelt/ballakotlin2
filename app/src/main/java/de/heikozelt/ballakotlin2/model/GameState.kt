@@ -103,6 +103,8 @@ class GameState {
         return miniMe
     }
 
+    /*
+     Method is never used
     fun cloneWithLog(): GameState {
         Log.i(TAG, "cloneWithLog()")
         val miniMe = cloneWithoutLog()
@@ -111,6 +113,7 @@ class GameState {
         miniMe.moveLog.addAll(moveLog)
         return miniMe
     }
+    */
 
     /**
      * Setter-Injection
@@ -442,8 +445,7 @@ class GameState {
                 }
             }
         }
-        val distinct = contentDistinctMoves(moves)
-        return distinct
+        return contentDistinctMoves(moves)
     }
 
     /**
@@ -641,43 +643,6 @@ class GameState {
     }
 
     /**
-     * wandelt 0 in '_', 1 in '1', 2 in '2', ... 10 in 'a' ... 15 in 'f' ... 35 in 'z'
-     */
-    fun colorToChar(color: Int): Char {
-        return if (color == 0) {
-            '_'
-        } else if (color in 1..9) {
-            '0' + color
-        } else if (color in 10..35) {
-            'a' - 10 + color
-        } else {
-            throw IllegalArgumentException("only numbers between 0 and 35 are allowed")
-        }
-    }
-
-    /**
-     * Wandelt ASCII-Zeichen in Farbnummer um.
-     * '_' -> 0
-     * '1'..'9' -> 1..9
-     * 'a'..'z' -> 10..35
-     * Vorsicht: GUI unterstützt aktuell maximal 15 Farben
-     */
-    fun charToColor(char: Char): Int {
-        //Log.d(TAG, "char=>>$char<<")
-        val digit = if (char == '_') {
-            0
-        } else if (char in '1'..'9') {
-            char - '0'
-        } else if (char in 'a'..'z') {
-            char - 'a' + 10
-        } else {
-            throw IllegalArgumentException("character must be '_', decimal digit or English lower case letter")
-        }
-        //Log.d(TAG, "digit=$digit")
-        return digit
-    }
-
-    /**
      * Liefert die Lösung als Liste von Zügen oder null, falls keine Lösung gefunden wurde.
      * - Falls es mehrere Lösungen gibt, wird die Lösung mit den wenigsten Zügen geliefert.
      * - Falls es mehrere Lösungen mit gleich vielen Zügen gibt, wird zufällig eine ausewählt.
@@ -865,7 +830,7 @@ class GameState {
         if (lines.size < 2) {
             throw IllegalArgumentException("height of game state is less than 2")
         }
-        val trimmedLines = Array<String>(lines.size) { "" }
+        val trimmedLines = Array(lines.size) { "" }
         for (i in lines.indices) {
             trimmedLines[i] = lines[i].trim().replace(" ", "").replace("\t", "")
         }

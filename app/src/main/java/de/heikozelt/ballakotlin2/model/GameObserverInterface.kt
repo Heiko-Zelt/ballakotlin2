@@ -14,24 +14,24 @@ interface GameObserverInterface {
     /**
      * Ein Ball senkrecht anheben.
      */
-    fun liftBall(col: Int, row: Int, color: Int)
+    fun liftBall(column: Int, row: Int)
 
     /**
      * Ein Ball wieder senkrecht fallen lassen.
      * Der Spieler hat es sich anders überlegt.
      */
-    fun dropBall(col: Int, row: Int, color: Int)
+    fun dropBall(column: Int, row: Int)
 
     /**
      * Ball einlochen (erst waagrecht und dann senkrecht runter)
      */
-    fun holeBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+    fun holeBall(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int)
 
     /**
      * Bei Klick auf Undo-Button.
      * Ball hochheben, wagrecht und einlochen.
      */
-    fun liftAndHoleBall(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+    fun liftAndHoleBall(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int)
 
     /**
      * called, when a tube is solved
@@ -44,7 +44,7 @@ interface GameObserverInterface {
      * 1 2 _    1 2 _
      * </pre>
      */
-    fun holeBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+    fun holeBallTubeSolved(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int)
 
     /**
      * called when a tube is solved and
@@ -56,7 +56,7 @@ interface GameObserverInterface {
      * 1 2 2    1 2 _
      * </pre>
      */
-    fun liftAndHoleBallTubeSolved(fromCol: Int, toCol: Int, fromRow: Int, toRow: Int, color: Int)
+    fun liftAndHoleBallTubeSolved(fromColumn: Int, toColumn: Int, fromRow: Int, toRow: Int)
 
     /**
      * method is called with parameter true after first move.

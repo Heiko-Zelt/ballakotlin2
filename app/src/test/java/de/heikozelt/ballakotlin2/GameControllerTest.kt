@@ -4,11 +4,11 @@ import android.util.Log
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.Move
 import de.heikozelt.ballakotlin2.view.GameObserverMock
-import kotlinx.coroutines.*
-import kotlinx.coroutines.test.*
-import org.junit.jupiter.api.AfterEach
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 //import org.junit.Assert.*
@@ -77,7 +77,7 @@ class GameControllerTest {
         assertTrue(controller.isUp())
         assertEquals(0, controller.getUpCol())
         assertEquals(1, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
+        assertEquals("liftBall(column=0, row=0)", listener.observationsLog[0])
     }
 
     @Test
@@ -96,8 +96,8 @@ class GameControllerTest {
 
         assertFalse(controller.isUp())
         assertEquals(2, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
-        assertEquals("dropBall(col=0, row=0, color=1)", listener.observationsLog[1])
+        assertEquals("liftBall(column=0, row=0)", listener.observationsLog[0])
+        assertEquals("dropBall(column=0, row=0)", listener.observationsLog[1])
     }
 
     /**
@@ -129,8 +129,8 @@ class GameControllerTest {
         listener.dump()
         assertFalse(controller.isUp())
         assertEquals(4, listener.observationsLog.size)
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
-        assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog[1])
+        assertEquals("liftBall(column=0, row=0)", listener.observationsLog[0])
+        assertEquals("holeBall(fromColumn=0, toColumn=1, toRow=0)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
         assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
     }
@@ -164,15 +164,15 @@ class GameControllerTest {
         assertFalse(controller.isUp())
         assertEquals(7, listener.observationsLog.size)
         // click
-        assertEquals("liftBall(col=0, row=0, color=1)", listener.observationsLog[0])
+        assertEquals("liftBall(column=0, row=0)", listener.observationsLog[0])
         // click
-        assertEquals("holeBall(fromCol=0, toCol=1, toRow=0, color=1)", listener.observationsLog[1])
+        assertEquals("holeBall(fromColumn=0, toColumn=1, toRow=0)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
         assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
         // undo
         assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[4])
         assertEquals(
-            "liftAndHoleBall(fromCol=1, toCol=0, fromRow=0, toRow=0, color=1)",
+            "liftAndHoleBall(fromColumn=1, toColumn=0, fromRow=0, toRow=0)",
             listener.observationsLog[5]
         )
         assertEquals("enableHelp(enabled=false)", listener.observationsLog[6])
@@ -256,10 +256,10 @@ class GameControllerTest {
         listener.dump()
         assertFalse(controller.isUp())
         assertEquals(4, listener.observationsLog.size)
-        assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog[0])
-        //assertEquals("holeBall(fromCol=2, toCol=1, toRow=2, color=2)", listener.observationsLog[1])
+        assertEquals("liftBall(column=2, row=0)", listener.observationsLog[0])
+        //assertEquals("holeBall(fromCol=2, toCol=1, toRow=2)", listener.observationsLog[1])
         assertEquals(
-            "holeBallTubeSolved(fromCol=2, toCol=1, toRow=2, color=2)",
+            "holeBallTubeSolved(fromColumn=2, toColumn=1, toRow=2)",
             listener.observationsLog[1]
         )
         assertEquals(
@@ -303,9 +303,9 @@ class GameControllerTest {
         listener.dump()
         assertFalse(controller.isUp())
         assertEquals(4, listener.observationsLog.size)
-        assertEquals("liftBall(col=2, row=0, color=2)", listener.observationsLog[0])
+        assertEquals("liftBall(column=2, row=0)", listener.observationsLog[0])
         assertEquals(
-            "holeBallTubeSolved(fromCol=2, toCol=1, toRow=2, color=2)",
+            "holeBallTubeSolved(fromColumn=2, toColumn=1, toRow=2)",
             listener.observationsLog[1]
         )
         assertEquals("puzzleSolved()", listener.observationsLog[2])
@@ -356,7 +356,7 @@ class GameControllerTest {
         listener.dump()
         assertEquals(7, listener.observationsLog.size)
         assertEquals(
-            "liftAndHoleBallTubeSolved(fromCol=2, toCol=1, toRow=2, color=2)",
+            "liftAndHoleBallTubeSolved(fromColumn=2, toColumn=1, toRow=2)",
             listener.observationsLog[2]
         )
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[3])

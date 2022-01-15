@@ -1,7 +1,7 @@
 package de.heikozelt.ballakotlin2.model
 
 import android.util.Log
-import java.lang.IllegalArgumentException
+// import java.lang.IllegalArgumentException
 
 /**
  * Die Klasse repräsentiert eine Abfolge von Spielzügen.
