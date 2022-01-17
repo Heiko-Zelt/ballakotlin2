@@ -1,6 +1,5 @@
 package de.heikozelt.ballakotlin2.model
 
-import android.util.Log
 // import java.lang.IllegalArgumentException
 
 /**
@@ -32,10 +31,6 @@ class Moves {
         val miniMe = Moves()
         miniMe.pushAll(this)
         return miniMe
-    }
-
-    fun addAll(moves: Moves) {
-        movesList.addAll(moves.movesList)
     }
 
     fun pushAll(moves: Moves) {

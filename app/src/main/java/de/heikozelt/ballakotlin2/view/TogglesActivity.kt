@@ -16,12 +16,15 @@ import de.heikozelt.ballakotlin2.R
  */
 class TogglesActivity : AppCompatActivity() {
 
-    var soundSwitch: SwitchMaterial? = null
-    var animationsSwitch: SwitchMaterial? = null
-    var computerSupportSwitch: SwitchMaterial? = null
-    var okBtn: View? = null
-    var cancelBtn: View? = null
-    var defaultsBtn: View? = null
+    /**
+     * Widgets
+     */
+    private var soundSwitch: SwitchMaterial? = null
+    private var animationsSwitch: SwitchMaterial? = null
+    private var computerSupportSwitch: SwitchMaterial? = null
+    private var okBtn: View? = null
+    private var cancelBtn: View? = null
+    private var defaultsBtn: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

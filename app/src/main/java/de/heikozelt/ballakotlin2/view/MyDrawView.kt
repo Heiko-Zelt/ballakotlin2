@@ -9,13 +9,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.media.AudioAttributes
-import android.media.AudioManager
 import android.media.SoundPool
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -98,10 +95,11 @@ class MyDrawView @JvmOverloads constructor(
 
         val paintsArray: TypedArray = resources.obtainTypedArray(R.array.ball_colors)
         for (i in 0..DimensionsActivity.MAX_COLORS) {
-            paints[i] =  Paint(Paint.ANTI_ALIAS_FLAG)
+            paints[i] =  Paint(ANTI_ALIAS_FLAG)
             paints[i]?.color = paintsArray.getColor(i,0)
             paints[i]?.style = Paint.Style.FILL
         }
+        paintsArray.recycle()
 
         /*
 
@@ -222,7 +220,7 @@ class MyDrawView @JvmOverloads constructor(
                     } else {
                         val coords =
                             Coordinates(bL.ballX(column).toFloat(), bL.ballY(column, row).toFloat())
-                        var b = Ball(coords)
+                        val b = Ball(coords)
                         b.setColor(color, paints)
                         b
                     }

@@ -408,15 +408,19 @@ class GameController {
                         gs.moveBallAndLog(move)
                         val fromRow = gs.tubes[upColumn].fillLevel
                         val toRow = gs.tubes[column].fillLevel - 1
-                        if (gs.isSolved()) {
-                            gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
-                            gameObserver?.puzzleSolved()
-                        } else if (gs.tubes[column].isSolved()) {
-                            gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
-                            gameObserver?.enableUndoAndReset(true)
-                        } else {
-                            gameObserver?.holeBall(upColumn, column, fromRow, toRow)
-                            gameObserver?.enableUndoAndReset(true)
+                        when {
+                            gs.isSolved() -> {
+                                gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
+                                gameObserver?.puzzleSolved()
+                            }
+                            gs.tubes[column].isSolved() -> {
+                                gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
+                                gameObserver?.enableUndoAndReset(true)
+                            }
+                            else -> {
+                                gameObserver?.holeBall(upColumn, column, fromRow, toRow)
+                                gameObserver?.enableUndoAndReset(true)
+                            }
                         }
                         up = false
                         findHelp()

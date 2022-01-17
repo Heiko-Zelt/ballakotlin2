@@ -4,9 +4,6 @@ package de.heikozelt.ballakotlin2.view
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -16,9 +13,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
@@ -75,7 +69,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     /**
      * enables or disables sound effects
      */
-    fun enableSound(enabled: Boolean) {
+    private fun enableSound(enabled: Boolean) {
         playSound = enabled
         drawView?.playSound = enabled
         btnBurger?.isSoundEffectsEnabled = enabled
@@ -87,7 +81,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     /**
      * enables or disables animations
      */
-    fun enableAnimations(enabled: Boolean) {
+    private fun enableAnimations(enabled: Boolean) {
         playAnimations = enabled
         drawView?.playAnimations = enabled
     }
@@ -95,7 +89,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
     /**
      * enables or disables computer support
      */
-    fun enableComputerSupport(enabled: Boolean) {
+    private fun enableComputerSupport(enabled: Boolean) {
         computerSupport = enabled
         gameController?.enableComputerSupport(enabled)
     }
@@ -151,10 +145,6 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         }
 
  */
-    }
-
-    private fun injectSettings() {
-
     }
 
     private fun restoreWidgetsStatus() {
@@ -241,6 +231,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         */
 
         // .setOnLongClickListener
+        // todo: find better solution than reflective access
+        // todo: bigger icons in menu
         btnBurger?.setOnClickListener {
             Log.i(TAG, "user clicked on menu button")
             try {

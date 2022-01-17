@@ -22,15 +22,15 @@ class DimensionsActivity : AppCompatActivity() {
      * wird z.B. aufgerufen, wenn Bildschirm gedreht wird
      */
 
-    var colorsTextView: TextView? = null
-    var colorsSeekBar:SeekBar? = null
-    var extraTubesTextView: TextView? = null
-    var extraTubesSeekBar:SeekBar? = null
-    var heightTextView: TextView? = null
-    var heightSeekBar:SeekBar? = null
-    var okBtn: View? = null
-    var cancelBtn: View? = null
-    var defaultsBtn: View? = null
+    private var colorsTextView: TextView? = null
+    private var colorsSeekBar:SeekBar? = null
+    private var extraTubesTextView: TextView? = null
+    private var extraTubesSeekBar:SeekBar? = null
+    private var heightTextView: TextView? = null
+    private var heightSeekBar:SeekBar? = null
+    private var okBtn: View? = null
+    private var cancelBtn: View? = null
+    private var defaultsBtn: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate()")
