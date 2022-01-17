@@ -705,7 +705,6 @@ class GameState {
     /**
      * Rekursion
      * @param maxRecursionDepth gibt an, wieviele Züge maximal ausprobiert werden.
-     * todo: Unterscheidung zwischen keine Lösung gefunden wegen Rekursionstiefe ueberschritten und absolut keine Lösung möglich.
      * todo: mehr Infos im Ergebnis. Wie tief wurde gesucht? Wie viele offene Pfade gibt es?
      * todo: Zyklen erkennen
      * todo: Spezialfall: Wenn eine Röhre mit wenigen Zügen(?) gefüllt werden kann, dann diesen Zug bevorzugen. Wo liegt die Grenze?
@@ -772,23 +771,6 @@ class GameState {
         }
         return unsolvable
     }
-
-    /**
-     * liefert die kürzeste Liste aus einer Liste von Listen
-     * oder null falls die Liste der Listen leer ist.
-     * method is never used
-    fun shortestList(listOfLists: MutableList<MutableList<Move>>): MutableList<Move>? {
-        var length = Int.MAX_VALUE
-        var shortest: MutableList<Move>? = null
-        for (element in listOfLists) {
-            if (element.size < length) {
-                length = element.size
-                shortest = element
-            }
-        }
-        return shortest
-    }
-    */
 
     /**
      * exportiert Spielstatus als ASCII-Grafik

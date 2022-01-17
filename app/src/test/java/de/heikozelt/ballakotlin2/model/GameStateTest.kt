@@ -714,50 +714,6 @@ class GameStateTest {
         assertEquals(Move(4, 11), result.move)
     }
 
-    /**
-     * todo: method shortestList() is never used, delete method and tests
-     */
-    /*
-    @Test
-    fun shortesList_empty() {
-        val gs = GameState()
-        gs.resize(2, 1, 2)
-        val listOfLists = mutableListOf<MutableList<Move>>()
-        assertEquals(null, gs.shortestList(listOfLists))
-    }
-
-    @Test
-    fun shortestList_one() {
-        val gs = GameState()
-        gs.resize(2, 1, 2)
-        val moves = mutableListOf(Move(0, 1))
-        val listOfLists = mutableListOf(moves)
-        assertEquals(moves, gs.shortestList(listOfLists))
-    }
-
-    @Test
-    fun shortestList_two() {
-        val gs = GameState()
-        gs.resize(2, 1, 2)
-        val moves0 = mutableListOf(Move(0, 1))
-        val moves1 = mutableListOf(Move(0, 1), Move(1, 0))
-        val listOfLists = mutableListOf(moves0, moves1)
-        assertEquals(moves0, gs.shortestList(listOfLists))
-    }
-
-    @Test
-    fun shortestList_three() {
-        val gs = GameState()
-        val moves0 = mutableListOf(Move(0, 1))
-        val moves1 = mutableListOf(Move(0, 1), Move(1, 0))
-        val moves2 = mutableListOf<Move>()
-        val listOfLists = mutableListOf(moves0, moves1, moves2)
-        assertEquals(moves2, gs.shortestList(listOfLists))
-    }
-*/
-
-
-
     @Test
     fun fromAsciiLines_with_spaces() {
         val lines = arrayOf(
