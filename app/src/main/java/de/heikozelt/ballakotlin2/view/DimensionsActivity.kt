@@ -21,17 +21,31 @@ class DimensionsActivity : AppCompatActivity() {
      * Methode von Activity geerbt
      * wird z.B. aufgerufen, wenn Bildschirm gedreht wird
      */
+
+    var colorsTextView: TextView? = null
+    var colorsSeekBar:SeekBar? = null
+    var extraTubesTextView: TextView? = null
+    var extraTubesSeekBar:SeekBar? = null
+    var heightTextView: TextView? = null
+    var heightSeekBar:SeekBar? = null
+    var okBtn: View? = null
+    var cancelBtn: View? = null
+    var defaultsBtn: View? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate()")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dimensions)
 
-        val colorsTextView = findViewById<TextView?>(R.id.dimensions_label_number_of_colors)
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_number_of_colors)
-        val extraTubesTextView = findViewById<TextView?>(R.id.dimensions_label_additional_tubes)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_additional_tubes)
-        val heightTextView = findViewById<TextView?>(R.id.dimensions_label_height)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_height)
+        colorsTextView = findViewById(R.id.dimensions_label_number_of_colors)
+        colorsSeekBar = findViewById(R.id.dimensions_seekbar_number_of_colors)
+        extraTubesTextView = findViewById(R.id.dimensions_label_additional_tubes)
+        extraTubesSeekBar = findViewById(R.id.dimensions_seekbar_additional_tubes)
+        heightTextView = findViewById(R.id.dimensions_label_height)
+        heightSeekBar = findViewById(R.id.dimensions_seekbar_height)
+        okBtn = findViewById(R.id.dimensions_btn_ok)
+        cancelBtn = findViewById(R.id.dimensions_btn_cancel)
+        defaultsBtn = findViewById(R.id.dimensions_btn_defaults)
 
         fun updateColorsText(i: Int) {
             colorsTextView?.text = getString(R.string.label_number_of_colors, i)
@@ -116,30 +130,30 @@ class DimensionsActivity : AppCompatActivity() {
     }
 
     private fun initButtonsOnClick() {
-        val colorsSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_number_of_colors)
-        val extraTubesSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_additional_tubes)
-        val heightSeekBar = findViewById<SeekBar?>(R.id.dimensions_seekbar_height)
-
-        findViewById<View?>(R.id.dimensions_btn_ok)?.setOnClickListener {
+        okBtn?.setOnClickListener {
             Log.i(TAG, "user clicked on ok button")
-            if (colorsSeekBar != null && extraTubesSeekBar != null && heightSeekBar != null) {
-                val resultIntent = Intent().apply {
-                    putExtra("number_of_colors", colorsSeekBar.progress + MIN_COLORS)
-                    putExtra("extra_tubes", extraTubesSeekBar.progress + MIN_EXTRA)
-                    putExtra("height", heightSeekBar.progress + MIN_HEIGHT)
-                }
-                setResult(RESULT_OK, resultIntent)
+            val resultIntent = Intent()
+            colorsSeekBar?.let {
+                resultIntent.putExtra("number_of_colors", it.progress + MIN_COLORS)
             }
+            extraTubesSeekBar?.let {
+                resultIntent.putExtra("extra_tubes", it.progress + MIN_EXTRA)
+            }
+            heightSeekBar?.let {
+                resultIntent.putExtra("height", it.progress + MIN_HEIGHT)
+            }
+            setResult(RESULT_OK, resultIntent)
             finish()
         }
 
-        findViewById<View?>(R.id.dimensions_btn_cancel)?.setOnClickListener {
+        cancelBtn?.setOnClickListener {
             Log.i(TAG, "user clicked on cancel button")
-            setResult(RESULT_CANCELED, intent)
+            val resultIntent = Intent()
+            setResult(RESULT_CANCELED, resultIntent)
             finish()
         }
 
-        findViewById<View?>(R.id.dimensions_btn_defaults)?.setOnClickListener {
+        defaultsBtn?.setOnClickListener {
             Log.i(TAG, "user clicked on defaults button")
             colorsSeekBar?.progress = BallaApplication.NUMBER_OF_COLORS - MIN_COLORS
             extraTubesSeekBar?.progress = BallaApplication.NUMBER_OF_EXTRA_TUBES - MIN_EXTRA
@@ -150,8 +164,8 @@ class DimensionsActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "balla.DimsActivity"
 
-        private const val MIN_COLORS = 2
-        //private const val MAX_COLORS = 13
+        const val MIN_COLORS = 2
+        const val MAX_COLORS = 15
 
         private const val MIN_EXTRA = 1
         //private const val MAX_EXTRA = 3

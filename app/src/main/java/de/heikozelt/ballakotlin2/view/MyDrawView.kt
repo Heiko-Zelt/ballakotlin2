@@ -7,6 +7,7 @@ import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -24,6 +25,7 @@ import android.view.SoundEffectConstants
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
+import androidx.core.content.ContextCompat
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
 
@@ -77,6 +79,45 @@ class MyDrawView @JvmOverloads constructor(
      */
     private var bounceSound = 0
 
+    /**
+     * Farben mit Farbwerten von R.id.color.ball0 .. ball15
+     */
+    private var paints = emptyArray<Paint?>()
+
+    private var tubePaint: Paint? = null
+
+    /**
+     * läd paints[] mit Farbwerten von R.id.color.ball0 .. ball15
+     */
+    fun initPaints(context: Context) {
+        tubePaint = Paint()
+        tubePaint?.color = ContextCompat.getColor(context, R.color.tube)
+        tubePaint?.style = Paint.Style.FILL
+
+        paints = Array(DimensionsActivity.MAX_COLORS + 1) { null }
+
+        val paintsArray: TypedArray = resources.obtainTypedArray(R.array.ball_colors)
+        for (i in 0..DimensionsActivity.MAX_COLORS) {
+            paints[i] =  Paint(Paint.ANTI_ALIAS_FLAG)
+            paints[i]?.color = paintsArray.getColor(i,0)
+            paints[i]?.style = Paint.Style.FILL
+        }
+
+        /*
+
+        for (i in 0..DimensionsActivity.MAX_COLORS) {
+            // Introspection
+            val colorClass = R.color::class.java
+            // null = Java static field / no object
+            val color = colorClass.getDeclaredField("ball$i").getInt(null)
+            paints[i] = Paint(Paint.ANTI_ALIAS_FLAG)
+            paints[i]?.color = ContextCompat.getColor(context, color)
+            paints[i]?.style = Paint.Style.FILL
+        }
+         */
+    }
+
+
     fun initSoundPool(context: Context) {
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_GAME)
@@ -101,7 +142,7 @@ class MyDrawView @JvmOverloads constructor(
      * (wenn Töne aktiviert sind)
      */
     private fun playBounceSound() {
-        if(playSound) {
+        if (playSound) {
             soundPool?.play(bounceSound, 1f, 1f, 0, 0, 1f)
             Log.d(TAG, "playing bounce sound now")
         }
@@ -112,7 +153,7 @@ class MyDrawView @JvmOverloads constructor(
      * @param time Zeitverzögerung in Millisekunden
      */
     private fun playBounceSoundAfter(time: Float) {
-        if(playSound) {
+        if (playSound) {
             Handler(Looper.getMainLooper()).postDelayed({
                 playBounceSound()
             }, time.toLong())
@@ -181,7 +222,9 @@ class MyDrawView @JvmOverloads constructor(
                     } else {
                         val coords =
                             Coordinates(bL.ballX(column).toFloat(), bL.ballY(column, row).toFloat())
-                        Ball(coords, color)
+                        var b = Ball(coords)
+                        b.setColor(color, paints)
+                        b
                     }
                 }
             }
@@ -241,7 +284,7 @@ class MyDrawView @JvmOverloads constructor(
         if (bL.isInside(virtualX, virtualY)) {
             val column = bL.column(virtualX, virtualY)
             Log.i(TAG, "clicked on col=${column}")
-            if(playSound) {
+            if (playSound) {
                 Log.d(TAG, "play click sound")
                 playSoundEffect(SoundEffectConstants.CLICK)
             }
@@ -311,43 +354,45 @@ class MyDrawView @JvmOverloads constructor(
         val numTub = gs.numberOfTubes
         //Log.d(TAG, "numTub=${numTub}")
         val tubHei = gs.tubeHeight
-        for (column in 0 until numTub) {
-            val left = bL.tubeX(column)
-            val top = bL.tubeY(column)
-            //Log.d(TAG, "left: $left, top: $top")
+        tubePaint?.let { tp ->
+            for (column in 0 until numTub) {
+                val left = bL.tubeX(column)
+                val top = bL.tubeY(column)
+                //Log.d(TAG, "left: $left, top: $top")
 
-            val right = left + TUBE_WIDTH
-            val bottom = top + tubHei * BALL_DIAMETER + BALL_PADDING
-            val circleY = bottom - TUBE_LOWER_CORNER_RADIUS
-            val leftCircleX = left + TUBE_LOWER_CORNER_RADIUS
-            val rightCircleX = right - TUBE_LOWER_CORNER_RADIUS
-            canvas.drawCircle(
-                leftCircleX.toFloat(),
-                circleY.toFloat(),
-                TUBE_LOWER_CORNER_RADIUS.toFloat(),
-                TUBE_PAINT
-            )
-            canvas.drawCircle(
-                rightCircleX.toFloat(),
-                circleY.toFloat(),
-                TUBE_LOWER_CORNER_RADIUS.toFloat(),
-                TUBE_PAINT
-            )
-            canvas.drawRect(
-                left.toFloat(),
-                top.toFloat(),
-                right.toFloat(),
-                (bottom - TUBE_LOWER_CORNER_RADIUS).toFloat(),
-                TUBE_PAINT
-            )
-            canvas.drawRect(
-                leftCircleX.toFloat(),
-                circleY.toFloat(),
-                rightCircleX.toFloat(),
-                bottom.toFloat(),
-                TUBE_PAINT
-            )
+                val right = left + TUBE_WIDTH
+                val bottom = top + tubHei * BALL_DIAMETER + BALL_PADDING
+                val circleY = bottom - TUBE_LOWER_CORNER_RADIUS
+                val leftCircleX = left + TUBE_LOWER_CORNER_RADIUS
+                val rightCircleX = right - TUBE_LOWER_CORNER_RADIUS
 
+                canvas.drawCircle(
+                    leftCircleX.toFloat(),
+                    circleY.toFloat(),
+                    TUBE_LOWER_CORNER_RADIUS.toFloat(),
+                    tp
+                )
+                canvas.drawCircle(
+                    rightCircleX.toFloat(),
+                    circleY.toFloat(),
+                    TUBE_LOWER_CORNER_RADIUS.toFloat(),
+                    tp
+                )
+                canvas.drawRect(
+                    left.toFloat(),
+                    top.toFloat(),
+                    right.toFloat(),
+                    (bottom - TUBE_LOWER_CORNER_RADIUS).toFloat(),
+                    tp
+                )
+                canvas.drawRect(
+                    leftCircleX.toFloat(),
+                    circleY.toFloat(),
+                    rightCircleX.toFloat(),
+                    bottom.toFloat(),
+                    tp
+                )
+            }
         }
     }
 
@@ -1202,13 +1247,14 @@ class MyDrawView @JvmOverloads constructor(
          */
         private const val ANIMATION_ADDITIONAL_DURATION = 200f / SPEED_FACTOR
 
-        /**
+        /*
          * Farbe der Röhren
-         */
+
         private val TUBE_PAINT = Paint(ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(0xe6, 0xe6, 0xe6) // light gray
             style = Paint.Style.FILL
         }
+         */
 
         /*
         private val linePaint = Paint(ANTI_ALIAS_FLAG).apply {

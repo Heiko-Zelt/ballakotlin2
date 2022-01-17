@@ -5,15 +5,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    style="@style/BallaActivityLayout"
     tools:context=".view.DimensionsActivity">
 
     <TextView
         android:id="@+id/dimensions_label_number_of_colors"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/label_number_of_colors"
+        style="@style/BallaLabelText"
         app:layout_constraintBottom_toTopOf="@id/dimensions_seekbar_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -23,10 +21,9 @@
 
     <SeekBar
         android:id="@+id/dimensions_seekbar_number_of_colors"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="280dp"
-        android:layout_height="50dp"
         android:max="13"
+        style="@style/BallaSeekBar"
         app:layout_constraintTop_toBottomOf="@id/dimensions_label_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -34,9 +31,8 @@
 
     <TextView
         android:id="@+id/dimensions_label_additional_tubes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/label_additional_tubes"
+        style="@style/BallaLabelText"
         app:layout_constraintTop_toBottomOf="@id/dimensions_seekbar_number_of_colors"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -44,10 +40,9 @@
 
     <SeekBar
         android:id="@+id/dimensions_seekbar_additional_tubes"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="160dp"
-        android:layout_height="50dp"
         android:max="2"
+        style="@style/BallaSeekBar"
         app:layout_constraintTop_toBottomOf="@id/dimensions_label_additional_tubes"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -55,9 +50,8 @@
 
     <TextView
         android:id="@+id/dimensions_label_height"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/label_height"
+        style="@style/BallaLabelText"
         app:layout_constraintTop_toBottomOf="@id/dimensions_seekbar_additional_tubes"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -65,10 +59,9 @@
 
     <SeekBar
         android:id="@+id/dimensions_seekbar_height"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="200dp"
-        android:layout_height="50dp"
         android:max="5"
+        style="@style/BallaSeekBar"
         app:layout_constraintTop_toBottomOf="@id/dimensions_label_height"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -77,9 +70,8 @@
     <!-- android:onClick="onOkKlicked" -->
     <Button
         android:id="@+id/dimensions_btn_ok"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/button_ok"
+        style="@style/BallaButton"
         app:layout_constraintTop_toBottomOf="@id/dimensions_seekbar_height"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/dimensions_btn_cancel"
@@ -87,9 +79,8 @@
 
     <Button
         android:id="@+id/dimensions_btn_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/button_cancel"
+        style="@style/BallaButton"
         app:layout_constraintTop_toBottomOf="@id/dimensions_seekbar_height"
         app:layout_constraintLeft_toRightOf="@id/dimensions_btn_ok"
         app:layout_constraintRight_toLeftOf="@id/dimensions_btn_defaults"
@@ -97,9 +88,8 @@
 
     <Button
         android:id="@+id/dimensions_btn_defaults"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/button_defaults"
+        style="@style/BallaButton"
         app:layout_constraintTop_toBottomOf="@id/dimensions_seekbar_height"
         app:layout_constraintLeft_toRightOf="@id/dimensions_btn_cancel"
         app:layout_constraintRight_toRightOf="parent"

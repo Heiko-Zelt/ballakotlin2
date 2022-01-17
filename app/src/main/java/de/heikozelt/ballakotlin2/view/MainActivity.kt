@@ -15,6 +15,10 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
@@ -112,6 +116,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         btnBurger = findViewById(R.id.main_btn_burger_menu)
         drawView = findViewById(R.id.my_draw_view)
 
+        drawView?.initPaints(this)
+
         // selber Referenz merken
         // Todo: Das ist keine Setter Injection!!!
         gameController = (application as BallaApplication).gameController
@@ -137,6 +143,14 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         drawView?.invalidate()
 
         drawView?.initSoundPool(this)
+
+/*
+        for(i in Ball.PAINTS.indices) {
+            val c = Ball.PAINTS[i].color
+            println("<color name=\"ball$i\">#${c.red.toString(16)} ${c.green.toString(16)} ${c.blue.toString(16)}</color>")
+        }
+
+ */
     }
 
     private fun injectSettings() {
@@ -189,7 +203,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         //val imageView = findViewById<View?>(R.id.main_btn_burger_menu)
         // ?.setOnClickListener {imageView: View ->
 
-        val popupMenu = PopupMenu(this, btnBurger)
+        val wrapper = ContextThemeWrapper(this, R.style.BallaPopupMenu)
+        val popupMenu = PopupMenu(wrapper, btnBurger)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.item_new_game -> gameController?.actionNewGame()
@@ -214,6 +229,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
 
         popupMenu.inflate(R.menu.popup_menu)
 
+        /*
+        besser mit styles.xml formatieren
         for (i in 0 until popupMenu.menu.size()) {
             val item = popupMenu.menu.getItem(i)
             val spanString = SpannableString(item.getTitle().toString())
@@ -221,6 +238,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
             spanString.setSpan(RelativeSizeSpan(1.2f), 0, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             item.title = spanString
         }
+        */
+
         // .setOnLongClickListener
         btnBurger?.setOnClickListener {
             Log.i(TAG, "user clicked on menu button")

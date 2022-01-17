@@ -4,39 +4,25 @@
     android:tag="main_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    style="@style/BallaActivityLayout"
     tools:context=".view.MainActivity">
 
     <ImageView
         android:id="@+id/main_btn_burger_menu"
         android:tag="main_btn_burger_menu"
         android:contentDescription="@string/desc_burger_menu"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        style="@style/BallaTopButtonsInMainActivity"
         app:layout_constraintBottom_toTopOf="@id/my_draw_view"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/main_btn_reset_game"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_burger_menu" />
 
-    <!-- ImageView
-        android:id="@+id/main_btn_new_game"
-        android:contentDescription="@string/desc_star"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        app:layout_constraintBottom_toTopOf="@id/my_draw_view"
-        app:layout_constraintLeft_toRightOf="@id/main_btn_burger_menu"
-        app:layout_constraintRight_toLeftOf="@id/main_btn_reset_game"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_new_game" / -->
-
     <ImageView
         android:id="@+id/main_btn_reset_game"
         android:tag="main_btn_reset_game"
         android:contentDescription="@string/desc_rewind"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        style="@style/BallaTopButtonsInMainActivity"
         app:layout_constraintBottom_toTopOf="@id/my_draw_view"
         app:layout_constraintLeft_toRightOf="@id/main_btn_burger_menu"
         app:layout_constraintRight_toLeftOf="@id/main_btn_undo"
@@ -47,8 +33,7 @@
         android:id="@+id/main_btn_undo"
         android:tag="main_btn_undo"
         android:contentDescription="@string/desc_arrow_left"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        style="@style/BallaTopButtonsInMainActivity"
         android:alpha="0.5"
         app:layout_constraintBottom_toTopOf="@id/my_draw_view"
         app:layout_constraintLeft_toRightOf="@id/main_btn_reset_game"
@@ -56,23 +41,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_undo" />
 
-    <!-- ImageView
-        android:id="@+id/main_btn_plus_one"
-        android:contentDescription="@string/desc_plus_one"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        app:layout_constraintBottom_toTopOf="@id/my_draw_view"
-        app:layout_constraintLeft_toRightOf="@id/main_btn_undo"
-        app:layout_constraintRight_toLeftOf="@id/main_btn_lightbulb"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_plus_one" /-->
-
     <ImageView
         android:id="@+id/main_btn_lightbulb"
         android:tag="main_btn_lightbulb"
         android:contentDescription="@string/desc_lightbulb"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        style="@style/BallaTopButtonsInMainActivity"
         app:layout_constraintBottom_toTopOf="@id/my_draw_view"
         app:layout_constraintLeft_toRightOf="@id/main_btn_undo"
         app:layout_constraintRight_toRightOf="parent"
@@ -82,11 +55,7 @@
     <de.heikozelt.ballakotlin2.view.MyDrawView
         android:id="@+id/my_draw_view"
         android:tag="my_draw_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginBottom="6dp"
+        style="@style/BallaDrawViewInMainActivity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

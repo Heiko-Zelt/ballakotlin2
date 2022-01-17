@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="ball_colors">
+    <item>#ffffff</item> <!--  (0 white not used) -->
+    <item>#ffff00</item> <!--  1 yellow -->
+    <item>#ff0000</item> <!--  2 red -->
+    <item>#00a818</item> <!--  3 dark green -->
+    <item>#2070ff</item> <!--  4 light blue -->
+    <item>#888888</item> <!--  5 gray -->
+    <item>#ff8c00</item> <!--  6 orange -->
+    <item>#8a2be2</item> <!--  7 violet -->
+    <item>#00ff00</item> <!--  8 light lime green -->
+    <item>#800000</item> <!--  9 maroon -->
+    <item>#0000b0</item> <!-- 10 dark navy blue -->
+    <item>#00ffff</item> <!-- 11 cyan -->
+    <item>#ffffff</item> <!-- 12 white (instead of black) -->
+    <item>#556b2f</item> <!-- 13 dark olive green -->
+    <item>#ff99ff</item> <!-- 14 pink -->
+    <item>#cccc80</item> <!-- 15 fawn / beige-colored -->
+    </array>
+</resources>

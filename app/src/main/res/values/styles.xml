@@ -1,0 +1,52 @@
+<resources>
+    <style name="BallaActivityLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <style name="BallaTopButtonsInMainActivity">
+        <item name="android:layout_width">40sp</item>
+        <item name="android:layout_height">40sp</item>
+    </style>
+    <style name="BallaDrawViewInMainActivity">
+        <item name="android:layout_width">0sp</item>
+        <item name="android:layout_height">0sp</item>
+        <!-- item name="android:layout_marginTop">0dp</item -->
+        <item name="android:layout_marginLeft">4sp</item>
+        <item name="android:layout_marginRight">4sp</item>
+        <item name="android:layout_marginBottom">4sp</item>
+    </style>
+    <style name="BallaLabelText" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="BallaSwitch">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+    </style>
+    <style name="BallaSeekBar" parent="Widget.AppCompat.SeekBar.Discrete">
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="BallaButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="BallaPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <!-- item name="android:actionButtonStyle">@style/Balla.ActionBarButton</item -->
+    </style>
+    <!-- style name="Balla.ActionBarButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:height">20sp</item>
+        <item name="android:layout_height">20sp</item>
+    </style -->
+
+</resources>

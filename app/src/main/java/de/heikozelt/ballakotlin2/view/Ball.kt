@@ -15,28 +15,31 @@ import android.graphics.Paint
  * if color ist set, paint is set too (in constructor and setter)
  */
 
-class Ball(var coordinates: Coordinates, color: Int) {
-    var color: Int = color
-        set(value) {
-            paint = PAINTS[value]
-            field = value
-        }
+class Ball(var coordinates: Coordinates) {
+    private var color: Int = 0
 
-    private var paint = PAINTS[color]
+    private var paint: Paint? = null
 
     // Ball, der sich diagonal über Bälle in Röhren bewegt, muss im Vordergrund sein
     var foreground = false
 
+    fun setColor(_color: Int, paints: Array<Paint?>) {
+        color = _color
+        paint = paints[_color]
+    }
+
     fun draw(canvas: Canvas) {
         //Log.i(TAG, "Ball.draw()")
-        canvas.drawCircle(coordinates.x, coordinates.y, MyDrawView.BALL_RADIUS_INSIDE, paint)
+        paint?.let { p ->
+            canvas.drawCircle(coordinates.x, coordinates.y, MyDrawView.BALL_RADIUS_INSIDE, p)
+        }
         //Log.i(TAG,"drawCircle(${coordinates.x}, ${coordinates.y}, ${MyDrawView.BALL_RADIUS_INSIDE}, ${paint})")
     }
 
     companion object {
         private const val TAG = "balla.Ball"
 
-        private val PAINTS = arrayOf(
+        val PAINTS = arrayOf(
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = Color.WHITE
                     style = Paint.Style.FILL

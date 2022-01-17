@@ -9,7 +9,7 @@ class ViewTube(val tubeHeight: Int) {
 
     /**
      * ersetzt die Referenz auf den obersten Ball durch null
-     * und lifert eine Referenz zurueck.
+     * und liefert eine Referenz zurueck.
      */
     fun eraseTopmostBall(): Ball? {
         for (i in (cells.size - 1) downTo 0) {
