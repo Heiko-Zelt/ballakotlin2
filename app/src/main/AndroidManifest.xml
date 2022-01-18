@@ -8,15 +8,12 @@
         android:icon="@drawable/ic_app_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/BallaTheme">
-        <!-- android:icon="@mipmap/ic_launcher" -->
-        <!-- android:roundIcon="@mipmap/ic_launcher_round" -->
-        <!-- same theme for all activitities -->
+        android:theme="@style/BallaAppTheme">
         <activity android:name=".view.TogglesActivity" android:exported="true" />
         <activity android:name=".view.DimensionsActivity" android:exported="true" />
         <activity
             android:name=".view.MainActivity"
-            android:exported="true"> <!-- android:theme="@style/AppThemeActivity" -->
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

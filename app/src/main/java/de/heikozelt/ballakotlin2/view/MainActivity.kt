@@ -3,16 +3,21 @@ package de.heikozelt.ballakotlin2.view
 //import androidx.appcompat.widget.PopupMenu
 import android.app.AlertDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.PopupMenu
+//import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.PopupMenu
 import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
@@ -188,14 +193,11 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         }
     }
 
-    private fun initPopupMenu() {
-        // Klick auf Burger Menu öffnet Settings-Activity
-        //val imageView = findViewById<View?>(R.id.main_btn_burger_menu)
-        // ?.setOnClickListener {imageView: View ->
 
+    private fun initPopupMenu() {
         val wrapper = ContextThemeWrapper(this, R.style.BallaPopupMenu)
-        val popupMenu = PopupMenu(wrapper, btnBurger)
-        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+        val popupMenu = btnBurger?.let { PopupMenu(wrapper, it) }
+        popupMenu?.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.item_new_game -> gameController?.actionNewGame()
                 R.id.item_dimensions -> openDimensionsActivity()
@@ -217,36 +219,36 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
             true
         }
 
-        popupMenu.inflate(R.menu.popup_menu)
+        popupMenu?.inflate(R.menu.popup_menu)
+        popupMenu?.setForceShowIcon(true)
 
         /*
-        besser mit styles.xml formatieren
-        for (i in 0 until popupMenu.menu.size()) {
-            val item = popupMenu.menu.getItem(i)
-            val spanString = SpannableString(item.getTitle().toString())
-            val end = spanString.length
-            spanString.setSpan(RelativeSizeSpan(1.2f), 0, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            item.title = spanString
+        import android.widget.PopupMenu ab Android 10 = SDK 29
+        import androidx.appcompat.widget.PopupMenu auch in älteren Versionen
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            popupMenu.setForceShowIcon(true)
         }
         */
 
         // .setOnLongClickListener
-        // todo: find better solution than reflective access
         // todo: bigger icons in menu
         btnBurger?.setOnClickListener {
-            Log.i(TAG, "user clicked on menu button")
+            Log.i(TAG, "user clicked on burger button")
+            /*
             try {
-                val popup = PopupMenu::class.java.getDeclaredField("mPopup")
-                popup.isAccessible = true
-                val menu = popup.get(popupMenu)
-                menu.javaClass
-                    .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
-                    .invoke(menu, true)
+              val popup = PopupMenu::class.java.getDeclaredField("mPopup")
+              popup.isAccessible = true
+              val menu = popup.get(popupMenu)
+              menu.javaClass
+                  .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+                  .invoke(menu, true)
             } catch (e: Exception) {
                 Log.getStackTraceString(e)
             } finally {
                 popupMenu.show()
             }
+            */
+            popupMenu?.show()
         }
     }
 
