@@ -56,10 +56,4 @@ class MovesTest {
         val ms = Moves()
         assertEquals("", ms.toAscii())
     }
-
-
-
-    fun fromAscii_ideen() {
-
-    }
 }

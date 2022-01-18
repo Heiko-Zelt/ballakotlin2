@@ -10,8 +10,8 @@ android {
         applicationId "de.heikozelt.ballakotlin2"
         minSdk 21
         targetSdk 31
-        versionCode 4 // important for publication in google play store
-        versionName "1.2"
+        versionCode 5 // important for publication in google play store
+        versionName "1.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunnerArgument "runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder"

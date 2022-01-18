@@ -26,7 +26,7 @@ Tap on any tube to select the topmost ball. It moves upwards.
  &#8226;&#8195;If you get stuck, undo your last moves or start new from the beginning.
 
 <b>Advanced tip</b>
-Don't just focus on fillig tubes but also emptying. You can place a ball of any color in an empty tube. It's like a joker.
+Don't just focus on filling tubes but also emptying. You can place a ball of any color in an empty tube. It's like a joker.
 
 <b>Do you need help? Have questions? Found a bug? Ideas for improvements?</b>
 Please contact the developer: hz@heikozelt.de

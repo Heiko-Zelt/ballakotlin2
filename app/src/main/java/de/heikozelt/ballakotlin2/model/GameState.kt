@@ -761,10 +761,14 @@ class GameState {
         return resultOpen
     }
 
+    /**
+     * @returns true, if all SearchResults are UNSOLVABLE
+     * false, if any of the SearchResult is OPEN or FOUND_SOLUTION
+     */
     fun allUnsolvable(results: MutableList<SearchResult>): Boolean {
         var unsolvable = true
         for (r in results) {
-            if (r.status == SearchResult.STATUS_OPEN) {
+            if (r.status != SearchResult.STATUS_UNSOLVABLE) {
                 unsolvable = false
                 break
             }

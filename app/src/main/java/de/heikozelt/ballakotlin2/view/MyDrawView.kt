@@ -474,17 +474,6 @@ class MyDrawView @JvmOverloads constructor(
 
     /**
      * eigene Methode
-     * Loggt Objekt-Variablen
-     */
-    private fun dumpi() {
-        /*
-        val acti = findActivity() as MainActivity
-        Log.i(TAG, "donorIndex=${acti.donorIndex}, donorRow=${acti.donorRow}, upwardsCol=${upwardsCol}, downwardsCol=${downwardsCol}")
-         */
-    }
-
-    /**
-     * eigene Methode
      * Ball wird angehoben. Spielstand ändert sicht nicht.
      * Falls drop ball animation gleiche Röhre betrifft,
      * dann wird sie abgebrochen/beendet.
