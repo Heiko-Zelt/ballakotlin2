@@ -1,0 +1,78 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="0">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M15,12h9" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="45">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M15.5,12h8" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="90">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M16,12h7" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="135">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M16.5,12h6" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="180">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M17,12h5" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="225">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M17.5,12h4" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="270">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M18,12h3" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="315">
+        <path
+            android:strokeWidth="2"
+            android:strokeColor="@color/icon"
+            android:pathData="M18.5,12h2" />
+    </group>
+</vector>
