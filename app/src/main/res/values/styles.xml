@@ -22,7 +22,13 @@
         <item name="android:textColor">@color/text</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
-    <style name="BallaSwitch">
+    <style name="BallaSwitchImage">
+        <item name="android:layout_width">40sp</item>
+        <item name="android:layout_height">40sp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+    </style>
+    <style name="BallaBaseSwitch">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
@@ -30,6 +36,8 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>
+    </style>
+    <style name="BallaSwitch" parent="BallaBaseSwitch">
     </style>
     <style name="BallaSeekBar" parent="Widget.AppCompat.SeekBar.Discrete">
         <item name="android:layout_height">wrap_content</item>

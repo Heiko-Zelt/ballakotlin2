@@ -2,6 +2,7 @@ package de.heikozelt.ballakotlin2.view
 
 import android.util.Log
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
+import de.heikozelt.ballakotlin2.model.SearchResult
 
 class GameObserverMock: GameObserverInterface {
 
@@ -39,12 +40,20 @@ class GameObserverMock: GameObserverInterface {
         observationsLog.add("enableResetAndUndo(enabled=$enabled)")
     }
 
-    override fun enableHelp(enabled: Boolean) {
-        observationsLog.add("enableHelp(enabled=$enabled)")
-    }
-
     override fun enableCheat(enabled: Boolean) {
         observationsLog.add("enableCheat(enabled=$enabled)")
+    }
+
+    override fun updateStatusSearchResult(result: SearchResult) {
+        observationsLog.add("updateStatusSearchResult(...)")
+    }
+
+    override fun updateStatusHelpOff() {
+        observationsLog.add("updateStatusHelpOff()")
+    }
+
+    override fun updateStatusSearching() {
+        observationsLog.add("updateStatusSearching()")
     }
 
     override fun puzzleSolved() {

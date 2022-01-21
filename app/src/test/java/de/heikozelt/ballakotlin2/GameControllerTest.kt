@@ -3,6 +3,7 @@ package de.heikozelt.ballakotlin2
 import android.util.Log
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.Move
+import de.heikozelt.ballakotlin2.model.SearchResult
 import de.heikozelt.ballakotlin2.view.GameObserverMock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext
@@ -120,19 +121,19 @@ class GameControllerTest {
         val controller = GameController()
         controller.setGameState(gs)
         controller.registerGameObserver(listener)
+
         controller.tubeClicked(0)
         assertTrue(controller.isUp())
         assertEquals(0, controller.getUpCol())
 
         controller.tubeClicked(1)
-
         listener.dump()
         assertFalse(controller.isUp())
         assertEquals(4, listener.observationsLog.size)
         assertEquals("liftBall(column=0, row=0)", listener.observationsLog[0])
         assertEquals("holeBall(fromColumn=0, toColumn=1, toRow=0)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+        assertEquals("updateStatusSearching()", listener.observationsLog[3])
     }
 
     /*
@@ -168,14 +169,14 @@ class GameControllerTest {
         // click
         assertEquals("holeBall(fromColumn=0, toColumn=1, toRow=0)", listener.observationsLog[1])
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+        assertEquals("updateStatusSearching()", listener.observationsLog[3])
         // undo
         assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[4])
         assertEquals(
             "liftAndHoleBall(fromColumn=1, toColumn=0, fromRow=0, toRow=0)",
             listener.observationsLog[5]
         )
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[6])
+        assertEquals("updateStatusSearching()", listener.observationsLog[6])
     }
 
     @Test
@@ -196,7 +197,7 @@ class GameControllerTest {
         assertEquals("enableCheat(enabled=true)", listener.observationsLog[1])
         assertEquals("redraw()", listener.observationsLog[2])
         assertEquals("newGameToast()", listener.observationsLog[3])
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[4])
+        assertEquals("updateStatusSearching()", listener.observationsLog[4])
     }
 
     @Test
@@ -216,7 +217,7 @@ class GameControllerTest {
         assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[0])
         assertEquals("enableCheat(enabled=true)", listener.observationsLog[1])
         assertEquals("redraw()", listener.observationsLog[2])
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+        assertEquals("updateStatusSearching()", listener.observationsLog[3])
     }
 
 
@@ -266,7 +267,7 @@ class GameControllerTest {
             "enableResetAndUndo(enabled=true)",
             listener.observationsLog[2]
         ) // weil erster Zug ueberhaupt
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+        assertEquals("updateStatusSearching()", listener.observationsLog[3])
     }
 
     /**
@@ -309,7 +310,7 @@ class GameControllerTest {
             listener.observationsLog[1]
         )
         assertEquals("puzzleSolved()", listener.observationsLog[2])
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[3])
+        assertEquals("updateStatusSearching()", listener.observationsLog[3])
     }
 
     /**
@@ -348,9 +349,12 @@ class GameControllerTest {
         Log.d(TAG, "nach runTest: eine Sekunde später")
         listener.dump()
         assertEquals(2, listener.observationsLog.size)
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[0])
-        assertEquals("enableHelp(enabled=true)", listener.observationsLog[1])
-        assertEquals(Move(2, 1), controller.helpMove)
+        assertEquals("updateStatusSearching()", listener.observationsLog[0])
+        assertEquals("updateStatusSearchResult(...)", listener.observationsLog[1])
+        assertNotNull(controller.searchResult)
+        controller.searchResult?.let {
+            assertEquals(Move(2, 1), it.move)
+        }
 
         controller.actionHelp()
         listener.dump()
@@ -362,8 +366,7 @@ class GameControllerTest {
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[3])
         assertEquals("puzzleSolved()", listener.observationsLog[4])
         assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[5])
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[6])
-        assertEquals(null, controller.helpMove)
+        assertEquals("updateStatusSearching()", listener.observationsLog[6])
     }
 
     /**
@@ -397,13 +400,17 @@ class GameControllerTest {
             delay(500L)
         }
         listener.dump()
-        assertEquals(1, listener.observationsLog.size)
-        assertEquals("enableHelp(enabled=false)", listener.observationsLog[0])
-        assertEquals(null, controller.helpMove)
+        assertEquals(2, listener.observationsLog.size)
+        assertEquals("updateStatusSearching()", listener.observationsLog[0])
+        assertEquals("updateStatusSearchResult(...)", listener.observationsLog[1])
+        assertNotNull(controller.searchResult)
+        controller.searchResult?.let {
+            assertEquals(SearchResult.STATUS_UNSOLVABLE, it.status)
+        }
 
         controller.actionHelp()
         listener.dump()
-        assertEquals(1, listener.observationsLog.size)
+        assertEquals(2, listener.observationsLog.size)
     }
 
     companion object {

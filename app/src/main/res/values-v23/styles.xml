@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BallaSwitch" parent="BallaBaseSwitch">
+        <item name="android:hyphenationFrequency">full</item>
+        <!-- das Wort "Computerunterstützung" ist sehr lang und sollte, wenn erforderlich an einer Silbengrenze umgebrochen werden. -->
+    </style>
+</resources>

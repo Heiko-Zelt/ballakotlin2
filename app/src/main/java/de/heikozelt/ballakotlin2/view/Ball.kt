@@ -16,16 +16,16 @@ import android.graphics.Paint
  */
 
 class Ball(var coordinates: Coordinates) {
-    private var color: Int = 0
+    private var color: Byte = 0.toByte()
 
     private var paint: Paint? = null
 
     // Ball, der sich diagonal über Bälle in Röhren bewegt, muss im Vordergrund sein
     var foreground = false
 
-    fun setColor(_color: Int, paints: Array<Paint?>) {
+    fun setColor(_color: Byte, paints: Array<Paint?>) {
         color = _color
-        paint = paints[_color]
+        paint = paints[_color.toInt()]
     }
 
     fun draw(canvas: Canvas) {

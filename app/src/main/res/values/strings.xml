@@ -23,6 +23,7 @@
     <string name="toggles_label_computer_support">Computer support:</string>
     <string name="toggles_label_animations">Play animations:</string>
     <string name="toggles_label_sound">Play sound:</string>
+    <string name="desc_speaker">speaker</string>
 
     <!-- Preference Titles -->
 

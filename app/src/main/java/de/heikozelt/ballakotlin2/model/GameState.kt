@@ -71,7 +71,7 @@ class GameState {
         Log.i(TAG, "initTubes()")
         // tubes filled with balls of same color
         for (i in 0 until numberOfColors) {
-            val initialColor = i + 1
+            val initialColor = (i + 1).toByte()
             tubes[i] = Tube(tubeHeight)
             tubes[i].fillWithOneColor(initialColor)
         }
@@ -242,26 +242,36 @@ class GameState {
     /**
      * wie isMoveAllowed() jedoch ohne
      * - Quell-Röhre und Ziel-Röhre identisch
-     * - letzten Zug rückwärts (einfacher hin- und her-Zyklus)
+     * - letzten Zug rückwärts (einfacher hin- und her-Zyklus) = Sonderform des Kettenzuges
+     * - Kettenzüge, Beispiel: 1 -> 2, 2 -> 3, sinnvoller ist direkt 1 -> 3
      * - Zug von einfarbiger Röhre in leere Röhre
      * - bei 2 einfarbige Röhren, Zug von Röhre mit niedrigerem Füllstand in Röhre mit höherem Füllstand
+     * todo: alle oder keiner
      * todo: bei 2 Röhren, die unten gleich sind, aber oben unterschiedlich viele Bälle der gleichen Farbe haben, von niedrigerem zu höherem Füllstand.
      */
     fun isMoveUseful(from: Int, to: Int): Boolean {
-        //Log.i(TAG, "isMoveUseful(from=${from}, to=${to})")
+        //Log.d(TAG, "isMoveUseful(from=${from}, to=${to})")
 
         // kann keinen Ball aus leerer Röhre nehmen
         if (tubes[from].isEmpty()) {
             return false
         }
+
         // Ziel-Tube ist voll
         if (tubes[to].isFull()) {
             return false
         }
-        // selbe Röhre, sinnlos
+
+        // selbe Röhre, Unsinn
         if (to == from) {
             return false
         }
+
+        // oberster Ball hat nicht selbe Farbe und Ziel-Röhre ist nicht leer
+        if (!tubes[to].isEmpty() && !isSameColor(from, to)) {
+            return false
+        }
+
         // von einer einfarbigen Röhre zu leerer Röhre
         // einfachstes Beispiel:
         // _ _    _ _
@@ -287,18 +297,46 @@ class GameState {
             return false
         }
 
-        // hin- und her, einfachster Zyklus
+        // Kettenzug Beispiel: 1 -> 2, 2 -> 3, sinnvoller ist direkt 1 -> 3
+        // (Spezialfall hin und zurück ist inbegriffen)
         if (moveLog.isNotEmpty()) {
-            if (Move(from, to).backwards() == moveLog.last()) {
+            if (from == moveLog.last().to) {
                 return false
             }
         }
 
-        // oberster Ball hat selbe Farbe oder Ziel-Röhre ist leer
-        if (tubes[to].isEmpty() || isSameColor(from, to)) {
-            return true
+        // all or none
+        /*
+        Log.d(
+            TAG,
+            "empty=${tubes[to].isEmpty()}, topUnicolorRemovable=${topUnicolorRemovable(from)}"
+        )
+        */
+        if ((!tubes[to].isEmpty()) && (!topUnicolorRemovable(from))) {
+            return false
         }
-        return false
+
+        return true
+    }
+
+    /**
+     * Ermittelt, ob die oberen Bälle, der gleichen Farbe auf andere (nicht leere) Röhren verteilt werden können.
+     * @param from ist Index einer nicht leeren Röhre
+     */
+    fun topUnicolorRemovable(from: Int): Boolean {
+        //Log.d(TAG, "topUnicolorRemovable(from=$from)")
+        val color = tubes[from].colorOfTopmostBall()
+        var available = 0
+        val needed = tubes[from].countTopBallsWithSameColor()
+        for (i in tubes.indices) {
+            val tube = tubes[i]
+            if ((i != from) && !tube.isEmpty() && (tube.colorOfTopmostBall() == color)) {
+                //Log.d(TAG, "#$i: freeCells=${tube.freeCells()}")
+                available += tube.freeCells()
+            }
+        }
+        //Log.d(TAG, "available=$available, needed=$needed")
+        return available >= needed
     }
 
     /* never used
@@ -324,7 +362,7 @@ class GameState {
      * 1 1 4 _ 1 _ 3 4    1 1 4 _ 3 4
      * ---------------    -----------
      * 0 1 2 3 4 5 6 7    0 1 2 3 6 7
-     * Röhren 4 und 5 sind Duplikate.
+     * Röhre 4 ist Duplikat von 0 und Röhre 5 ist Duplikat von 3.
      */
     fun tubesSet(): MutableList<Int> {
         val result = mutableListOf<Int>()
@@ -431,6 +469,9 @@ class GameState {
      * Das sind alle möglichen Züge außer:
      * - inhaltsgleiche Züge
      * - Zug von einfarbiger Röhre in leere Röhre
+     * todo: Kettenzüge, Beispiel: 1 -> 2, 2 -> 3, sinnvoller ist direkt 1 -> 3
+     * todo: unabhängige Züge in verschiedenen Reihenfolgen, Beispiel: 1 -> 2, 3 -> 4 = 3 -> 4, 1 -> 2
+     * todo: Kettenzüge mit unabhängigen Zügen dazwischen. Beispiel: 1 -> 2, 7 -> 8, 2 -> 3
      */
     fun allUsefulMoves(): List<Move> {
         val sourceTubes = usefulSourceTubes()
@@ -537,23 +578,6 @@ class GameState {
         return sum / ints.size.toFloat()
     }
      */
-
-    /**
-     * Prueft, ob alle ganze Zahlen in einer Liste gleich sind.
-     * In Java waere es eine static-Methode.
-     * In Kotlin koennte man sie als Package-Methode oder als Companion-Objekt-Methode implementieren.
-     * Beides erzeugt im Byte-Code zusaetzliche Java-Klassen.
-     * @return true, wenn alle gleich sind
-     */
-    fun areEqual(ints: List<Int>): Boolean {
-        val firstRate = ints[0]
-        for (rate in ints) {
-            if (rate != firstRate) {
-                return false
-            }
-        }
-        return true
-    }
 
     /**
      * plays game backwards with many moves
@@ -709,9 +733,15 @@ class GameState {
      * todo: Zyklen erkennen
      * todo: Spezialfall: Wenn eine Röhre mit wenigen Zügen(?) gefüllt werden kann, dann diesen Zug bevorzugen. Wo liegt die Grenze?
      */
-    suspend fun findSolutionNoBackAndForth(maxRecursionDepth: Int): SearchResult {
+    suspend fun findSolutionNoBackAndForth(
+        maxRecursionDepth: Int,
+        previousGameStates: MutableList<Array<Byte>> = mutableListOf(Array(numberOfTubes * tubeHeight) { 0.toByte() })
+    ): SearchResult {
         // Job canceled?
-        yield()
+        // nicht zu oft Kontrolle abgeben.
+        if(maxRecursionDepth > 5) {
+           yield()
+        }
 
         if (isSolved()) {
             //Log.d(TAG,"1. Abbruchkriterium: Lösung gefunden")
@@ -735,11 +765,22 @@ class GameState {
         }
         val results = mutableListOf<SearchResult>()
         for (move in moves) {
+            var result: SearchResult?
             //Log.d(TAG, "Rekursion")
             moveBallAndLog(move)
-            val result = findSolutionNoBackAndForth(maxRecursion)
-            result.move = move
-
+            val newGameState = Array(numberOfTubes * tubeHeight) { 0.toByte() }
+            toBytes(newGameState)
+            if (listContainsArray(previousGameStates, newGameState)) {
+                // Zyklus gefunden, nicht tiefer suchen
+                result = SearchResult()
+                result.status = SearchResult.STATUS_UNSOLVABLE
+            } else {
+                // kein Zyklus, also Rekursion
+                previousGameStates.add(newGameState)
+                result = findSolutionNoBackAndForth(maxRecursion, previousGameStates)
+                previousGameStates.removeLast()
+                result.move = move
+            }
             if (result.status == SearchResult.STATUS_FOUND_SOLUTION) {
                 //Log.d(TAG, "eine Lösung")
                 return result
@@ -762,37 +803,32 @@ class GameState {
     }
 
     /**
-     * @returns true, if all SearchResults are UNSOLVABLE
-     * false, if any of the SearchResult is OPEN or FOUND_SOLUTION
+     * Array of Bytes of correct size must be provided by caller
      */
-    fun allUnsolvable(results: MutableList<SearchResult>): Boolean {
-        var unsolvable = true
-        for (r in results) {
-            if (r.status != SearchResult.STATUS_UNSOLVABLE) {
-                unsolvable = false
-                break
-            }
+    fun toBytes(bytes: Array<Byte>) {
+        for (i in tubes.indices) {
+            val cells = tubes[i].cells
+            cells.copyInto(bytes, i * cells.size)
         }
-        return unsolvable
     }
 
     /**
      * exportiert Spielstatus als ASCII-Grafik
      */
-    fun toAscii(): String {
+    fun toAscii(lineDelimiter: String = "\n", columnDelimiter: String = " "): String {
         val ascii = StringBuilder()
         for (row in (tubeHeight - 1) downTo 0) {
             for (column in 0 until numberOfTubes) {
                 val color = tubes[column].cells[row]
                 val char = colorToChar(color)
                 if (column != 0) {
-                    ascii.append(' ')
+                    ascii.append(columnDelimiter)
                 }
                 ascii.append(char)
             }
             // letzte Zeile (Reihe 0) nicht mit newline character abschließen
             if (row != 0) {
-                ascii.append("\n")
+                ascii.append(lineDelimiter)
             }
             // Log.d(TAG, "toAscii() -> ${ascii.toString()}")
         }
@@ -831,13 +867,13 @@ class GameState {
             throw IllegalArgumentException("less than 2 tubes in game state")
         }
 
-        val allColors = mutableSetOf<Int>()
+        val allColors = mutableSetOf<Byte>()
         //Log.d(TAG, "allColors begin, trimmedLines.size=${trimmedLines.size}")
         for (line in trimmedLines) {
             for (char in line) {
                 val color = charToColor(char)
                 //Log.d(TAG, "char=$char, color=$color)")
-                if ((color != 0) && !allColors.contains(color)) {
+                if ((color != 0.toByte()) && !allColors.contains(color)) {
                     //Log.d(TAG, "add")
                     allColors.add(color)
                 }
@@ -866,7 +902,7 @@ class GameState {
                 //Log.d(TAG, "row=$row, lineNum=$lineNum")
                 val line = trimmedLines[lineNum]
                 val color = charToColor(line[column])
-                if (color == 0) {
+                if (color == 0.toByte()) {
                     break
                 }
                 tubes[column].addBall(color)
@@ -886,19 +922,19 @@ class GameState {
      * Leerzeichen und Tabs werden ignoriert.
      * todo: keine schwebenden Bälle erlauben
      */
-    fun fromAscii(ascii: String) {
+    fun fromAscii(ascii: String, lineDelimiter: String = "\n") {
         Log.d(TAG, "fromAscii(ascii=\n$ascii)")
-        val lines = ascii.split("\n")
+        val lines = ascii.split(lineDelimiter)
         fromAsciiLines(lines.toTypedArray())
     }
 
     companion object {
         private const val TAG = "balla.GameState"
-        private const val MAX_RECURSION = 40
+        private const val MAX_RECURSION = 50
 
         /**
          * maximale geschätzte Dauer
          */
-        private const val MAX_ESTIMATED_DURATION = 10000
+        private const val MAX_ESTIMATED_DURATION = 120_000
     }
 }

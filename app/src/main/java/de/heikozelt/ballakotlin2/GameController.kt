@@ -63,7 +63,8 @@ class GameController {
      * todo: There may be more than one move possible
      * todo: show arrows
      */
-    var helpMove: Move? = null
+    //var helpMove: Move? = null
+    var searchResult: SearchResult? = null
 
     /**
      * Hintergrund-Coroutine, um nächsten Zug zu berechnen
@@ -74,9 +75,11 @@ class GameController {
         Log.i(TAG, "init")
     }
 
+    /*
     fun isHelpAvailable(): Boolean {
-        return (helpMove != null)
+        return (searchResult?.move != null)
     }
+    */
 
     /**
      * nach jeder Spielstandsänderung (Spielzug, Undo, etc...)
@@ -85,26 +88,32 @@ class GameController {
      */
     fun findHelp() {
         Log.d(TAG, "findHelp()")
-        helpMove = null
-        gameObserver?.enableHelp(false)
+        searchResult = null
         job?.cancel()
         if(isComputerSupportive) {
+            gameObserver?.updateStatusSearching()
             gameState?.let { gs ->
                 job = GlobalScope.launch(Default) {
                     Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
-                    val searchResult = gs.findSolution()
+                    searchResult = gs.findSolution()
                     Log.d(TAG, "findSolution finished")
                     //todo: in der view unterscheiden zwischen keine Lösung gefunden und keine Lösung möglich
+                    /*
                     if (searchResult.status == SearchResult.STATUS_FOUND_SOLUTION) {
                         helpMove = searchResult.move
                     }
+                    */
 
                     feedbackContext?.let {
                         withContext(it) {
                             Log.d(TAG, "withContext(Main)")
-                            if (isHelpAvailable()) {
-                                Log.d(TAG, "help is available")
-                                gameObserver?.enableHelp(true)
+                            //if (isHelpAvailable()) {
+                            if(isComputerSupportive) {
+                                Log.d(TAG, "update Status with SearchResult")
+                                //gameObserver?.enableHelp(true)
+                                searchResult?.let {
+                                    gameObserver?.updateStatusSearchResult(it)
+                                }
                             }
                         }
                     }
@@ -216,7 +225,6 @@ class GameController {
             gs.newGame()
             initialGameState = gs.cloneWithoutLog()
             up = false
-            helpMove = null
         }
         gameObserver?.apply {
             enableUndoAndReset(false)
@@ -234,7 +242,6 @@ class GameController {
         initialGameState?.let { igs ->
             gameState = igs.cloneWithoutLog()
             up = false
-            helpMove = null
             gameObserver?.enableUndoAndReset(false)
             gameObserver?.enableCheat(true)
             gameObserver?.redraw()
@@ -264,7 +271,6 @@ class GameController {
                     gs.tubes[move.from].fillLevel,
                     gs.tubes[move.to].fillLevel - 1
                 )
-                helpMove = null
                 findHelp()
             }
         }
@@ -312,8 +318,7 @@ class GameController {
     fun actionHelp() {
         Log.i(TAG, "actionHelp()")
         gameState?.let { gs ->
-            val move = helpMove
-            if (move != null) {
+            searchResult?.move?.let {move ->
                 gs.dump()
                 Log.d(TAG, "move=$move")
                 // todo: java.lang.IndexOutOfBoundsException: tube is already full
@@ -454,10 +459,10 @@ class GameController {
             findHelp()
         }
         if(!enabled) {
-            isComputerSupportive = false
-            helpMove = null
-            gameObserver?.enableHelp(false)
             job?.cancel()
+            isComputerSupportive = false
+            searchResult = null
+            gameObserver?.updateStatusHelpOff()
         }
     }
 

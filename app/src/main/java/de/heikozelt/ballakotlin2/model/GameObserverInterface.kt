@@ -69,11 +69,16 @@ interface GameObserverInterface {
      */
     fun enableCheat(enabled: Boolean)
 
-    /**
+    /*
      * method is called with parameter false when no more help is available.
      * method is called with parameter true if help is available (and wasn't before)
      */
-    fun enableHelp(enabled: Boolean)
+
+    fun updateStatusSearchResult(result: SearchResult)
+
+    fun updateStatusHelpOff()
+
+    fun updateStatusSearching()
 
     /**
      * called, when the puzzle is solved, game sucessfully finished.

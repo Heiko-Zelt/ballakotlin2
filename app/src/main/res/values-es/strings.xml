@@ -23,4 +23,5 @@
     <string name="toggles_label_sound">Sonido:</string>
     <string name="toggles_label_animations">Animacións</string>
     <string name="toggles_label_computer_support">Asistido por ordenador:</string>
+    <string name="desc_speaker">altavoz</string>
 </resources>

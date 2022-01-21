@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 //import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -22,6 +23,7 @@ import de.heikozelt.ballakotlin2.BallaApplication
 import de.heikozelt.ballakotlin2.GameController
 import de.heikozelt.ballakotlin2.R
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
+import de.heikozelt.ballakotlin2.model.SearchResult
 import kotlinx.coroutines.Dispatchers.Main
 
 
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
      */
     private var btnReset: View? = null
     private var btnUndo: View? = null
-    private var btnLightbulb: View? = null
+    private var btnLightbulb: ImageView? = null
     private var btnBurger: View? = null
     private var drawView: MyDrawView? = null
 
@@ -170,10 +172,16 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         if (allowed != null) {
             enableCheat(allowed)
         }
+
+        gameController?.searchResult?.let {
+            updateStatusSearchResult(it)
+        }
+        /*
         val helpAvailable = gameController?.isHelpAvailable()
         if (helpAvailable != null) {
             enableHelp(helpAvailable)
         }
+         */
     }
 
     private fun initOnClick() {
@@ -492,12 +500,44 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // todo: menu item enable / disable
     }
 
-    /**
+    /* Deprecated
      * Methode von GameObserverInterface geerbt
-     */
     override fun enableHelp(enabled: Boolean) {
         Log.i(TAG, "enableHelp(${enabled})")
         enableView(btnLightbulb, enabled)
+    }
+     */
+
+    override fun updateStatusSearchResult(result: SearchResult) {
+        when(result.status) {
+            SearchResult.STATUS_FOUND_SOLUTION -> {
+                btnLightbulb?.setImageResource(R.drawable.ic_lightbulb)
+                enableView(btnLightbulb, true)
+            }
+            SearchResult.STATUS_UNSOLVABLE -> {
+                btnLightbulb?.setImageResource(R.drawable.ic_dead_end)
+                enableView(btnLightbulb, false)
+            }
+            SearchResult.STATUS_OPEN -> {
+                btnLightbulb?.setImageResource(R.drawable.ic_lightbulb_off)
+                enableView(btnLightbulb, false)
+            }
+            else -> {
+                Log.e(TAG,"unknown search result")
+                enableView(btnLightbulb, false)
+            }
+        }
+    }
+
+    override fun updateStatusHelpOff() {
+        btnLightbulb?.setImageResource(R.drawable.ic_empty)
+        enableView(btnLightbulb, false)
+
+    }
+
+    override fun updateStatusSearching() {
+        btnLightbulb?.setImageResource(R.drawable.ic_doing_something)
+        enableView(btnLightbulb, false)
     }
 
     /**

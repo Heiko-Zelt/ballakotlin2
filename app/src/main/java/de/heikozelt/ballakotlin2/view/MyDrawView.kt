@@ -142,7 +142,7 @@ class MyDrawView @JvmOverloads constructor(
     private fun playBounceSound() {
         if (playSound) {
             soundPool?.play(bounceSound, 1f, 1f, 0, 0, 1f)
-            Log.d(TAG, "playing bounce sound now")
+            //Log.d(TAG, "playing bounce sound now")
         }
     }
 
@@ -215,7 +215,7 @@ class MyDrawView @JvmOverloads constructor(
                 //Log.d(TAG, "tubeHeight=${gs.tubeHeight}")
                 for (row in 0 until gs.tubeHeight) {
                     val color = gs.tubes[column].cells[row]
-                    vts[column].cells[row] = if (color == 0) {
+                    vts[column].cells[row] = if (color == 0.toByte()) {
                         null
                     } else {
                         val coords =
@@ -1095,9 +1095,9 @@ class MyDrawView @JvmOverloads constructor(
                     BOUNCE_DURATION3,
                     BOUNCE_DURATION3
                 )
-                for (d in bDurations.indices) {
-                    Log.d(TAG, "row=$row, i=$i: bDurations[$d]: ${bDurations[d]}")
-                }
+                //for (d in bDurations.indices) {
+                //    Log.d(TAG, "row=$row, i=$i: bDurations[$d]: ${bDurations[d]}")
+                //}
 
                 val bWholeDuration = bDurations.sum()
                 val bFractions = durationsToFractions(bDurations, bWholeDuration)

@@ -3,10 +3,13 @@ package de.heikozelt.ballakotlin2.model
 import java.lang.IllegalArgumentException
 import java.lang.IndexOutOfBoundsException
 
+/**
+ * Array indices are of type Int. Color numbers (elements in array) are of type Byte.
+ */
 class Tube(val tubeHeight: Int) {
 
     var fillLevel: Int = 0
-    var cells = Array(tubeHeight) { 0 }
+    var cells = Array(tubeHeight) { 0.toByte() }
 
     /**
      * liefert wahr, wenn Röhre voll ist
@@ -27,8 +30,8 @@ class Tube(val tubeHeight: Int) {
      * initialColor: 1...Anzahl Farben
      * 0 ist nicht erlaubt
      */
-    fun fillWithOneColor(initialColor: Int) {
-        if (initialColor == 0) {
+    fun fillWithOneColor(initialColor: Byte) {
+        if (initialColor == 0.toByte()) {
             throw IllegalArgumentException("Farbe 0 als Parameter nicht erlaubt")
         }
         for (i in 0 until tubeHeight) {
@@ -40,7 +43,7 @@ class Tube(val tubeHeight: Int) {
     /**
      * Fügt der Röhre einen Ball hinzu
      */
-    fun addBall(color: Int) {
+    fun addBall(color: Byte) {
         if (isFull()) {
             throw IndexOutOfBoundsException("tube is already full")
         }
@@ -51,27 +54,27 @@ class Tube(val tubeHeight: Int) {
     /**
      * Entnimmt der Röhre einen Ball
      */
-    fun removeBall(): Int {
+    fun removeBall(): Byte {
         if (isEmpty()) {
             throw IndexOutOfBoundsException("tube is already empty")
         }
         fillLevel--
         val color = cells[fillLevel]
-        cells[fillLevel] = 0
+        cells[fillLevel] = 0.toByte()
         return color
     }
 
     /**
      * Liefert die Farbe des obersten Balles
      */
-    fun colorOfTopmostBall(): Int {
+    fun colorOfTopmostBall(): Byte {
         if (isEmpty()) {
             throw IndexOutOfBoundsException("tube is empty")
         }
         return cells[fillLevel - 1]
     }
 
-    fun colorOfTopSecondBall(): Int {
+    fun colorOfTopSecondBall(): Byte {
         if (fillLevel < 2) {
             throw IndexOutOfBoundsException("tube has less than 2 balls")
         }
