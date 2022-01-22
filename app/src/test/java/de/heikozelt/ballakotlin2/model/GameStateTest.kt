@@ -384,8 +384,9 @@ class GameStateTest {
     /**
      * Duration:
      * 3.757 ... 4.132 sec with frequent yield() invocations
-     * 2.945 ... 3.324 sec with maxRecursionDepth > 5
+     * 2.945 ... 3.324 sec with if(maxRecursionDepth > 5) yield()
      * 2.744 ... 3.317 sec without yield()
+     * 2.506 ... 3.100 sec recycling of SearchResult
      */
     @Test
     fun findSolution_time_consuming() {
@@ -499,7 +500,7 @@ class GameStateTest {
         var result = SearchResult()
         runTest {
             val job: Job = GlobalScope.launch(Default) {
-                result = gs.findSolutionNoBackAndForth(0)
+                gs.findSolutionNoBackAndForth(0, result)
             }
             job.join()
         }
@@ -533,7 +534,7 @@ class GameStateTest {
         var result = SearchResult()
         runTest {
             val job = GlobalScope.launch(Default) {
-                result = gs.findSolutionNoBackAndForth(1)
+                gs.findSolutionNoBackAndForth(1, result)
             }
             job.join()
         }
