@@ -679,7 +679,7 @@ class GameState {
     suspend fun findSolution(): SearchResult {
         Log.d(TAG, "find Solution for\n${toAscii()}")
         val gs2 = this.cloneWithoutLog()
-        var result = SearchResult()
+        val result = SearchResult()
         // erst einfache Lösung suchen, dann Rekursionstiefe erhöhen
         // 1. Abbruchkriterium: Maximale Rekursionstiefe erreicht
         for (recursionDepth in 0..MAX_RECURSION) {

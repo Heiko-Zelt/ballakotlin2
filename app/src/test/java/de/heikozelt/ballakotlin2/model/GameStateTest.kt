@@ -497,7 +497,7 @@ class GameStateTest {
             tubes[2].addBall(1)
         }
 
-        var result = SearchResult()
+        val result = SearchResult()
         runTest {
             val job: Job = GlobalScope.launch(Default) {
                 gs.findSolutionNoBackAndForth(0, result)
@@ -531,7 +531,7 @@ class GameStateTest {
         // es interessiert nur der nächste Zug, nicht alle Züge zur Lösung
         //val expectedSolution = arrayOf(Move(2, 1))
 
-        var result = SearchResult()
+        val result = SearchResult()
         runTest {
             val job = GlobalScope.launch(Default) {
                 gs.findSolutionNoBackAndForth(1, result)

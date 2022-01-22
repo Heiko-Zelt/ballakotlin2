@@ -104,15 +104,15 @@ class GameController {
                     }
                     */
 
-                    feedbackContext?.let {
-                        withContext(it) {
+                    feedbackContext?.let { con ->
+                        withContext(con) {
                             Log.d(TAG, "withContext(Main)")
                             //if (isHelpAvailable()) {
                             if(isComputerSupportive) {
                                 Log.d(TAG, "update Status with SearchResult")
                                 //gameObserver?.enableHelp(true)
-                                searchResult?.let {
-                                    gameObserver?.updateStatusSearchResult(it)
+                                searchResult?.let { sr ->
+                                    gameObserver?.updateStatusSearchResult(sr)
                                 }
                             }
                         }
