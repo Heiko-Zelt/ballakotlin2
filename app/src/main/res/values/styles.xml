@@ -45,6 +45,8 @@
     <style name="BallaButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/button_shape</item>
+        <item name="android:padding">8dp</item>
     </style>
     <!-- setForceShowIcon(true) -->
     <style name="BallaPopupMenu" parent="Widget.AppCompat.PopupMenu">

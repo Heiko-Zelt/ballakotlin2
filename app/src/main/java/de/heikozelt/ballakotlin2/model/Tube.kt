@@ -8,21 +8,30 @@ import java.lang.IndexOutOfBoundsException
  */
 class Tube(val tubeHeight: Int) {
 
+    /**
+     * tatsächlicher Füllstand
+     */
     var fillLevel: Int = 0
+
+    /**
+     * Inhalt einer Röhre.
+     * Höhe einer Röhre ist konstant, deswegen Array
+     */
     var cells = Array(tubeHeight) { 0.toByte() }
 
     /**
      * liefert wahr, wenn Röhre voll ist
      */
     fun isFull(): Boolean {
-        return this.fillLevel == tubeHeight
+        return fillLevel == tubeHeight
     }
 
     /**
      * Liefert wahr, wenn Röhre leer ist
+     * (inline liefert kaum spürbare Performance-Verbesserung)
      */
     fun isEmpty(): Boolean {
-        return this.fillLevel == 0
+        return fillLevel == 0
     }
 
     /**

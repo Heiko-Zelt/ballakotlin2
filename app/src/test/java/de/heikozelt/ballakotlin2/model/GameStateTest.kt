@@ -382,15 +382,41 @@ class GameStateTest {
     }
 
     /**
+     * dead end with endless cycle
+     * abwechselnd 3 hin, 5 hin, 3 her, 5 her, ...
+     */
+    @Test
+    fun findSolution_cycle() {
+        val txt = """
+            _ _ _ _ _ _ 3 5 _
+            _ 4 5 4 7 1 3 5 4
+            3 2 5 2 6 1 7 6 2
+            2 7 1 6 4 1 7 3 6
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(txt)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+        }
+        assertEquals(SearchResult.STATUS_UNSOLVABLE, result.status)
+    }
+
+    /**
      * Duration:
      * 3.757 ... 4.132 sec with frequent yield() invocations
      * 2.945 ... 3.324 sec with if(maxRecursionDepth > 5) yield()
      * 2.744 ... 3.317 sec without yield()
      * 2.506 ... 3.100 sec recycling of SearchResult
+     * 2.538 ... 3.036 sec allUsefulMoves() for(from in tubes.indices)
      */
     @Test
     fun findSolution_time_consuming() {
-        Log.d(TAG, "findSolution_big()")
+        Log.d(TAG, "findSolution_time_consuming()")
         val txt = """
             a _ _ _ 3 b _ 7 _ 6 _ _ _ 4 _ 2 _ d
             a 1 5 _ 3 b d 7 f 6 _ _ e 4 8 2 _ e
@@ -1154,6 +1180,7 @@ class GameStateTest {
         }
     }
 
+    /*
     @Test
     fun usefulSourceTubes_5_out_of_7() {
         val boardAscii = """
@@ -1172,6 +1199,8 @@ class GameStateTest {
             assertTrue(expected contentEquals uSetArray)
         }
     }
+    */
+
 
     @Test
     fun usefulTargetTubes_5_out_of_8() {

@@ -280,6 +280,7 @@ class GameState {
         // _ _    _ _
         // 1 _    _ _
         // 1 _ => 1 1
+        // (beinhaltet von einer gelösten Röhre in irgendeine andere (also leere) Röhre. tubes[from].isSolved())
         if ((tubes[from].unicolor() != 0) && tubes[to].isEmpty()) {
             return false
         }
@@ -380,12 +381,11 @@ class GameState {
         return result
     }
 
-    /**
+    /*
      * Liefert eine Menge an Röhren (Indexe), die geeignet sind.
      * - ohne Dupletten
      * - ohne leere Röhren
      * - ohne gelöste Röhren
-     */
     fun usefulSourceTubes(): List<Int> {
         val tSet = tubesSet()
         val result = mutableListOf<Int>()
@@ -396,6 +396,7 @@ class GameState {
         }
         return result
     }
+    */
 
     /**
      * liefert eine Menge an Röhren (Indexe).
@@ -474,10 +475,11 @@ class GameState {
      * todo: Kettenzüge mit unabhängigen Zügen dazwischen. Beispiel: 1 -> 2, 7 -> 8, 2 -> 3
      */
     fun allUsefulMoves(): List<Move> {
-        val sourceTubes = usefulSourceTubes()
+        //val sourceTubes = usefulSourceTubes() unnötig
         val targetTubes = usefulTargetTubes()
         val moves = mutableListOf<Move>()
-        for (from in sourceTubes) {
+        //for (from in sourceTubes) {
+        for (from in tubes.indices) {
             for (to in targetTubes) {
                 if (isMoveUseful(from, to)) {
                     val m = Move(from, to)
