@@ -3,6 +3,18 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+    <style name="BallaRowsLayout">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:padding">8dp</item>
+    </style>
+    <style name="BallaColumnsLayout">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
     <style name="BallaTopButtonsInMainActivity">
         <item name="android:layout_width">40sp</item>
         <item name="android:layout_height">40sp</item>
@@ -23,19 +35,25 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
     <style name="BallaSwitchImage">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:layout_width">40sp</item>
         <item name="android:layout_height">40sp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
+        <item name="android:layout_margin">4dp</item>
     </style>
     <style name="BallaBaseSwitch">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_weight">1000</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/text</item>
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:paddingLeft">20dp</item>
-        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingLeft">14dp</item>
+        <item name="android:paddingRight">14dp</item>
+        <item name="android:layout_margin">4dp</item>
     </style>
     <style name="BallaSwitch" parent="BallaBaseSwitch">
     </style>
@@ -43,10 +61,13 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
     <style name="BallaButton">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/button_shape</item>
-        <item name="android:padding">8dp</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:layout_margin">4dp</item>
     </style>
     <!-- setForceShowIcon(true) -->
     <style name="BallaPopupMenu" parent="Widget.AppCompat.PopupMenu">

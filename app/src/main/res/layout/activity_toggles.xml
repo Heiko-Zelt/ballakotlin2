@@ -1,97 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout android:tag="toggles_layout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/BallaActivityLayout"
+    style="@style/BallaRowsLayout"
+    android:tag="toggles_layout"
     tools:context=".view.TogglesActivity">
 
-    <ImageView
-        android:id="@+id/toggles_image_sound"
-        android:tag="toggles_image_sound"
-        android:contentDescription="@string/desc_speaker"
-        style="@style/BallaSwitchImage"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/toggles_switch_sound"
-        app:layout_constraintBottom_toTopOf="@id/toggles_image_animation"
-        app:srcCompat="@drawable/ic_speaker" />
+    <LinearLayout
+        style="@style/BallaColumnsLayout"
+        tools:context=".view.TogglesActivity">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/toggles_switch_sound"
-        android:text="@string/toggles_label_sound"
-        style="@style/BallaSwitch"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/toggles_image_sound"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/toggles_switch_animations" />
+        <ImageView
+            android:id="@+id/toggles_image_sound"
+            android:layout_gravity="center"
+            style="@style/BallaSwitchImage"
+            android:contentDescription="@string/desc_speaker"
+            android:tag="toggles_image_sound"
+            app:srcCompat="@drawable/ic_speaker" />
 
-    <ImageView
-        android:id="@+id/toggles_image_animation"
-        android:tag="toggles_image_animation"
-        android:contentDescription="@string/desc_speaker"
-        style="@style/BallaSwitchImage"
-        app:layout_constraintTop_toBottomOf="@id/toggles_image_sound"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/toggles_switch_animations"
-        app:layout_constraintBottom_toTopOf="@id/toggles_image_comp_support"
-        app:srcCompat="@drawable/ic_animation" />
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggles_switch_sound"
+            android:layout_gravity="center"
+            style="@style/BallaSwitch"
+            android:text="@string/toggles_label_sound" />
+    </LinearLayout>
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/toggles_switch_animations"
-        android:text="@string/toggles_label_animations"
-        style="@style/BallaSwitch"
-        app:layout_constraintTop_toBottomOf="@id/toggles_switch_sound"
-        app:layout_constraintLeft_toRightOf="@id/toggles_image_animation"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/toggles_switch_computer_support"
-        />
+    <LinearLayout
+        style="@style/BallaColumnsLayout"
+        tools:context=".view.TogglesActivity">
 
-    <ImageView
-        android:id="@+id/toggles_image_comp_support"
-        android:tag="toggles_image_comp_support"
-        android:contentDescription="@string/desc_lightbulb"
-        style="@style/BallaSwitchImage"
-        app:layout_constraintTop_toBottomOf="@id/toggles_image_animation"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/toggles_switch_computer_support"
-        app:layout_constraintBottom_toTopOf="@id/toggles_btn_ok"
-        app:srcCompat="@drawable/ic_lightbulb" />
+        <ImageView
+            android:id="@+id/toggles_image_animation"
+            style="@style/BallaSwitchImage"
+            android:contentDescription="@string/desc_speaker"
+            android:tag="toggles_image_animation"
+            app:srcCompat="@drawable/ic_animation" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/toggles_switch_computer_support"
-        android:text="@string/toggles_label_computer_support"
-        style="@style/BallaSwitch"
-        app:layout_constraintTop_toBottomOf="@id/toggles_switch_animations"
-        app:layout_constraintLeft_toRightOf="@id/toggles_image_comp_support"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/toggles_btn_ok" />
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggles_switch_animations"
+            style="@style/BallaSwitch"
+            android:text="@string/toggles_label_animations" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/toggles_btn_ok"
-        android:text="@string/button_ok"
-        style="@style/BallaButton"
-        app:layout_constraintTop_toBottomOf="@id/toggles_switch_computer_support"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/toggles_btn_cancel"
-        app:layout_constraintBottom_toBottomOf="parent" />
+    <LinearLayout
+        style="@style/BallaColumnsLayout"
+        tools:context=".view.TogglesActivity">
 
-    <Button
-        android:id="@+id/toggles_btn_cancel"
-        style="@style/BallaButton"
-        android:text="@string/button_cancel"
-        app:layout_constraintTop_toBottomOf="@id/toggles_switch_computer_support"
-        app:layout_constraintLeft_toRightOf="@id/toggles_btn_ok"
-        app:layout_constraintRight_toLeftOf="@id/toggles_btn_defaults"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <ImageView
+            android:id="@+id/toggles_image_comp_support"
+            style="@style/BallaSwitchImage"
+            android:contentDescription="@string/desc_lightbulb"
+            android:tag="toggles_image_comp_support"
+            app:srcCompat="@drawable/ic_lightbulb" />
 
-    <Button
-        android:id="@+id/toggles_btn_defaults"
-        android:text="@string/button_defaults"
-        style="@style/BallaButton"
-        app:layout_constraintTop_toBottomOf="@id/toggles_switch_computer_support"
-        app:layout_constraintLeft_toRightOf="@id/toggles_btn_cancel"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggles_switch_computer_support"
+            style="@style/BallaSwitch"
+            android:text="@string/toggles_label_computer_support" />
+    </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        style="@style/BallaColumnsLayout"
+        tools:context=".view.TogglesActivity">
+
+        <Button
+            android:id="@+id/toggles_btn_ok"
+            style="@style/BallaButton"
+            android:text="@string/button_ok" />
+
+        <Button
+            android:id="@+id/toggles_btn_cancel"
+            style="@style/BallaButton"
+            android:text="@string/button_cancel" />
+
+        <Button
+            android:id="@+id/toggles_btn_defaults"
+            style="@style/BallaButton"
+            android:text="@string/button_defaults" />
+    </LinearLayout>
+
+</LinearLayout>
