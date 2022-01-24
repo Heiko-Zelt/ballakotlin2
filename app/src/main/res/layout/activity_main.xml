@@ -6,7 +6,7 @@
     style="@style/BallaActivityLayout"
     tools:context=".view.MainActivity">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/main_btn_burger_menu"
         android:tag="main_btn_burger_menu"
         android:contentDescription="@string/desc_burger_menu"
@@ -16,6 +16,7 @@
         app:layout_constraintRight_toLeftOf="@id/main_btn_reset_game"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_burger_menu" />
+        <!-- app:srcCompat="@drawable/ic_burger_menu" -->
 
     <ImageView
         android:id="@+id/main_btn_reset_game"
@@ -33,7 +34,6 @@
         android:tag="main_btn_undo"
         android:contentDescription="@string/desc_arrow_left"
         style="@style/BallaTopButtonsInMainActivity"
-        android:alpha="0.5"
         app:layout_constraintBottom_toTopOf="@id/my_draw_view"
         app:layout_constraintLeft_toRightOf="@id/main_btn_reset_game"
         app:layout_constraintRight_toLeftOf="@id/main_btn_lightbulb"

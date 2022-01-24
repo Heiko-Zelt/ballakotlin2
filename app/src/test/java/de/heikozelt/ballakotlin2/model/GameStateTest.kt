@@ -131,6 +131,33 @@ class GameStateTest {
         }
     }
 
+    /**
+     * Beispiel aus der Praxis
+     */
+    @Test
+    fun allUsefulMovesIntegrated_big() {
+        Log.d(TAG, "usefulMovesIntegrated_big()")
+        val boardAscii = """
+            _ 7 _ 9 _ 5 8 d 1 _ 4 _ 2 c e _ _ b
+            _ 7 3 9 _ 5 8 d 1 _ 4 _ 2 c e 6 f b
+            _ 7 3 9 _ 5 8 d 1 _ 4 a 2 c e 6 f b
+            _ 7 3 9 a 5 8 d 1 _ 4 a 2 c e 6 f b
+            _ 7 3 9 a 5 8 d 1 _ 4 a 2 c e 6 f b
+            _ 7 3 9 3 5 8 d 1 _ 4 a 2 c e 6 f b
+            _ 7 3 9 6 5 8 d 1 _ 4 a 2 c e 6 f b
+            _ 7 3 9 f 5 8 d 1 _ 4 a 2 c e 6 f b
+            """.trimIndent()
+        val expectedAscii = """4->0, 4->11"""
+        GameState().apply {
+            fromAscii(boardAscii)
+            val u = allUsefulMovesIntegrated()
+            val result = Moves()
+            result.fromList(u)
+            assertEquals(expectedAscii, result.toAscii())
+        }
+    }
+
+
     @Test
     fun allUsefulMoves_empty() {
         val gs = GameState().apply {
@@ -283,6 +310,29 @@ class GameStateTest {
         }
     }
 
+    @Test
+    fun contentDistinctMovesBang_big() {
+        val boardAscii = """
+            _ 7 _ 9 _ _ 4 _ _
+            _ 7 3 9 _ _ 4 _ 6
+            _ 7 3 9 a _ 4 a 6
+            _ 7 3 9 a _ 4 a 6
+            """.trimIndent()
+        val expectedAscii = """2->0, 4->0, 4->7, 8->0"""
+        val movesAscii = """2->0, 2->5, 4->0, 4->5, 4->7, 8->0, 8->5"""
+        val moves = Moves()
+        val movesList = moves.asMutableList()
+        moves.fromAscii(movesAscii)
+        GameState().apply {
+            fromAscii(boardAscii)
+            contentDistinctMovesBang(movesList)
+            val result = Moves()
+            result.fromList(movesList)
+            Log.d(TAG, "result=${result.toAscii()}")
+            assertEquals(expectedAscii, result.toAscii())
+        }
+    }
+
     /**
      * Liefert die Lösung als Liste von Zügen oder null, falls es keine Lösung gibt
      *
@@ -413,6 +463,7 @@ class GameStateTest {
      * 2.744 ... 3.317 sec without yield()
      * 2.506 ... 3.100 sec recycling of SearchResult
      * 2.538 ... 3.036 sec allUsefulMoves() for(from in tubes.indices)
+     * 2.419 ... 2.530s sec allUsefulMovesIntegrated() instead of allUsefulMoves() & contentDistinctMoves()
      */
     @Test
     fun findSolution_time_consuming() {

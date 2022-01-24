@@ -1,6 +1,10 @@
 package de.heikozelt.ballakotlin2.view
 
+import android.view.View
 import kotlin.math.sqrt
+
+private const val ALPHA_ENABLED = 1.0f
+private const val ALPHA_DISABLED = 0.5f
 
 /**
  * val fractions = arrayOf(
@@ -35,4 +39,13 @@ fun diagonalDistance(x1: Int, x2: Int, y1: Int, y2: Int): Int {
  */
 fun diagonalDistance(a: Int, b: Int): Int {
     return sqrt((a * a + b * b).toDouble()).toInt()
+}
+
+/**
+ * only to shorten / reuse code
+ * enables or disables button (which is a view)
+ */
+fun enableView(view: View?, enabled: Boolean) {
+    view?.isEnabled = enabled
+    view?.alpha = if(enabled) ALPHA_ENABLED else ALPHA_DISABLED
 }

@@ -6,8 +6,4 @@
         <path
             android:fillColor="@color/icon"
             android:pathData="M3,3v20,h8,v-11,h-5,v-5,h14,v5,h-5,v11,h8,v-20,z" />
-    <!--path
-        android:strokeWidth="3"
-        android:strokeColor="@color/icon"
-        android:pathData="M7,9.5h12" /-->
 </vector>

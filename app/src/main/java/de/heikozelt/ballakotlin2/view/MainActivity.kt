@@ -494,27 +494,20 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // todo: menu item enable / disable
     }
 
-    /* Deprecated
-     * Methode von GameObserverInterface geerbt
-    override fun enableHelp(enabled: Boolean) {
-        Log.i(TAG, "enableHelp(${enabled})")
-        enableView(btnLightbulb, enabled)
-    }
-     */
-
     override fun updateStatusSearchResult(result: SearchResult) {
+        Log.d(TAG,"updateStatusSearchResult(result.status=${result.status})")
         when(result.status) {
             SearchResult.STATUS_FOUND_SOLUTION -> {
+                enableView(btnLightbulb,true)
                 btnLightbulb?.setImageResource(R.drawable.ic_lightbulb)
-                enableView(btnLightbulb, true)
             }
             SearchResult.STATUS_UNSOLVABLE -> {
+                enableView(btnLightbulb,false)
                 btnLightbulb?.setImageResource(R.drawable.ic_dead_end)
-                enableView(btnLightbulb, false)
             }
             SearchResult.STATUS_OPEN -> {
-                btnLightbulb?.setImageResource(R.drawable.ic_lightbulb_off)
                 enableView(btnLightbulb, false)
+                btnLightbulb?.setImageResource(R.drawable.ic_lightbulb_off)
             }
             else -> {
                 Log.e(TAG,"unknown search result")
@@ -524,27 +517,15 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
     }
 
     override fun updateStatusHelpOff() {
-        btnLightbulb?.setImageResource(R.drawable.ic_empty)
+        Log.d(TAG,"updateStatusHelpOff()")
         enableView(btnLightbulb, false)
-
+        btnLightbulb?.setImageResource(R.drawable.ic_empty)
     }
 
     override fun updateStatusSearching() {
-        btnLightbulb?.setImageResource(R.drawable.ic_doing_something)
+        Log.d(TAG,"updateStatusSearching()")
         enableView(btnLightbulb, false)
-    }
-
-    /**
-     * only to shorten / reuse code
-     * enables or disables button (which is a view)
-     */
-    private fun enableView(view: View?, enabled: Boolean) {
-        view?.isEnabled = enabled
-        view?.alpha = if (enabled) {
-            ALPHA_ENABLED
-        } else {
-            ALPHA_DISABLED
-        }
+        btnLightbulb?.setImageResource(R.drawable.ic_doing_something)
     }
 
     /**
@@ -559,7 +540,5 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
     companion object {
         private const val TAG = "balla.MainActivity"
-        private const val ALPHA_ENABLED = 1.0f
-        private const val ALPHA_DISABLED = 0.5f
     }
 }

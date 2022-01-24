@@ -16,8 +16,12 @@
         <item name="android:layout_height">0dp</item>
     </style>
     <style name="BallaTopButtonsInMainActivity">
-        <item name="android:layout_width">40sp</item>
-        <item name="android:layout_height">40sp</item>
+        <item name="android:layout_width">42sp</item><!-- 40sp -->
+        <item name="android:layout_height">42sp</item>
+        <item name="android:background">@drawable/top_button_background</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
     <style name="BallaDrawViewInMainActivity">
         <item name="android:layout_width">0sp</item>
@@ -41,7 +45,7 @@
         <item name="android:layout_height">40sp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
-        <item name="android:layout_margin">4dp</item>
+        <item name="android:layout_margin">3dp</item>
     </style>
     <style name="BallaBaseSwitch">
         <item name="android:layout_gravity">center</item>
@@ -51,9 +55,9 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/text</item>
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:paddingLeft">14dp</item>
-        <item name="android:paddingRight">14dp</item>
-        <item name="android:layout_margin">4dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:layout_margin">3dp</item>
     </style>
     <style name="BallaSwitch" parent="BallaBaseSwitch">
     </style>
@@ -66,7 +70,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/button_shape</item>
-        <item name="android:padding">6dp</item>
+        <item name="android:padding">4dp</item>
         <item name="android:layout_margin">4dp</item>
     </style>
     <!-- setForceShowIcon(true) -->

@@ -435,12 +435,7 @@ class GameState {
     fun contentDistinctMoves(moves: MutableList<Move>): MutableList<Move> {
         // alle Züge miteinander vergleichen
         // also jeden Zug mit Zügen, die vorher in der Liste stehen
-
         val result = mutableListOf<Move>()
-        // ersten Zug unbedingt hinzufügen (wenn Liste nicht leer ist)
-        //if(moves.size >= 1) {
-        //    result.add(moves[1])
-        //}
 
         for (candidateIndex in 0 until moves.size) {
             val candidate = moves[candidateIndex]
@@ -466,6 +461,41 @@ class GameState {
     }
 
     /**
+     * Beispiel 1: Quell-Röhren der beiden möglichen Züge sind Inhalts-gleich
+     * 1 1 _
+     * 2 2 _
+     * input: 0->2, 1->2
+     * output: 0->2
+     *
+     * Beispiel 2: Ziel-Röhren der beiden möglichen Züge sind Inhalts-gleich
+     * 1 _ _
+     * 1 _ _
+     * input: 0->1, 0->2
+     * output: 0->1
+     */
+    fun contentDistinctMovesBang(moves: MutableList<Move>) {
+        // alle Züge miteinander vergleichen
+        // also jeden Zug mit Zügen, die vorher in der Liste stehen
+
+        var candidateIndex = 0
+        outerLoop@ while (candidateIndex < moves.size) {
+            val candidate = moves[candidateIndex]
+            for (otherIndex in 0 until candidateIndex) {
+                val other = moves[otherIndex]
+                //Log.d(TAG,"compare $candidateIndex with $otherIndex, ${candidate.toAscii()} with ${other.toAscii()}")
+                if (tubes[candidate.from].contentEquals(tubes[other.from]) && tubes[candidate.to].contentEquals(
+                        tubes[other.to]
+                    )
+                ) {
+                    moves.removeAt(candidateIndex)
+                    continue@outerLoop
+                }
+            }
+            candidateIndex++
+        }
+    }
+
+    /**
      * Liefert eine Liste mit Zügen, die als nächster Zug sinnvoll erscheinen.
      * Das sind alle möglichen Züge außer:
      * - inhaltsgleiche Züge
@@ -481,6 +511,7 @@ class GameState {
         //for (from in sourceTubes) {
         for (from in tubes.indices) {
             for (to in targetTubes) {
+            //for (to in tubes.indices) {
                 if (isMoveUseful(from, to)) {
                     val m = Move(from, to)
                     //Log.d(TAG, "add ${m.toAscii()}")
@@ -488,7 +519,40 @@ class GameState {
                 }
             }
         }
-        return contentDistinctMoves(moves)
+        contentDistinctMovesBang(moves)
+        return moves
+    }
+
+    /**
+     * Liefert eine Liste mit Zügen, die als nächster Zug sinnvoll erscheinen.
+     * Das sind alle möglichen Züge außer:
+     * - inhaltsgleiche Züge
+     * - Zug von einfarbiger Röhre in leere Röhre
+     * todo: Kettenzüge, Beispiel: 1 -> 2, 2 -> 3, sinnvoller ist direkt 1 -> 3
+     * todo: unabhängige Züge in verschiedenen Reihenfolgen, Beispiel: 1 -> 2, 3 -> 4 = 3 -> 4, 1 -> 2
+     * todo: Kettenzüge mit unabhängigen Zügen dazwischen. Beispiel: 1 -> 2, 7 -> 8, 2 -> 3
+     */
+    fun allUsefulMovesIntegrated(): List<Move> {
+        //val sourceTubes = usefulSourceTubes() unnötig
+        val targetTubes = usefulTargetTubes()
+        val moves = mutableListOf<Move>()
+        //for (from in sourceTubes) {
+        for (from in tubes.indices) {
+            //for (to in tubes.indices) {
+            toLoop@ for (to in targetTubes) {
+                if (isMoveUseful(from, to)) {
+                    //Log.d(TAG, "add ${m.toAscii()}")
+                    for (other in moves) {
+                        if (tubes[from].contentEquals(tubes[other.from]) && tubes[to].contentEquals(tubes[other.to])) {
+                            // inhaltsgleicher Zug
+                            continue@toLoop
+                        }
+                    }
+                    moves.add(Move(from, to))
+                }
+            }
+        }
+        return moves
     }
 
     /**
@@ -752,7 +816,7 @@ class GameState {
             return
         }
         val maxRecursion = maxRecursionDepth - 1
-        val moves = allUsefulMoves()
+        val moves = allUsefulMovesIntegrated()
 
         if (moves.isEmpty()) {
             //Log.d(TAG,"3. Abbruchkriterium: keine Züge mehr möglich")

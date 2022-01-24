@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="windowBackground">#ffffff</color>
+    <color name="activity_background">#ffffff</color>
     <color name="icon">#808080</color>
     <color name="text">#101010</color>
     <color name="tube">#e6e6e6</color><!-- light gray -->
-    <color name="button_stroke">#e6e6e6</color>
-    <color name="button_solid">#d0d0d0</color>
-    <color name="button_solid_pressed">#a0a0a0</color>
+    <color name="button">#d0d0d0</color>
+    <color name="button_pressed">#a0a0a0</color>
+    <color name="top_button_pressed">#e6e6e6</color>
 </resources>
