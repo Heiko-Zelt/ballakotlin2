@@ -298,10 +298,17 @@ class GameState {
             return false
         }
 
-        // Kettenzug Beispiel: 1 -> 2, 2 -> 3, sinnvoller ist direkt 1 -> 3
-        // (Spezialfall hin und zurück ist inbegriffen)
         if (moveLog.isNotEmpty()) {
+            // Kettenzug Beispiel: 1 -> 2, 2 -> 3, sinnvoller ist direkt 1 -> 3
+            // (Spezialfall hin und zurück ist inbegriffen)
             if (from == moveLog.last().to) {
+                return false
+            }
+
+            // Ball wegnehmen und statt dessen anderen gleichfarbigen Ball hinlegen
+            // Beispiel: 2 -> 3 (rot), 1 -> 2 (rot)
+            // (Spezialfall hin und zurück ist auch hier inbegriffen)
+            if ((to == moveLog.last().from) && (tubes[moveLog.last().to].colorOfTopmostBall() == tubes[from].colorOfTopmostBall())) {
                 return false
             }
         }
@@ -772,8 +779,9 @@ class GameState {
                 SearchResult.STATUS_OPEN -> {
                     Log.d(
                         TAG,
-                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, open"
+                        "findSolutionNoBackAndForth(maxRecursionDepth=$recursionDepth) -> elapsed=$elapsed msec, open ends"
                     )
+                    // : ${result.openEnds}
                 }
                 else -> {
                     Log.e(
@@ -812,6 +820,7 @@ class GameState {
             return
         } else if (maxRecursionDepth == 0) {
             //Log.d(TAG, "2. Abbruchkriterium: Maximale Rekursionstiefe erreicht")
+            //result.openEnds = 1
             result.status = SearchResult.STATUS_OPEN
             return
         }
@@ -823,7 +832,8 @@ class GameState {
             result.status = SearchResult.STATUS_UNSOLVABLE
             return
         }
-        var countOpen = 0
+        var countOpenBranches = 0
+        //var countOpenEnds = 0
         for (move in moves) {
             //Log.d(TAG, "Rekursion")
             moveBallAndLog(move)
@@ -841,7 +851,8 @@ class GameState {
                         return
                     }
                     SearchResult.STATUS_OPEN -> {
-                        countOpen++
+                        countOpenBranches++
+                        //countOpenEnds += result.openEnds
                     }
                 }
             }
@@ -853,7 +864,8 @@ class GameState {
         // wenn alles Sackgassen sind, dann unlösbar
         // wenn ein einzig offener Pfad existier dann Lösung offen.
         // Also müssen entweder die Sackgassen oder die offenen Pfade gezöhlt werden.
-        if(countOpen != 0) {
+        if(countOpenBranches != 0) {
+            //result.openEnds = countOpenEnds
             result.status = SearchResult.STATUS_OPEN
         }
         // alles Sackgassen, also auch letzter Pfad

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="activity_background">#ffffff</color>
+    <!--color name="menu_background">#eeeeee</color-->
     <color name="icon">#808080</color>
     <color name="text">#101010</color>
     <color name="tube">#e6e6e6</color><!-- light gray -->

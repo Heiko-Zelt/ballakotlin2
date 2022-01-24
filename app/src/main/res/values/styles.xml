@@ -78,6 +78,7 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/text</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+        <!-- item name="android:background">@drawable/menu_background</item -->
         <!-- item name="android:actionButtonStyle">@style/Balla.ActionBarButton</item -->
     </style>
     <!-- style name="Balla.ActionBarButton" parent="Widget.AppCompat.ActionButton">

@@ -1,5 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
+    <!--style name="BallaAppBaseTheme" parent="Theme.MaterialComponents.DayNight"-->
     <style name="BallaAppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@color/activity_background</item>

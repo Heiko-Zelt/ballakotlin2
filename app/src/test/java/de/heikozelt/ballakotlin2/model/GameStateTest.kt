@@ -463,7 +463,9 @@ class GameStateTest {
      * 2.744 ... 3.317 sec without yield()
      * 2.506 ... 3.100 sec recycling of SearchResult
      * 2.538 ... 3.036 sec allUsefulMoves() for(from in tubes.indices)
-     * 2.419 ... 2.530s sec allUsefulMovesIntegrated() instead of allUsefulMoves() & contentDistinctMoves()
+     * 2.419 ... 2.530 sec allUsefulMovesIntegrated() instead of allUsefulMoves() & contentDistinctMoves()
+     * 1.839 ... 1.973 sec replacement move is not useful
+     * 1.574 ....1.747 sec without counting open ends
      */
     @Test
     fun findSolution_time_consuming() {
@@ -836,6 +838,41 @@ class GameStateTest {
             assertFalse(isMoveUseful(1, 2)) // chain <----
             assertFalse(isMoveUseful(2, 0)) // geht nicht
             assertTrue(isMoveUseful(2, 1)) // gut
+            assertFalse(isMoveUseful(2, 2)) // Unsinn
+        }
+    }
+
+    /**
+     * <pre>
+     * chain of 2 moves
+     * _ _ _    _ _ 1    _ _ 1
+     * 1 _ 1 => 1 _ 1 => _ _ 1
+     * 2 1 3    2 _ 3    2 1 3
+     *   ^ ^ ok ^ ^ replacement
+     * </pre>
+     * is equivalent but detour to one direct move:
+     * _ _ _    _ _ 1
+     * 1 _ 1 => _ _ 1
+     * 2 1 3    2 1 3
+     */
+    @Test
+    fun isMoveUseful_replacement() {
+        val boardAscii = """
+            _ _ _
+            1 _ 1
+            2 1 3
+        """.trimIndent()
+        GameState().apply {
+            fromAscii(boardAscii)
+            moveBallAndLog(Move(1, 2))
+            assertFalse(isMoveUseful(0, 0)) // Unsinn
+            assertFalse(isMoveUseful(0, 1)) // replacement <----
+            assertFalse(isMoveUseful(0, 2)) // voll, geht nicht
+            assertFalse(isMoveUseful(1, 0)) // leer, geht nicht
+            assertFalse(isMoveUseful(1, 1)) // Unsinn
+            assertFalse(isMoveUseful(1, 2)) // leer + voll, geht nicht
+            assertFalse(isMoveUseful(2, 0)) // Farbe, geht nicht
+            assertFalse(isMoveUseful(2, 1)) // hin und zureuck
             assertFalse(isMoveUseful(2, 2)) // Unsinn
         }
     }
