@@ -503,6 +503,26 @@ class GameState {
     }
 
     /**
+     * @returns true wenn Ziel keine einfarbiger Stapel ist oder einfarbig und der höchste Stapel.
+     * Bei gleichen Höhen wird auch true zurückgeliefert.
+     */
+    fun isDifferentColoredOrUnicolorAndHighest(column: Int, color: Byte): Boolean {
+        val t = tubes[column]
+        if(!t.isUnicolorOrEmpty()) {
+            return true
+        }
+        val height = t.unicolor()
+        for(other in 0 until numberOfTubes) {
+            if(tubes[other].cells[0] == color) {
+                if(tubes[other].unicolor() > height) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    /**
      * Liefert eine Liste mit Zügen, die als nächster Zug sinnvoll erscheinen.
      * Das sind alle möglichen Züge außer:
      * - inhaltsgleiche Züge
@@ -512,17 +532,41 @@ class GameState {
      * todo: Kettenzüge mit unabhängigen Zügen dazwischen. Beispiel: 1 -> 2, 7 -> 8, 2 -> 3
      */
     fun allUsefulMoves(): List<Move> {
+        val moves = mutableListOf<Move>()
+
+        // Wenn ein Ball aus einer Röhre genommen wurde und es befinden sich gleichfarbige Bälle darunter,
+        // dann erst Mal alle entnehmen, bevor mit ganz anderen Zügen fortgesetzt wird.
+        if(!moveLog.isEmpty()) {
+            val from = moveLog.last().from
+            if (!tubes[from].isEmpty()) {
+                val lastColor = tubes[moveLog.last().to].colorOfTopmostBall()
+                // noch ein Ball mit gleicher Farbe in Quell-Röhre
+                if (tubes[from].colorOfTopmostBall() == lastColor) {
+                    // alle möglichen Ziele finden
+                    for (to in tubes.indices) {
+                        if ((to != from) && tubes[to].canTake(lastColor)) {
+                            if(isDifferentColoredOrUnicolorAndHighest(to, lastColor)) {
+                                moves.add(Move(from, to))
+                            }
+                        }
+                    }
+                    return moves
+                }
+            }
+        }
+
         //val sourceTubes = usefulSourceTubes() unnötig
         val targetTubes = usefulTargetTubes()
-        val moves = mutableListOf<Move>()
         //for (from in sourceTubes) {
         for (from in tubes.indices) {
             for (to in targetTubes) {
-            //for (to in tubes.indices) {
+                //for (to in tubes.indices) {
                 if (isMoveUseful(from, to)) {
                     val m = Move(from, to)
                     //Log.d(TAG, "add ${m.toAscii()}")
-                    moves.add(m)
+                    if(isDifferentColoredOrUnicolorAndHighest(to, tubes[from].colorOfTopmostBall())) {
+                        moves.add(m)
+                    }
                 }
             }
         }
@@ -540,9 +584,31 @@ class GameState {
      * todo: Kettenzüge mit unabhängigen Zügen dazwischen. Beispiel: 1 -> 2, 7 -> 8, 2 -> 3
      */
     fun allUsefulMovesIntegrated(): List<Move> {
+        val moves = mutableListOf<Move>()
+
+        // Wenn ein Ball aus einer Röhre genommen wurde und es befinden sich gleichfarbige Bälle darunter,
+        // dann erst Mal alle entnehmen, bevor mit ganz anderen Zügen fortgesetzt wird.
+        if(!moveLog.isEmpty()) {
+            val from = moveLog.last().from
+            if (!tubes[from].isEmpty()) {
+                val lastColor = tubes[moveLog.last().to].colorOfTopmostBall()
+                // noch ein Ball mit gleicher Farbe in Quell-Röhre
+                if (tubes[from].colorOfTopmostBall() == lastColor) {
+                    // alle möglichen Ziele finden
+                    for (to in tubes.indices) {
+                        if ((to != from) && tubes[to].canTake(lastColor)) {
+                            if(isDifferentColoredOrUnicolorAndHighest(to, lastColor)) {
+                                moves.add(Move(from, to))
+                            }
+                        }
+                    }
+                    return moves
+                }
+            }
+        }
+
         //val sourceTubes = usefulSourceTubes() unnötig
         val targetTubes = usefulTargetTubes()
-        val moves = mutableListOf<Move>()
         //for (from in sourceTubes) {
         for (from in tubes.indices) {
             //for (to in tubes.indices) {
@@ -550,12 +616,19 @@ class GameState {
                 if (isMoveUseful(from, to)) {
                     //Log.d(TAG, "add ${m.toAscii()}")
                     for (other in moves) {
-                        if (tubes[from].contentEquals(tubes[other.from]) && tubes[to].contentEquals(tubes[other.to])) {
-                            // inhaltsgleicher Zug
+                        // inhaltsgleicher Zug?
+                        if (tubes[from].contentEquals(tubes[other.from]) && tubes[to].contentEquals(
+                                tubes[other.to]
+                            )
+                        ) {
+                            // inhaltsgleicher Zug!
                             continue@toLoop
                         }
                     }
-                    moves.add(Move(from, to))
+                    // kein inhaltsgleicher Zug
+                    if(isDifferentColoredOrUnicolorAndHighest(to, tubes[from].colorOfTopmostBall())) {
+                        moves.add(Move(from, to))
+                    }
                 }
             }
         }
@@ -807,12 +880,15 @@ class GameState {
      * todo: Zyklen erkennen
      * todo: Spezialfall: Wenn eine Röhre mit wenigen Zügen(?) gefüllt werden kann, dann diesen Zug bevorzugen. Wo liegt die Grenze?
      */
+
+    /*,
+       previousGameStates: MutableList<Array<Byte>> = mutableListOf(Array(numberOfTubes * tubeHeight) { 0.toByte() }) */
     suspend fun findSolutionNoBackAndForth(
         maxRecursionDepth: Int,
-        result: SearchResult,
-        previousGameStates: MutableList<Array<Byte>> = mutableListOf(Array(numberOfTubes * tubeHeight) { 0.toByte() })) {
+        result: SearchResult
+    ) {
         // Job canceled? nicht zu oft Kontrolle abgeben.
-        if(maxRecursionDepth > 5) yield()
+        if (maxRecursionDepth > 7) yield()
 
         if (isSolved()) {
             //Log.d(TAG,"1. Abbruchkriterium: Lösung gefunden")
@@ -837,14 +913,14 @@ class GameState {
         for (move in moves) {
             //Log.d(TAG, "Rekursion")
             moveBallAndLog(move)
-            val newGameState = Array(numberOfTubes * tubeHeight) { 0.toByte() }
-            toBytes(newGameState)
+            //val newGameState = Array(numberOfTubes * tubeHeight) { 0.toByte() }
+            //toBytes(newGameState)
             // Zyklus gefunden, nicht tiefer suchen
-            if (!listContainsArray(previousGameStates, newGameState)) {
+            //if (!listContainsArray(previousGameStates, newGameState)) {
                 // kein Zyklus, also Rekursion
-                previousGameStates.add(newGameState)
-                findSolutionNoBackAndForth(maxRecursion, result, previousGameStates)
-                previousGameStates.removeLast()
+                //previousGameStates.add(newGameState)
+                findSolutionNoBackAndForth(maxRecursion, result /*, previousGameStates */)
+                //previousGameStates.removeLast()
                 when (result.status) {
                     SearchResult.STATUS_FOUND_SOLUTION -> {
                         result.move = move
@@ -855,7 +931,9 @@ class GameState {
                         //countOpenEnds += result.openEnds
                     }
                 }
-            }
+            //} else {
+            //    Log.e(TAG,"ZYCLE !!!!")
+            //}
             undoLastMove()
         }
 
@@ -864,7 +942,7 @@ class GameState {
         // wenn alles Sackgassen sind, dann unlösbar
         // wenn ein einzig offener Pfad existier dann Lösung offen.
         // Also müssen entweder die Sackgassen oder die offenen Pfade gezöhlt werden.
-        if(countOpenBranches != 0) {
+        if (countOpenBranches != 0) {
             //result.openEnds = countOpenEnds
             result.status = SearchResult.STATUS_OPEN
         }

@@ -141,6 +141,23 @@ class Tube(val tubeHeight: Int) {
     }
 
     /**
+     * Gibt wahr zurueck, wenn sich keine unterschiedlich farbigen Bälle in der Röhre befinden,
+     * also wenn leer oder nur gleichfarbige Bälle.
+     */
+    fun isUnicolorOrEmpty(): Boolean {
+        if(isEmpty()) {
+            return true
+        }
+        val color = cells[0]
+        for(row in 1 until fillLevel) {
+            if(cells[row] != color) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
      * Zähl von oben nach unten, wieviel Bälle die gleiche Farbe haben.
      * @return 0 für leere Röhre, sonst Anzahl gleichfarbiger Bälle.
      */
@@ -197,6 +214,13 @@ class Tube(val tubeHeight: Int) {
 
     fun contentEquals(other: Tube): Boolean {
         return cells contentEquals other.cells
+    }
+
+    /**
+     * Kann die Röhre einen Ball der gewünschten Farbe aufnehmen?
+     */
+    fun canTake(color: Byte): Boolean {
+        return isEmpty() || (!isFull() && (colorOfTopmostBall() == color))
     }
 
     companion object {

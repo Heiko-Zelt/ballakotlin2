@@ -12,6 +12,37 @@ import org.junit.jupiter.api.Test
 
 class TubeTest {
     @Test
+    fun canTake_empty_true() {
+        Tube(3).apply {
+            assertTrue(canTake(1))
+        }
+    }
+
+    @Test
+    fun canTake_full_false() {
+        Tube(3).apply {
+            addBall(1); addBall(1); addBall(1)
+            assertFalse(canTake(1))
+        }
+    }
+
+    @Test
+    fun canTake_same_color_true() {
+        Tube(3).apply {
+            addBall(2); addBall(1);
+            assertTrue(canTake(1))
+        }
+    }
+
+    @Test
+    fun canTake_different_color_false() {
+        Tube(3).apply {
+            addBall(1); addBall(2);
+            assertFalse(canTake(1))
+        }
+    }
+
+    @Test
     fun tube_constructor() {
         val t = Tube(3)
         assertEquals(0, t.cells[0])
@@ -201,6 +232,37 @@ class TubeTest {
             addBall(1)
         }
         assertFalse(t1.contentEquals(t2))
+    }
+
+    @Test
+    fun isUnicolorOrEmpty_empty() {
+        Tube(3).apply {
+            assertTrue(isUnicolorOrEmpty())
+        }
+    }
+
+    @Test
+    fun isUnicolorOrEmpty_one_ball() {
+        Tube(3).apply {
+            addBall(1)
+            assertTrue(isUnicolorOrEmpty())
+        }
+    }
+
+    @Test
+    fun isUnicolorOrEmpty_two_samecolor_balls() {
+        Tube(3).apply {
+            addBall(1); addBall(1);
+            assertTrue(isUnicolorOrEmpty())
+        }
+    }
+
+    @Test
+    fun isUnicolorOrEmpty_false() {
+        Tube(3).apply {
+            addBall(1); addBall(2);
+            assertFalse(isUnicolorOrEmpty())
+        }
     }
 
 }

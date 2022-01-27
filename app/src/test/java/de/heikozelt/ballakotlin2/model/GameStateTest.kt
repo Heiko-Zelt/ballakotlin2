@@ -121,7 +121,7 @@ class GameStateTest {
             _ 7 3 9 6 5 8 d 1 _ 4 a 2 c e 6 f b
             _ 7 3 9 f 5 8 d 1 _ 4 a 2 c e 6 f b
             """.trimIndent()
-        val expectedAscii = """4->0, 4->11"""
+        val expectedAscii = """4->11"""
         GameState().apply {
             fromAscii(boardAscii)
             val u = allUsefulMoves()
@@ -147,9 +147,35 @@ class GameStateTest {
             _ 7 3 9 6 5 8 d 1 _ 4 a 2 c e 6 f b
             _ 7 3 9 f 5 8 d 1 _ 4 a 2 c e 6 f b
             """.trimIndent()
-        val expectedAscii = """4->0, 4->11"""
+        val expectedAscii = """4->11"""
         GameState().apply {
             fromAscii(boardAscii)
+            val u = allUsefulMovesIntegrated()
+            val result = Moves()
+            result.fromList(u)
+            assertEquals(expectedAscii, result.toAscii())
+        }
+    }
+
+    /**
+     * Es gibt noch einen gleichfarbigen Ball in der Quell-Röhre.
+     * Den als nächstes wegziehen.
+     */
+    @Test
+    fun allUsefulMovesIntegrated_group() {
+        Log.d(TAG, "usefulMovesIntegrated_big()")
+        val boardAscii = """
+            _ 7 _ 9 _ 5 8 1 _ 4 _ 2 _ a
+            _ 7 3 9 _ 5 8 1 _ 4 _ 2 6 b
+            _ 7 3 9 _ 5 8 1 _ 4 _ 2 6 b
+            _ 7 3 9 a 5 8 1 _ 4 a 2 6 b
+            _ 7 3 9 a 5 8 1 _ 4 b 2 6 b
+            a 7 3 9 3 5 8 1 _ 4 a 2 6 b
+            """.trimIndent()
+        val expectedAscii = """4->0, 4->10"""
+        GameState().apply {
+            fromAscii(boardAscii)
+            moveBallAndLog(Move(4,10))
             val u = allUsefulMovesIntegrated()
             val result = Moves()
             result.fromList(u)
@@ -388,6 +414,55 @@ class GameStateTest {
         //todo: weitere result-properties pruefen
     }
 
+    @Test
+    fun findSolution_4_1_5_found() {
+        Log.d(TAG, "findSolution_big()")
+        val txt = """
+            _ 3 _ _ 4
+            _ 2 1 1 2
+            _ 1 2 2 3
+            3 4 4 3 4
+            1 1 4 2 3
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(txt)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+        }
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(1, 0), result.move)
+    }
+
+    @Test
+    fun findSolution_6_1_5_found() {
+        Log.d(TAG, "findSolution_big()")
+        val txt = """
+            3 _ 1 _ _ 5 2
+            6 _ 2 4 _ 3 3
+            6 4 2 3 4 1 6
+            1 5 6 4 5 1 2
+            5 4 6 5 3 1 2
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(txt)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+        }
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(1, 4), result.move)
+    }
+
+
     /**
      * einzig sinnvoller Zug ist 4 (a) -> 11 (auf a)
      */
@@ -457,6 +532,91 @@ class GameStateTest {
     }
 
     /**
+     * 2.470 ... 2.555 sec if (maxRecursionDepth > 5) yield()
+     * 2.139 ... 2.363 sec if (maxRecursionDepth > 7) yield()
+     * 1.319 ... 1.444 sec ohne zusätzliche Zykluserkennung
+     */
+    @Test
+    fun findSolution_more_time_consuming_1() {
+        val txt = """
+            f 7 3 4 _ a _ e _ _ _ _ 2 _ 5 _ 7
+            f 5 3 4 8 a _ e d 6 _ 9 1 _ b c 9
+            f 1 3 4 8 a _ e 5 6 c 9 8 b d d 2
+            f 1 3 4 8 a 2 e 5 6 c 9 c b 7 d 2
+            f 1 3 4 8 a 1 e 5 6 c 9 7 b 7 d 2
+            f 1 3 4 8 a 9 e 5 6 c 6 b b 7 d 2
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(txt)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+        }
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(15, 10), result.move)
+    }
+
+    /**
+     * 3.166 ... 3.281 sec if (maxRecursionDepth > 5) yield()
+     * 3.012 ... 3.155 sec if (maxRecursionDepth > 7) yield()
+     * 1.244 ... 1.314 sec ohne zusätzliche Zykluserkennung
+     */
+    @Test
+    fun findSolution_more_time_consuming_2() {
+        val txt = """
+            c _ _ e 1 b _ _ d _ _ d 3 e _ _
+            c 6 9 e 1 b 7 8 2 _ _ d a e _ 2
+            9 6 9 3 d b 7 4 1 _ _ 5 2 e _ 8
+            5 6 9 8 3 b 7 c 1 8 4 2 a e 5 a
+            d 6 9 a 3 b 7 c 1 8 4 2 5 e 5 a
+            d 6 9 4 3 b 7 c 1 8 4 2 6 b 5 a
+            d 6 9 7 3 4 7 c 1 8 4 2 3 c 5 a
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(txt)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+        }
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(7, 9), result.move)
+    }
+
+    @Test
+    fun findSolution_realy_time_consuming() {
+        val txt = """
+            9 4 _ b 2 6 _ _ 8 _ e _ _ _ 3 _ f _
+            9 4 1 b 2 6 _ a 8 c e d _ _ 3 _ f _
+            9 4 1 b 2 6 _ a 8 c e d _ 5 3 7 c _
+            9 4 1 b 2 6 _ a 8 c e d _ 5 3 7 7 _
+            9 4 1 b 2 6 _ a 8 c e d 5 5 1 f 7 f
+            9 4 1 b 2 6 _ a 8 c e d 3 5 3 7 7 f
+            9 4 1 b 2 6 _ a 8 c e d 3 5 a d 7 f
+            9 4 1 b 2 6 _ a 8 c e d 3 5 f 5 7 f
+        """.trimIndent()
+        var result = SearchResult()
+        GameState().apply {
+            fromAscii(txt)
+            runTest {
+                val job = GlobalScope.launch(Default) {
+                    result = findSolution()
+                }
+                job.join()
+            }
+        }
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(12, 13), result.move)
+    }
+
+    /**
      * Duration:
      * 3.757 ... 4.132 sec with frequent yield() invocations
      * 2.945 ... 3.324 sec with if(maxRecursionDepth > 5) yield()
@@ -466,6 +626,8 @@ class GameStateTest {
      * 2.419 ... 2.530 sec allUsefulMovesIntegrated() instead of allUsefulMoves() & contentDistinctMoves()
      * 1.839 ... 1.973 sec replacement move is not useful
      * 1.574 ....1.747 sec without counting open ends
+     * 0.522 ... 0.782 sec allUsefulMovesIntegrated() mit Priorisierung: weiterer Ball in Quellröhre mit gleicher Farbe
+     * 0.047 ... 0.061 sec isDifferentColoredOrUnicolorAndHighest()
      */
     @Test
     fun findSolution_time_consuming() {
@@ -724,6 +886,27 @@ class GameStateTest {
             assertEquals(5, cells[2])
             assertEquals(7, cells[1])
             assertEquals(1, cells[0])
+        }
+    }
+
+    @Test
+    fun isDifferentColoredOrUnicolorAndHighest_1() {
+        val lines = arrayOf(
+            "_ _ 4 _ _ 3 _ _",
+            "_ _ 4 2 _ 2 1 _",
+            "_ _ 2 4 _ 3 1 _",
+            "1 _ 2 3 _ 3 1 4"
+        )
+        GameState().apply {
+            fromAsciiLines(lines)
+            assertFalse(isDifferentColoredOrUnicolorAndHighest(0, 1)) // Spalte 6 ist höher
+            assertTrue(isDifferentColoredOrUnicolorAndHighest(0, 2)) // egal, geht eh nicht
+            assertFalse(isDifferentColoredOrUnicolorAndHighest(1, 1)) // Spalte 6 ist höher
+            assertTrue(isDifferentColoredOrUnicolorAndHighest(1, 2)) // ja, es gibt keine einfarbige Spalte mit Farbe 2
+            assertTrue(isDifferentColoredOrUnicolorAndHighest(2, 2)) // egal, geht eh nicht
+            assertTrue(isDifferentColoredOrUnicolorAndHighest(3, 1)) // egal, geht eh nicht
+            assertTrue(isDifferentColoredOrUnicolorAndHighest(3, 2)) // unterschiedliche Farben
+            assertTrue(isDifferentColoredOrUnicolorAndHighest(6, 1)) // einfarbig und höchster Stapel
         }
     }
 
