@@ -11,6 +11,13 @@ import kotlinx.coroutines.test.runTest
 /**
  * JUnit 5-Tests.
  * Tests sind alphabetisch sortiert, weil es so viele sind.
+ *
+ * tubes                                 MutableList          Array
+ * findSolution_6_1_5_found()            0.048 ... 0.055 sec  0.046 ... 0.057 sec
+ * findSolution_more_time_consuming_1()  0.673 ... 0.796 sec  0.545 ... 0.681 sec
+ * findSolution_more_time_consuming_2()  1.142 ... 1.149 sec  0.895 ... 1.051 sec
+ * findSolution_really_time_consuming()  1.770 ... 1.964 sec  1.597 ... 1.791 sec
+ * Fazit: winzige Verbesserung
  */
 class GameStateTest {
     /**
@@ -626,7 +633,7 @@ class GameStateTest {
     }
 
     @Test
-    fun findSolution_realy_time_consuming() {
+    fun findSolution_really_time_consuming() {
         val txt = """
             9 4 _ b 2 6 _ _ 8 _ e _ _ _ 3 _ f _
             9 4 1 b 2 6 _ a 8 c e d _ _ 3 _ f _

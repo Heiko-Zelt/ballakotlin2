@@ -18,7 +18,7 @@ class GameState {
     var tubeHeight = 0
 
     //var tubes = MutableList(numberOfTubes) { Tube(0) }
-    var tubes = mutableListOf<Tube>()
+    var tubes = arrayOf<Tube>()
 
     /**
      * Operationen:
@@ -64,7 +64,7 @@ class GameState {
         numberOfExtraTubes = _numberOfExtraTubes
         numberOfTubes = _numberOfColors + _numberOfExtraTubes
         tubeHeight = _tubeHeight
-        tubes = MutableList(numberOfTubes) { Tube(tubeHeight) }
+        tubes = Array(numberOfTubes) { Tube(tubeHeight) }
         moveLog.clear()
     }
 
@@ -144,9 +144,11 @@ class GameState {
      * which makes solving the puzzle much easier
      */
     fun cheat() {
-        tubes.add(Tube(tubeHeight))
-        numberOfTubes++
         numberOfExtraTubes++
+        numberOfTubes++
+        val tmp = Array(numberOfTubes) { Tube(tubeHeight) }
+        tubes.copyInto(tmp)
+        tubes = tmp
     }
 
     /**
@@ -883,7 +885,7 @@ class GameState {
             }
             // 3. Abbruchkriterium: Zeit-Überschreitung
             // todo: von was haengt die Anzahl der Verzweigungen ab?
-            if (elapsed * numberOfTubes >= MAX_ESTIMATED_DURATION) {
+            if (elapsed > MAX_DURATION) {
                 break
             }
         }
@@ -1132,7 +1134,7 @@ class GameState {
         numberOfExtraTubes = numberOfTubes - numberOfColors
         tubeHeight = trimmedLines.size
 
-        tubes = MutableList(numberOfTubes) { Tube(tubeHeight) }
+        tubes = Array(numberOfTubes) { Tube(tubeHeight) }
         moveLog.clear()
 
         // fillLevel wird automatisch berechnet
@@ -1176,8 +1178,9 @@ class GameState {
         private const val MAX_RECURSION = 50
 
         /**
-         * maximale geschätzte Dauer
+         * Bei Überschreitung dieser Dauer wird abgebrochen.
+         * Das kann etwa 3 Mal so lange sein.
          */
-        private const val MAX_ESTIMATED_DURATION = 120_000
+        private const val MAX_DURATION = 8_000
     }
 }
