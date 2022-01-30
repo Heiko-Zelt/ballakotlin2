@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
-        <shape android:shape="oval">
+        <shape>
+            <corners android:radius="22sp"/>
             <solid android:color="@color/top_button_pressed" />
         </shape>
     </item>
     <item>
-        <shape android:shape="oval">
+        <shape>
+            <!--corners android:radius="22sp"/-->
             <solid android:color="@color/activity_background" />
         </shape>
     </item>

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class MoveTest {
     @Test
-    fun backwards() {
+    fun backwards_1() {
         val m = Move(2, 3)
         val b = m.backwards()
         assertEquals(3, b.from)
@@ -56,7 +56,7 @@ class MoveTest {
     }
 
     @Test
-    fun fromAscii() {
+    fun fromAscii_1() {
         val m = Move()
         m.fromAscii(" 0->17")
         assertEquals(0, m.from)
@@ -88,7 +88,7 @@ class MoveTest {
     }
 
     @Test
-    fun toAscii() {
+    fun toAscii_1() {
         assertEquals("1->17", Move(1,17).toAscii())
     }
 

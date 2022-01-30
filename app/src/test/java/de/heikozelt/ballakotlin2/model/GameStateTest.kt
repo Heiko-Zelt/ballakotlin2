@@ -175,7 +175,7 @@ class GameStateTest {
         val expectedAscii = """4->0, 4->10"""
         GameState().apply {
             fromAscii(boardAscii)
-            moveBallAndLog(Move(4,10))
+            moveBallAndLog(Move(4, 10))
             val u = allUsefulMovesIntegrated()
             val result = Moves()
             result.fromList(u)
@@ -271,6 +271,41 @@ class GameStateTest {
         }
         val moves = listOf(Move(0, 2), Move(2, 0))
         assertEquals(moves, gs.allUsefulMoves())
+    }
+
+    @Test
+    fun applyMoves_1() {
+        val expectedAscii = """
+            _ 2 3 _
+            _ 2 3 1
+            1 2 3 1
+        """.trimIndent()
+        val moves = Moves().apply {
+            push(Move(0, 3))
+            push(Move(0, 3))
+        }
+        GameState().apply {
+            resize(3, 1, 3)
+            rainbow()
+            applyMoves(moves)
+            assertEquals(expectedAscii, toAscii())
+        }
+    }
+
+    @Test
+    fun applyMoves_2() {
+        val expectedAscii = """
+            _ 2 3 _
+            _ 2 3 1
+            1 2 3 1
+        """.trimIndent()
+        val moves = """0 -> 3, 0 -> 3"""
+        GameState().apply {
+            resize(3, 1, 3)
+            rainbow()
+            applyMoves(moves)
+            assertEquals(expectedAscii, toAscii())
+        }
     }
 
     @Test
@@ -902,11 +937,21 @@ class GameStateTest {
             assertFalse(isDifferentColoredOrUnicolorAndHighest(0, 1)) // Spalte 6 ist höher
             assertTrue(isDifferentColoredOrUnicolorAndHighest(0, 2)) // egal, geht eh nicht
             assertFalse(isDifferentColoredOrUnicolorAndHighest(1, 1)) // Spalte 6 ist höher
-            assertTrue(isDifferentColoredOrUnicolorAndHighest(1, 2)) // ja, es gibt keine einfarbige Spalte mit Farbe 2
+            assertTrue(
+                isDifferentColoredOrUnicolorAndHighest(
+                    1,
+                    2
+                )
+            ) // ja, es gibt keine einfarbige Spalte mit Farbe 2
             assertTrue(isDifferentColoredOrUnicolorAndHighest(2, 2)) // egal, geht eh nicht
             assertTrue(isDifferentColoredOrUnicolorAndHighest(3, 1)) // egal, geht eh nicht
             assertTrue(isDifferentColoredOrUnicolorAndHighest(3, 2)) // unterschiedliche Farben
-            assertTrue(isDifferentColoredOrUnicolorAndHighest(6, 1)) // einfarbig und höchster Stapel
+            assertTrue(
+                isDifferentColoredOrUnicolorAndHighest(
+                    6,
+                    1
+                )
+            ) // einfarbig und höchster Stapel
         }
     }
 
@@ -1451,26 +1496,26 @@ class GameStateTest {
         }
     }
 
-    /*
-    @Test
-    fun usefulSourceTubes_5_out_of_7() {
-        val boardAscii = """
-        _ 2 _ _ _ _ 2 _    
-        _ 3 2 _ _ _ 3 4 
-        1 1 4 _ 1 _ 3 4
-        """.trimIndent()
-        val expected = arrayOf(0, 1, 2, 6, 7)
-        GameState().apply {
-            fromAscii(boardAscii)
-            val tSet = tubesSet()
-            Log.d(TAG, "tSet=$tSet")
-            val uSet = usefulSourceTubes()
-            Log.d(TAG, "uSet=$uSet")
-            val uSetArray = uSet.toTypedArray()
-            assertTrue(expected contentEquals uSetArray)
-        }
+/*
+@Test
+fun usefulSourceTubes_5_out_of_7() {
+    val boardAscii = """
+    _ 2 _ _ _ _ 2 _
+    _ 3 2 _ _ _ 3 4
+    1 1 4 _ 1 _ 3 4
+    """.trimIndent()
+    val expected = arrayOf(0, 1, 2, 6, 7)
+    GameState().apply {
+        fromAscii(boardAscii)
+        val tSet = tubesSet()
+        Log.d(TAG, "tSet=$tSet")
+        val uSet = usefulSourceTubes()
+        Log.d(TAG, "uSet=$uSet")
+        val uSetArray = uSet.toTypedArray()
+        assertTrue(expected contentEquals uSetArray)
     }
-    */
+}
+*/
 
 
     @Test

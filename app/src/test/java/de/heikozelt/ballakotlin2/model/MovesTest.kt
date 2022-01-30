@@ -1,5 +1,6 @@
 package de.heikozelt.ballakotlin2.model
 
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -55,5 +56,19 @@ class MovesTest {
     fun toAscii_2_empty() {
         val ms = Moves()
         assertEquals("", ms.toAscii())
+    }
+
+    @Test
+    fun iterator_1() {
+        val moves = Moves().apply {
+            push(Move(1,2))
+            push(Move(3,4))
+        }
+        val iter = moves.iterator()
+        Assertions.assertTrue(iter.hasNext())
+        assertEquals(Move(1,2), iter.next())
+        Assertions.assertTrue(iter.hasNext())
+        assertEquals(Move(3,4), iter.next())
+        Assertions.assertFalse(iter.hasNext())
     }
 }

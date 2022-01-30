@@ -39,6 +39,23 @@ class GameState {
     }
 
     /**
+     * Führt eine Liste von Zügen aus.
+     * Einsatz zum Beispiel als redo-Operation.
+     */
+    fun applyMoves(moves: Moves) {
+        for(m in moves) {
+            moveBall(m)
+        }
+        moveLog.fromList(moves.asMutableList())
+    }
+
+    fun applyMoves(ascii: String) {
+        val moves = Moves()
+        moves.fromAscii(ascii)
+        applyMoves(moves)
+    }
+
+    /**
      * erzeugt ein leeres Spielfeld in den angegebenen Dimensionen
      */
     fun resize(_numberOfColors: Int, _numberOfExtraTubes: Int, _tubeHeight: Int) {

@@ -24,7 +24,7 @@ class BallaApplication : Application() {
     }
 
     override fun onCreate() {
-        Log.d(TAG, "onCreate()")
+        Log.d(TAG, "LFZYKL onCreate()")
         super.onCreate()
 
         if (loadSettings()) {
@@ -54,7 +54,7 @@ class BallaApplication : Application() {
             prefs.edit().apply {
                 clear()
                 putString(PREF_INITIAL_GAMESTATE, initialGs.toAscii())
-                putString(PREF_GAMESTATE, gs.toAscii())
+                //putString(PREF_GAMESTATE, gs.toAscii())
                 putString(PREF_MOVE_LOG, gs.moveLog.toAscii())
                 putBoolean(PREF_PLAY_SOUND, playSound)
                 putBoolean(PREF_PLAY_ANIMATIONS, playAnimations)
@@ -85,21 +85,23 @@ class BallaApplication : Application() {
         Log.d(TAG, "computer support=$computerSupport")
 
         // 1. laden, 2. parsen, 3. übernehmen:
-        val boardAscii = prefs.getString(PREF_GAMESTATE, null)
+        // val boardAscii = prefs.getString(PREF_GAMESTATE, null)
         val initialBoardAscii = prefs.getString(PREF_INITIAL_GAMESTATE, null)
         val moveLogAscii = prefs.getString(PREF_MOVE_LOG, null)
-        Log.d(TAG, "boardAscii=$boardAscii")
+        //Log.d(TAG, "boardAscii=$boardAscii")
         Log.d(TAG, "moveLogAscii=$moveLogAscii")
-        if (boardAscii == null || moveLogAscii == null || initialBoardAscii == null) {
+        if (/* boardAscii == null || */ moveLogAscii == null || initialBoardAscii == null) {
             return false
         } else {
-            val gs = GameState()
+            var gs: GameState? = null
             val initialGs = GameState()
             try {
                 initialGs.fromAscii(initialBoardAscii)
-                gs.fromAscii(boardAscii)
-                gs.moveLog.fromAscii(moveLogAscii)
-            } catch (e: IllegalArgumentException) {
+                gs = initialGs.cloneWithoutLog()
+                gs.applyMoves(moveLogAscii)
+                /* gs.fromAscii(boardAscii) */
+                /* gs.moveLog.fromAscii(moveLogAscii) */
+            } catch (e: Exception) {
                 Log.d(TAG, "fromAscii: $e")
                 return false
             }
@@ -123,7 +125,7 @@ class BallaApplication : Application() {
         private const val TAG = "balla.BallaApplication"
         private const val SHARED_PREFS_NAME = "settings"
         private const val PREF_INITIAL_GAMESTATE = "initial_gamestate"
-        private const val PREF_GAMESTATE = "gamestate"
+        //private const val PREF_GAMESTATE = "gamestate"
         private const val PREF_MOVE_LOG = "move_log"
         private const val PREF_PLAY_SOUND = "play_sound"
         private const val PREF_PLAY_ANIMATIONS = "play_animations"

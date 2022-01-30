@@ -1,0 +1,44 @@
+3 Standard-Buttons:
+  * Menu oder Overview (Quadrat oder Burger quer)
+  * Home (Kreis oder Squircle)
+  * Back (dreieckig oder Pfeil) <
+
+App Starten:
+  Application.onCreate()
+  MainActivity.onCreate()
+  MainActivity.onStart()
+  MainActivity.onResume()
+
+Bildschirm drehen:
+  MainActivity.onPause() <--- save game state (initial game state and move log)
+  MainActivity.onStop()
+  MainActivity.onDestroy()
+  MainActivity.onCreate()
+  MainActivity.onStart()
+  MainActivity.onResume()
+
+Overview- oder Home-Button:
+  MainActivity.onPause()
+  MainActivity.onStop()
+  (onDestroy() wird nicht aufgerufen, wenn die App danach ganz beendet wird.)
+
+Back-Button:
+  MainActivity.onPause()
+  MainActivity.onStop()
+  MainActivity.onDestroy()
+
+wieder auf App klicken / zu App wechseln:
+  onCreate()
+  onStart()
+  onResume()
+
+finish()
+  MainActivity.onPause()
+  MainActivity.onStop()
+  MainActivity.onDestroy()
+
+https://developer.android.com/reference/android/app/Activity
+onPause() is where you deal with the user pausing active interaction with the activity.
+Any changes made by the user should at this point be committed
+(usually to the ContentProvider holding the data).
+In this state the activity is still visible on screen.

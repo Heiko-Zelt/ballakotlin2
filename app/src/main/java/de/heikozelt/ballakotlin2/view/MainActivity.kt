@@ -100,8 +100,8 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
      * wird z.B. aufgerufen, wenn Bildschirm gedreht wird
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onCreate()")
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "LFZYKL onCreate()")
 
         setContentView(R.layout.activity_main)
 
@@ -139,14 +139,44 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
 
         drawView?.initSoundPool(this)
 
-/*
+        /*
         for(i in Ball.PAINTS.indices) {
             val c = Ball.PAINTS[i].color
             println("<color name=\"ball$i\">#${c.red.toString(16)} ${c.green.toString(16)} ${c.blue.toString(16)}</color>")
         }
-
- */
+        */
     }
+
+    /**
+     * Todo: Spielstand sichern bei onPause()
+     */
+    override fun onPause() {
+        super.onPause()
+        //Log.d(TAG, "LFZYKL onPause() save game state?")
+        (application as BallaApplication).saveSettings()
+    }
+
+    /*
+    override fun onStart() {
+        super.onRestart()
+        Log.d(TAG, "LFZYKL onStart()")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d(TAG, "LFZYKL onRestart()")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "LFZYKL onStop()")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "LFZYKL onResume()")
+    }
+    */
 
     private fun restoreWidgetsStatus() {
         // Wenn der Bildschirm gedreht wird, dann wird die Activity neu instanziiert.
@@ -206,7 +236,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                 R.id.item_cheat -> gameController?.actionCheat()
                 R.id.item_sound_and_animations -> openTogglesActivity()
                 R.id.item_close -> {
-                    (application as BallaApplication).saveSettings()
+                    //(application as BallaApplication).saveSettings()
                     finishAndRemoveTask()
                 }
                 else -> {
@@ -268,12 +298,12 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                     val colors = resultBundle.getInt("number_of_colors")
                     val extra = resultBundle.getInt("extra_tubes")
                     val height = resultBundle.getInt("height")
-                    // todo: nur wenn sich etwas geändert hat?
                     (application as BallaApplication).gameController.actionNewGame(
                         colors,
                         extra,
                         height
                     )
+                    (application as BallaApplication).saveSettings()
                 }
             } else if (it.resultCode == RESULT_CANCELED) {
                 Log.d(TAG, "RESULT_CANCELED")
@@ -299,7 +329,6 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                         resultBundle.getBoolean(TogglesActivity.BUNDLE_ANIMATIONS, true)
                     val compSupport =
                         resultBundle.getBoolean(TogglesActivity.BUNDLE_COMPUTER_SUPPORT, true)
-                    // todo: Reaktion auf neue Einstellungen
                     // an 3 Stellen ändern BallaApplication, MainActivity und MyDrawView.
                     // das muss doch einfacher gehen
                     val app = application as BallaApplication
@@ -310,6 +339,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                     enableSound(sound)
                     enableAnimations(animations)
                     enableComputerSupport(compSupport)
+                    (application as BallaApplication).saveSettings()
                 }
             } else if (it.resultCode == RESULT_CANCELED) {
                 Log.d(TAG, "received RESULT_CANCELED")
@@ -495,14 +525,14 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
     }
 
     override fun updateStatusSearchResult(result: SearchResult) {
-        Log.d(TAG,"updateStatusSearchResult(result.status=${result.status})")
-        when(result.status) {
+        Log.d(TAG, "updateStatusSearchResult(result.status=${result.status})")
+        when (result.status) {
             SearchResult.STATUS_FOUND_SOLUTION -> {
-                enableView(btnLightbulb,true)
+                enableView(btnLightbulb, true)
                 btnLightbulb?.setImageResource(R.drawable.ic_lightbulb)
             }
             SearchResult.STATUS_UNSOLVABLE -> {
-                enableView(btnLightbulb,false)
+                enableView(btnLightbulb, false)
                 btnLightbulb?.setImageResource(R.drawable.ic_dead_end)
             }
             SearchResult.STATUS_OPEN -> {
@@ -510,20 +540,20 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
                 btnLightbulb?.setImageResource(R.drawable.ic_lightbulb_off)
             }
             else -> {
-                Log.e(TAG,"unknown search result")
+                Log.e(TAG, "unknown search result")
                 enableView(btnLightbulb, false)
             }
         }
     }
 
     override fun updateStatusHelpOff() {
-        Log.d(TAG,"updateStatusHelpOff()")
+        Log.d(TAG, "updateStatusHelpOff()")
         enableView(btnLightbulb, false)
         btnLightbulb?.setImageResource(R.drawable.ic_empty)
     }
 
     override fun updateStatusSearching() {
-        Log.d(TAG,"updateStatusSearching()")
+        Log.d(TAG, "updateStatusSearching()")
         enableView(btnLightbulb, false)
         btnLightbulb?.setImageResource(R.drawable.ic_doing_something)
     }
@@ -533,6 +563,7 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
      */
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "LFZYKL onDestroy()")
         drawView?.destroySoundPool()
         gameController?.unregisterGameStateListener()
 

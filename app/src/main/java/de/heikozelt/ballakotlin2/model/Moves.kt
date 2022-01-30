@@ -20,7 +20,7 @@ package de.heikozelt.ballakotlin2.model
  * Spielzüge sind durch Komma getrennt. Quell- und Ziel-Röhre durch einen Pfeil.
  * Zusätzliche Whitespaces sind erlaubt.
  */
-class Moves {
+class Moves: Iterable<Move> {
     private val movesList = mutableListOf<Move>()
 
     fun clear() {
@@ -110,6 +110,10 @@ class Moves {
      */
     fun asMutableList(): MutableList<Move> {
         return movesList
+    }
+
+    override fun iterator(): Iterator<Move> {
+        return movesList.iterator()
     }
 
     /**
