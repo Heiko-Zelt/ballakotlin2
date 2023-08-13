@@ -12,6 +12,7 @@ class Move() {
     /*
      * @param _from Index der Röhre, aus der ein Ball entnommen wird
      * @param _to   Index der Röhre, in die ein Ball hinzugefügt wird
+     * _from=99 bedeutet schummeln, eine Röhre hinzufügen
      */
     constructor(_from: Int, _to: Int): this() {
         from = _from

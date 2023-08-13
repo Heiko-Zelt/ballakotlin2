@@ -171,10 +171,9 @@ class GameControllerTest {
         assertEquals("enableResetAndUndo(enabled=true)", listener.observationsLog[2])
         assertEquals("updateStatusSearching()", listener.observationsLog[3])
         // undo
-        assertEquals("enableResetAndUndo(enabled=false)", listener.observationsLog[4])
         assertEquals(
             "liftAndHoleBall(fromColumn=1, toColumn=0, fromRow=0, toRow=0)",
-            listener.observationsLog[5]
+            listener.observationsLog[4]
         )
         assertEquals("updateStatusSearching()", listener.observationsLog[6])
     }

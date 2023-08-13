@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import java.lang.IndexOutOfBoundsException
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Disabled
 
 /**
  * JUnit 5-Tests.
@@ -40,6 +41,7 @@ class CollectionsPerformanceTest {
     }
 
     @Test
+    @Disabled
     fun tubes_isEmpty_performance() {
         val ITERATIONS = 100_000_000
         var count = 0

@@ -323,6 +323,8 @@ class GameStateTest {
             cheat()
             assertEquals(3, numberOfTubes)
             assertEquals(3, tubes.size)
+            assertEquals(1, moveLog.size())
+            assertEquals(Move(99, 0), moveLog.last())
         }
     }
 
@@ -1478,6 +1480,29 @@ class GameStateTest {
         }
     }
 
+    @Test
+    fun undoCheat_1() {
+        val expectedAscii = """
+            _ _ 2
+            1 _ 2
+            1 _ 2
+        """.trimIndent()
+        val boardAscii = """
+            _ _ 2 _
+            1 _ 2 _
+            1 _ 2 _
+        """.trimIndent()
+        val movesAscii = "99->0"
+        GameState().apply {
+            fromAscii(boardAscii)
+            moveLog.fromAscii(movesAscii)
+            undoCheat()
+            moveLog.pop()
+            val resultAscii = toAscii()
+            assertEquals(expectedAscii, resultAscii)
+        }
+    }
+
     /**
      * _ _ _ 3 _    _ _ _ 3 _
      * 3 2 2 1 _ => 3 _ 2 1 _
@@ -1485,7 +1510,7 @@ class GameStateTest {
      *          undo
      */
     @Test
-    fun undo_one_of_2_moves() {
+    fun undoLastMove_one_of_2_moves() {
         val boardAscii = """
             _ _ _ 3 _
             3 2 2 1 _

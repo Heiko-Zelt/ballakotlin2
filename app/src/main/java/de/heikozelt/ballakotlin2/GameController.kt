@@ -90,7 +90,7 @@ class GameController {
         Log.d(TAG, "findHelp()")
         searchResult = null
         job?.cancel()
-        if(isComputerSupportive) {
+        if (isComputerSupportive) {
             gameObserver?.updateStatusSearching()
             gameState?.let { gs ->
                 job = GlobalScope.launch(Default) {
@@ -108,7 +108,7 @@ class GameController {
                         withContext(con) {
                             Log.d(TAG, "withContext(Main)")
                             //if (isHelpAvailable()) {
-                            if(isComputerSupportive) {
+                            if (isComputerSupportive) {
                                 Log.d(TAG, "update Status with SearchResult")
                                 //gameObserver?.enableHelp(true)
                                 searchResult?.let { sr ->
@@ -254,23 +254,33 @@ class GameController {
      */
     fun actionUndo() {
         gameState?.let { gs ->
+            val wasCheatAllowed = isCheatAllowed()
             if (up) {
                 gameObserver?.dropBall(
                     upColumn,
                     gs.tubes[upColumn].fillLevel - 1
                 )
                 up = false
-            } else if (gs.moveLog.isNotEmpty()) {
-                val move = gs.undoLastMove()
+            } else if (gs.moveLog.isNotEmpty()) { // undo cheat
+                if (gs.moveLog.last().from == 99) {
+                    gs.moveLog.pop()
+                    gs.undoCheat()
+                    gameObserver?.redraw()
+                    if (!wasCheatAllowed && isCheatAllowed()) {
+                        gameObserver?.enableCheat(true)
+                    }
+                } else { // undo last move
+                    val move = gs.undoLastMove()
+                    gameObserver?.liftAndHoleBall(
+                        move.from,
+                        move.to,
+                        gs.tubes[move.from].fillLevel,
+                        gs.tubes[move.to].fillLevel - 1
+                    )
+                }
                 if (gs.moveLog.isEmpty()) {
                     gameObserver?.enableUndoAndReset(false)
                 }
-                gameObserver?.liftAndHoleBall(
-                    move.from,
-                    move.to,
-                    gs.tubes[move.from].fillLevel,
-                    gs.tubes[move.to].fillLevel - 1
-                )
                 findHelp()
             }
         }
@@ -301,6 +311,9 @@ class GameController {
                 if (gs.numberOfTubes == igs.numberOfTubes + ALLOWED_CHEATS) {
                     gameObserver?.enableCheat(false)
                 }
+                if (gs.moveLog.size() == 1) {
+                    gameObserver?.enableUndoAndReset(true)
+                }
                 findHelp()
             }
         }
@@ -318,7 +331,7 @@ class GameController {
     fun actionHelp() {
         Log.i(TAG, "actionHelp()")
         gameState?.let { gs ->
-            searchResult?.move?.let {move ->
+            searchResult?.move?.let { move ->
                 gs.dump()
                 Log.d(TAG, "move=$move")
                 // todo: java.lang.IndexOutOfBoundsException: tube is already full
@@ -454,11 +467,11 @@ class GameController {
      */
     fun enableComputerSupport(enabled: Boolean) {
         // war ausgeschaltet und wird jetzt eingeschaltet
-        if(!isComputerSupportive && enabled) {
+        if (!isComputerSupportive && enabled) {
             isComputerSupportive = true
             findHelp()
         }
-        if(!enabled) {
+        if (!enabled) {
             job?.cancel()
             isComputerSupportive = false
             searchResult = null

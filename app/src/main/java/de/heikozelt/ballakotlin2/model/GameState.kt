@@ -44,7 +44,11 @@ class GameState {
      */
     fun applyMoves(moves: Moves) {
         for(m in moves) {
-            moveBall(m)
+            if(m.from == 99) {
+                cheat()
+            } else {
+                moveBall(m)
+            }
         }
         moveLog.fromList(moves.asMutableList())
     }
@@ -149,6 +153,7 @@ class GameState {
         val tmp = Array(numberOfTubes) { Tube(tubeHeight) }
         tubes.copyInto(tmp)
         tubes = tmp
+        moveLog.push(Move(99,0))
     }
 
     /**
@@ -214,6 +219,7 @@ class GameState {
 
     /**
      * undoes last move, according to log
+     * todo: weniger heap/garbage collection overhead
      */
     fun undoLastMove(): Move {
         //val forwardMove = moveLog.removeLast()
@@ -221,6 +227,17 @@ class GameState {
         val backwardMove = forwardMove.backwards()
         moveBall(backwardMove)
         return backwardMove
+    }
+
+    fun undoCheat() {
+        if(tubes[numberOfTubes - 1].isEmpty()) {
+            numberOfExtraTubes--
+            numberOfTubes--
+            val tmp = Array(numberOfTubes) { Tube(tubeHeight) }
+            tubes = tubes.copyOfRange(0, numberOfTubes)
+        } else {
+            Log.e(TAG,"Can't undo cheat. Last tube is not empty!")
+        }
     }
 
     /**

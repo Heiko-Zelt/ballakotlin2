@@ -1,3 +1,5 @@
+set JAVA_HOME=f:\Program Files\Java\jdk-15.0.1
+
 @if "%DEBUG%" == "" @echo off
 @rem ##########################################################################
 @rem

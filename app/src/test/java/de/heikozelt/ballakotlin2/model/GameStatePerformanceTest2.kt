@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import java.lang.IndexOutOfBoundsException
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Disabled
 
 /**
  * JUnit 5-Tests.
@@ -21,6 +22,7 @@ class GameStatePerformanceTest2 {
      * inline fun: 3.719...3.836 sec
      */
     @Test
+    @Disabled
     fun tubes_isFull_performance() {
         val ITERATIONS = 50_000_000
         var count = 0

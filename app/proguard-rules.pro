@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# val holderY = PropertyValuesHolder.ofKeyframe("y", kY0, kY1)
+# val animator = ObjectAnimator.ofPropertyValuesHolder(animatedBall.coordinates, holderY)
+
+#-keep public class de.heikozelt.ballakotlin2.view.** { *; }
+#-keep public class de.heikozelt.ballakotlin2.view.Coordinates { *; }
+-keepclassmembernames public class de.heikozelt.ballakotlin2.view.Coordinates { *; }
