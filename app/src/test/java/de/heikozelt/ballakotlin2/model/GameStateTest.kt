@@ -785,7 +785,8 @@ class GameStateTest {
         val result = SearchResult()
         runTest {
             val job: Job = GlobalScope.launch(Default) {
-                gs.findSolutionNoBackAndForth(0, result)
+                val previousGameStates = HashSet<Array<Byte>>()
+                gs.findSolutionNoBackAndForth(0, result, previousGameStates)
             }
             job.join()
         }
@@ -819,7 +820,8 @@ class GameStateTest {
         val result = SearchResult()
         runTest {
             val job = GlobalScope.launch(Default) {
-                gs.findSolutionNoBackAndForth(1, result)
+                val previousGameStates = HashSet<Array<Byte>>()
+                gs.findSolutionNoBackAndForth(1, result, previousGameStates)
             }
             job.join()
         }

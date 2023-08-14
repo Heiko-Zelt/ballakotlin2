@@ -866,7 +866,8 @@ class GameState {
         // 1. Abbruchkriterium: Maximale Rekursionstiefe erreicht
         for (recursionDepth in 0..MAX_RECURSION) {
             val startTime = System.nanoTime()
-            gs2.findSolutionNoBackAndForth(recursionDepth, result)
+            val previousGameStates = HashSet<Array<Byte>>()
+            gs2.findSolutionNoBackAndForth(recursionDepth, result, previousGameStates)
             val endTime = System.nanoTime()
             val elapsed = (endTime - startTime) / 1000000
             // 2. Abbruchkriterium: Lösung gefunden
@@ -921,7 +922,8 @@ class GameState {
        previousGameStates: MutableList<Array<Byte>> = mutableListOf(Array(numberOfTubes * tubeHeight) { 0.toByte() }) */
     suspend fun findSolutionNoBackAndForth(
         maxRecursionDepth: Int,
-        result: SearchResult
+        result: SearchResult,
+        previousGameStates: HashSet<Array<Byte>>
     ) {
         // Job canceled? nicht zu oft Kontrolle abgeben.
         if (maxRecursionDepth > 7) yield()
@@ -936,6 +938,7 @@ class GameState {
             result.status = SearchResult.STATUS_OPEN
             return
         }
+
         val maxRecursion = maxRecursionDepth - 1
         val moves = allUsefulMovesIntegrated()
 
@@ -944,6 +947,16 @@ class GameState {
             result.status = SearchResult.STATUS_UNSOLVABLE
             return
         }
+
+        // 4. Abbruchkriterium: Spielstatus wurde vorher schon Mal erreicht
+        val gsBytes = toBytesNormalized()
+        if(gsBytes in previousGameStates) {
+            result.status = SearchResult.STATUS_UNSOLVABLE
+            return
+        } else {
+            previousGameStates.add(gsBytes)
+        }
+
         var countOpenBranches = 0
         //var countOpenEnds = 0
         for (move in moves) {
@@ -955,7 +968,7 @@ class GameState {
             //if (!listContainsArray(previousGameStates, newGameState)) {
                 // kein Zyklus, also Rekursion
                 //previousGameStates.add(newGameState)
-                findSolutionNoBackAndForth(maxRecursion, result /*, previousGameStates */)
+                findSolutionNoBackAndForth(maxRecursion, result, previousGameStates)
                 //previousGameStates.removeLast()
                 when (result.status) {
                     SearchResult.STATUS_FOUND_SOLUTION -> {
@@ -971,6 +984,7 @@ class GameState {
             //    Log.e(TAG,"ZYCLE !!!!")
             //}
             undoLastMove()
+            previousGameStates.remove(gsBytes)
         }
 
         // Wenn eine Lösung gefunden wurde, dann wird das Ergebnis sofort zurückgegeben,
