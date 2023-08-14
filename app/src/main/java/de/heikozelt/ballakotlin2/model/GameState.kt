@@ -1075,6 +1075,23 @@ class GameState {
     }
 
     /**
+     * liefert einen Byte Array, mit dem Inhalt der Röhren,
+     * wobei die Röhren sortiert wurden.
+     * Das vereinfacht einen Vergleich zweier Spielstände
+     * unter Missachtung der Reihenfolge der Röhren.
+     */
+    fun toBytesNormalized(): Array<Byte> {
+        val bytes = Array<Byte>(numberOfTubes * tubeHeight) { -1 }
+        val sortedTubes = tubes.copyOf()
+        sortedTubes.sort()
+        for (i in sortedTubes.indices) {
+            val cells = sortedTubes[i].cells
+            cells.copyInto(bytes, i * tubeHeight)
+        }
+        return bytes
+    }
+
+    /**
      * exportiert Spielstatus als ASCII-Grafik
      */
     fun toAscii(lineDelimiter: String = "\n", columnDelimiter: String = " "): String {

@@ -6,7 +6,7 @@ import java.lang.IndexOutOfBoundsException
 /**
  * Array indices are of type Int. Color numbers (elements in array) are of type Byte.
  */
-class Tube(val tubeHeight: Int) {
+class Tube(val tubeHeight: Int):Comparable<Tube> {
 
     /**
      * tatsächlicher Füllstand
@@ -225,5 +225,19 @@ class Tube(val tubeHeight: Int) {
 
     companion object {
         private const val TAG = "balla.Tube"
+    }
+
+    /**
+     * vergleicht den Inhalt zweier Röhren.
+     * Dabei werden die Bälle von unten nach oben verglichen.
+     */
+    override fun compareTo(other: Tube): Int {
+        for(i in cells.indices) {
+            val elementCompared = cells[i].compareTo(other.cells[i])
+            if(elementCompared != 0) {
+                return elementCompared
+            }
+        }
+        return 0
     }
 }

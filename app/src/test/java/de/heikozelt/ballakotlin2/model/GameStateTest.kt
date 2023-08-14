@@ -934,6 +934,19 @@ class GameStateTest {
     }
 
     @Test
+    fun toBytesNormalized() {
+        val lines = arrayOf(
+            "_ 2 _ 3 3",
+            "3 2 _ 4 2",
+            "1 4 _ 1 1"
+        )
+        val gs = GameState()
+        gs.fromAsciiLines(lines)
+        val bytes = gs.toBytesNormalized()
+        assertArrayEquals(arrayOf<Byte>(0, 0, 0, 1, 2, 3, 1, 3, 0, 1, 4, 3, 4, 2, 2), bytes)
+    }
+
+    @Test
     fun isDifferentColoredOrUnicolorAndHighest_1() {
         val lines = arrayOf(
             "_ _ 4 _ _ 3 _ _",
