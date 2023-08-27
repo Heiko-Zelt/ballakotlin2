@@ -3,6 +3,7 @@ package de.heikozelt.ballakotlin2.model
 import android.util.Log
 import kotlinx.coroutines.yield
 import kotlin.collections.List
+import kotlin.experimental.and
 import kotlin.random.Random
 
 /**
@@ -62,12 +63,12 @@ class GameState {
     /**
      * erzeugt ein leeres Spielfeld in den angegebenen Dimensionen
      */
-    fun resize(_numberOfColors: Int, _numberOfExtraTubes: Int, _tubeHeight: Int) {
+    fun resize(numberOfColors: Int, numberOfExtraTubes: Int, tubeHeight: Int) {
         Log.i(TAG, "GameState secondary constructor")
-        numberOfColors = _numberOfColors
-        numberOfExtraTubes = _numberOfExtraTubes
-        numberOfTubes = _numberOfColors + _numberOfExtraTubes
-        tubeHeight = _tubeHeight
+        this.numberOfColors = numberOfColors
+        this.numberOfExtraTubes = numberOfExtraTubes
+        this.numberOfTubes = numberOfColors + numberOfExtraTubes
+        this.tubeHeight = tubeHeight
         tubes = Array(numberOfTubes) { Tube(tubeHeight) }
         moveLog.clear()
     }
@@ -1133,6 +1134,27 @@ class GameState {
         */
 
         return bytes
+    }
+
+    /**
+     * Umkehrfunktion zu toBytesNormalized()
+     * Läd den Spielstand aus einem kompakten Array.
+     */
+    fun fromBytes(bytes: Array<Byte>) {
+        for(i in bytes.indices) {
+            val lowerTubeIndex = i * 2 / tubeHeight
+            val lowerBallIndex = i * 2 % tubeHeight
+            val lowerNibble = bytes[i] and 0b00001111.toByte()
+            Log.d(TAG, "lower [$lowerTubeIndex, $lowerBallIndex] = $lowerNibble")
+            tubes[lowerTubeIndex].cells[lowerBallIndex] = lowerNibble
+            val higherTubeIndex = (i * 2 + 1) / tubeHeight
+            if(higherTubeIndex < numberOfTubes) {
+                val higherBallIndex = (i * 2 + 1) % tubeHeight
+                val higherNibble = (bytes[i].toInt() shr 4).toByte() and 0b00001111.toByte()
+                Log.d(TAG, "higher [$higherTubeIndex, $higherBallIndex] = $higherNibble")
+                tubes[higherTubeIndex].cells[higherBallIndex] = higherNibble
+            }
+        }
     }
 
     /**

@@ -938,27 +938,48 @@ class GameStateTest {
     @Test
     fun toBytesNormalized() {
         val lines = arrayOf(
-            "_ 2 _ 3 3",
+            "4 2 _ 3 3",
             "3 2 _ 4 2",
             "1 4 _ 1 1"
         )
         // sortiert:
-        // _ 3 _ 3 2
+        // _ 3 4 3 2
         // _ 2 3 4 2
         // _ 1 1 1 4
         val gs = GameState()
         gs.fromAsciiLines(lines)
         val bytes = gs.toBytesNormalized()
-        assertArrayEquals(arrayOf<Byte>(
+        val expected = arrayOf(
             (0 + (0 shl 4)).toByte(),
             (0 + (1 shl 4)).toByte(),
             (2 + (3 shl 4)).toByte(),
             (1 + (3 shl 4)).toByte(),
-            (0 + (1 shl 4)).toByte(),
+            (4 + (1 shl 4)).toByte(),
             (4 + (3 shl 4)).toByte(),
             (4 + (2 shl 4)).toByte(),
-            2.toByte()),
-            bytes)
+            2.toByte())
+        assertArrayEquals(expected, bytes)
+    }
+
+    @Test
+    fun fromBytes() {
+        val bytes = arrayOf(
+            (0 + (0 shl 4)).toByte(),
+            (0 + (1 shl 4)).toByte(),
+            (2 + (3 shl 4)).toByte(),
+            (1 + (3 shl 4)).toByte(),
+            (4 + (1 shl 4)).toByte(),
+            (4 + (3 shl 4)).toByte(),
+            (4 + (2 shl 4)).toByte(),
+            2.toByte())
+        val gs = GameState()
+        gs.resize(4, 1, 3)
+        gs.fromBytes(bytes)
+        assertArrayEquals(arrayOf(0.toByte(), 0.toByte(), 0.toByte()), gs.tubes[0].cells)
+        assertArrayEquals(arrayOf(1.toByte(), 2.toByte(), 3.toByte()), gs.tubes[1].cells)
+        assertArrayEquals(arrayOf(1.toByte(), 3.toByte(), 4.toByte()), gs.tubes[2].cells)
+        assertArrayEquals(arrayOf(1.toByte(), 4.toByte(), 3.toByte()), gs.tubes[3].cells)
+        assertArrayEquals(arrayOf(4.toByte(), 2.toByte(), 2.toByte()), gs.tubes[4].cells)
     }
 
     @Test
