@@ -785,7 +785,7 @@ class GameStateTest {
         val result = SearchResult()
         runTest {
             val job: Job = GlobalScope.launch(Default) {
-                val previousGameStates = HashSet<Array<Byte>>()
+                val previousGameStates = HashSet<SpecialArray>()
                 gs.findSolutionNoBackAndForth(0, result, previousGameStates)
             }
             job.join()
@@ -820,7 +820,7 @@ class GameStateTest {
         val result = SearchResult()
         runTest {
             val job = GlobalScope.launch(Default) {
-                val previousGameStates = HashSet<Array<Byte>>()
+                val previousGameStates = HashSet<SpecialArray>()
                 gs.findSolutionNoBackAndForth(1, result, previousGameStates)
             }
             job.join()
@@ -942,10 +942,51 @@ class GameStateTest {
             "3 2 _ 4 2",
             "1 4 _ 1 1"
         )
+        // sortiert:
+        // _ 3 _ 3 2
+        // _ 2 3 4 2
+        // _ 1 1 1 4
         val gs = GameState()
         gs.fromAsciiLines(lines)
         val bytes = gs.toBytesNormalized()
-        assertArrayEquals(arrayOf<Byte>(0, 0, 0, 1, 2, 3, 1, 3, 0, 1, 4, 3, 4, 2, 2), bytes)
+        assertArrayEquals(arrayOf<Byte>(
+            (0 + (0 shl 4)).toByte(),
+            (0 + (1 shl 4)).toByte(),
+            (2 + (3 shl 4)).toByte(),
+            (1 + (3 shl 4)).toByte(),
+            (0 + (1 shl 4)).toByte(),
+            (4 + (3 shl 4)).toByte(),
+            (4 + (2 shl 4)).toByte(),
+            2.toByte()),
+            bytes)
+    }
+
+    @Test
+    fun toBytesNormalized_equals() {
+        val lines1 = arrayOf(
+            "_ 2 _ 3 3",
+            "3 2 _ 4 2",
+            "1 4 _ 1 1"
+        )
+        val lines2 = arrayOf(
+            "3 _ 2 _ 3",
+            "2 3 2 _ 4",
+            "1 1 4 _ 1"
+        )
+        val gs1 = GameState()
+        val gs2 = GameState()
+        gs1.fromAsciiLines(lines1)
+        gs2.fromAsciiLines(lines2)
+        val bytes1 = gs1.toBytesNormalized()
+        Log.d(TAG, "bytes1: $bytes1")
+        val bytes2 = gs2.toBytesNormalized()
+        Log.d(TAG, "bytes2: $bytes2")
+        assertArrayEquals(bytes1, bytes2)
+        Log.d(TAG, "bytes1.hashCode=${bytes1.hashCode()}")
+        Log.d(TAG, "bytes2.hashCode=${bytes2.hashCode()}")
+        //val hash = SHA1.Create().ComputeHash(bytes1);
+        val set = hashSetOf(SpecialArray(bytes1))
+        assertTrue(SpecialArray(bytes2) in set)
     }
 
     @Test

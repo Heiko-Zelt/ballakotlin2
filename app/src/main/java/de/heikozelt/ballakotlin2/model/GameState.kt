@@ -866,7 +866,7 @@ class GameState {
         // 1. Abbruchkriterium: Maximale Rekursionstiefe erreicht
         for (recursionDepth in 0..MAX_RECURSION) {
             val startTime = System.nanoTime()
-            val previousGameStates = HashSet<Array<Byte>>()
+            val previousGameStates = HashSet<SpecialArray>()
             gs2.findSolutionNoBackAndForth(recursionDepth, result, previousGameStates)
             val endTime = System.nanoTime()
             val elapsed = (endTime - startTime) / 1000000
@@ -901,6 +901,7 @@ class GameState {
                     break
                 }
             }
+            Log.d(TAG, "number of different game states: ${previousGameStates.size}")
             // 3. Abbruchkriterium: Zeit-Überschreitung
             // todo: von was haengt die Anzahl der Verzweigungen ab?
             if (elapsed > MAX_DURATION) {
@@ -923,7 +924,7 @@ class GameState {
     suspend fun findSolutionNoBackAndForth(
         maxRecursionDepth: Int,
         result: SearchResult,
-        previousGameStates: HashSet<Array<Byte>>
+        previousGameStates: HashSet<SpecialArray>
     ) {
         // Job canceled? nicht zu oft Kontrolle abgeben.
         if (maxRecursionDepth > 7) yield()
@@ -948,9 +949,9 @@ class GameState {
             return
         }
 
-        // 4. Abbruchkriterium: Spielstatus wurde vorher schon Mal erreicht
-        val gsBytes = toBytesNormalized()
+        val gsBytes = SpecialArray(toBytesNormalized())
         if(gsBytes in previousGameStates) {
+            //Log.d(TAG, "4. Abbruchkriterium: Spielstatus wurde vorher schon Mal erreicht")
             result.status = SearchResult.STATUS_UNSOLVABLE
             return
         } else {
@@ -984,7 +985,7 @@ class GameState {
             //    Log.e(TAG,"ZYCLE !!!!")
             //}
             undoLastMove()
-            previousGameStates.remove(gsBytes)
+            //previousGameStates.remove(gsBytes)
         }
 
         // Wenn eine Lösung gefunden wurde, dann wird das Ergebnis sofort zurückgegeben,
@@ -1093,15 +1094,44 @@ class GameState {
      * wobei die Röhren sortiert wurden.
      * Das vereinfacht einen Vergleich zweier Spielstände
      * unter Missachtung der Reihenfolge der Röhren.
+     * Um Arbeitsspeicher zu sparen, wird der Spielstand
+     * möglichst kompakt gespeichert.
+     * Pro Byte werden 2 Bälle gespeichert.
+     * (upper and lower nibble)
      */
     fun toBytesNormalized(): Array<Byte> {
-        val bytes = Array<Byte>(numberOfTubes * tubeHeight) { -1 }
+        // (3 * 3 + 1) / 2 = (9 + 1) / 2 = 10 / 2 = 5; 5 Bytes um 9 Nibbles zu speichern
+        // (4 * 3 + 1) / 2 = (12 + 1) / 2 = 13 / 2 = 6; 6 Bytes um 12 Nibbles zu speichern
+        // (5 * 3 + 1) / 2 = (15 + 1) / 2 = 16 / 2 = 8; 8 Bytes um 15 Nibbles zu speichern
+        val s = (numberOfTubes * tubeHeight + 1) / 2
+        val bytes = Array<Byte>(s) { 0 }
         val sortedTubes = tubes.copyOf()
         sortedTubes.sort()
+
+        for(i in bytes.indices) {
+            val lowerTubeIndex = i * 2 / tubeHeight
+            val lowerBallIndex = i * 2 % tubeHeight
+            val lowerNibble = sortedTubes[lowerTubeIndex].cells[lowerBallIndex]
+            //Log.d(TAG, "lower [$lowerTubeIndex, $lowerBallIndex] = $lowerNibble")
+            val upperTubeIndex = (i * 2 + 1) / tubeHeight
+            // bei ungerader Anzahl Zellen bleibt das letzte Nibble leer
+            val upperNibble = if(upperTubeIndex < numberOfTubes) {
+                val upperBallIndex = (i * 2 + 1) % tubeHeight
+                //Log.d(TAG, "upper [$upperTubeIndex, $upperBallIndex]")
+                sortedTubes[upperTubeIndex].cells[upperBallIndex]
+            } else {
+                0
+            }
+            bytes[i] = (lowerNibble + (upperNibble * 16.toByte())).toByte()
+        }
+
+        /*
         for (i in sortedTubes.indices) {
             val cells = sortedTubes[i].cells
             cells.copyInto(bytes, i * tubeHeight)
         }
+        */
+
         return bytes
     }
 
@@ -1220,6 +1250,7 @@ class GameState {
         val lines = ascii.split(lineDelimiter)
         fromAsciiLines(lines.toTypedArray())
     }
+
 
     companion object {
         private const val TAG = "balla.GameState"
