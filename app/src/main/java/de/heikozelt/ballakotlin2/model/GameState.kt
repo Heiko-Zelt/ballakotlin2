@@ -1,7 +1,6 @@
 package de.heikozelt.ballakotlin2.model
 
 import android.util.Log
-import kotlinx.coroutines.yield
 import kotlin.collections.List
 import kotlin.experimental.and
 import kotlin.random.Random
@@ -196,7 +195,7 @@ class GameState {
     }
 
     /**
-     * moves a ball from one tube to another
+     * moves a ball from one tube to another (without logging)
      * (the tubes may be the same, but that doesn't make much sense)
      */
     fun moveBall(move: Move) {
@@ -234,7 +233,7 @@ class GameState {
         if(tubes[numberOfTubes - 1].isEmpty()) {
             numberOfExtraTubes--
             numberOfTubes--
-            val tmp = Array(numberOfTubes) { Tube(tubeHeight) }
+            //val tmp = Array(numberOfTubes) { Tube(tubeHeight) }
             tubes = tubes.copyOfRange(0, numberOfTubes)
         } else {
             Log.e(TAG,"Can't undo cheat. Last tube is not empty!")
@@ -930,13 +929,13 @@ class GameState {
 
     /**
      * Array of Bytes of correct size must be provided by caller
-     */
     fun toBytes(bytes: Array<Byte>) {
         for (i in tubes.indices) {
             val cells = tubes[i].cells
             cells.copyInto(bytes, i * cells.size)
         }
     }
+    */
 
     /**
      * liefert einen Byte Array, mit dem Inhalt der Röhren,
@@ -993,16 +992,17 @@ class GameState {
             val lowerTubeIndex = i * 2 / tubeHeight
             val lowerBallIndex = i * 2 % tubeHeight
             val lowerNibble = bytes[i] and 0b00001111.toByte()
-            Log.d(TAG, "lower [$lowerTubeIndex, $lowerBallIndex] = $lowerNibble")
+            //Log.d(TAG, "lower [$lowerTubeIndex, $lowerBallIndex] = $lowerNibble")
             tubes[lowerTubeIndex].cells[lowerBallIndex] = lowerNibble
             val higherTubeIndex = (i * 2 + 1) / tubeHeight
             if(higherTubeIndex < numberOfTubes) {
                 val higherBallIndex = (i * 2 + 1) % tubeHeight
                 val higherNibble = (bytes[i].toInt() shr 4).toByte() and 0b00001111.toByte()
-                Log.d(TAG, "higher [$higherTubeIndex, $higherBallIndex] = $higherNibble")
+                //Log.d(TAG, "higher [$higherTubeIndex, $higherBallIndex] = $higherNibble")
                 tubes[higherTubeIndex].cells[higherBallIndex] = higherNibble
             }
         }
+        tubes.forEach { it.repairFillLevel() }
     }
 
     /**

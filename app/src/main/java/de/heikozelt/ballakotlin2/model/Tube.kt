@@ -10,6 +10,7 @@ class Tube(val tubeHeight: Int):Comparable<Tube> {
 
     /**
      * tatsächlicher Füllstand
+     * (Diese Information ist redundant. Der Füllstand kann auch abgezählt werden.)
      */
     var fillLevel: Int = 0
 
@@ -47,6 +48,13 @@ class Tube(val tubeHeight: Int):Comparable<Tube> {
             this.cells[i] = initialColor
         }
         fillLevel = tubeHeight
+    }
+
+    fun repairFillLevel() {
+        fillLevel = 0
+        while((fillLevel < cells.size) && (cells[fillLevel] != 0.toByte())) {
+            fillLevel++
+        }
     }
 
     /**

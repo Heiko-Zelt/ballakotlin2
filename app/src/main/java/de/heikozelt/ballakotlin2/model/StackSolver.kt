@@ -3,6 +3,9 @@ package de.heikozelt.ballakotlin2.model
 import android.util.Log
 import kotlinx.coroutines.yield
 
+/**
+ * recursive depth-first search
+ */
 class StackSolver: Solver {
     override suspend fun findSolution(gs: GameState): SearchResult {
         Log.d(TAG, "find Solution for\n${gs.toAscii()}")

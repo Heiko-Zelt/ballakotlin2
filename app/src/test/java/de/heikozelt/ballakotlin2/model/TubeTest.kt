@@ -29,7 +29,7 @@ class TubeTest {
     @Test
     fun canTake_same_color_true() {
         Tube(3).apply {
-            addBall(2); addBall(1);
+            addBall(2); addBall(1)
             assertTrue(canTake(1))
         }
     }
@@ -37,7 +37,7 @@ class TubeTest {
     @Test
     fun canTake_different_color_false() {
         Tube(3).apply {
-            addBall(1); addBall(2);
+            addBall(1); addBall(2)
             assertFalse(canTake(1))
         }
     }
@@ -252,7 +252,7 @@ class TubeTest {
     @Test
     fun isUnicolorOrEmpty_two_samecolor_balls() {
         Tube(3).apply {
-            addBall(1); addBall(1);
+            addBall(1); addBall(1)
             assertTrue(isUnicolorOrEmpty())
         }
     }
@@ -260,9 +260,36 @@ class TubeTest {
     @Test
     fun isUnicolorOrEmpty_false() {
         Tube(3).apply {
-            addBall(1); addBall(2);
+            addBall(1); addBall(2)
             assertFalse(isUnicolorOrEmpty())
         }
+    }
+
+    @Test
+    fun repairFillLevel0() {
+        val t = Tube(2)
+        t.fillLevel = 13
+        t.repairFillLevel()
+        assertEquals(0, t.fillLevel)
+    }
+
+    @Test
+    fun repairFillLevel1() {
+        val t = Tube(2)
+        t.cells[0] = 1
+        t.fillLevel = 13
+        t.repairFillLevel()
+        assertEquals(1, t.fillLevel)
+    }
+
+    @Test
+    fun repairFillLevel2() {
+        val t = Tube(2)
+        t.cells[0] = 3
+        t.cells[1] = 4
+        t.fillLevel = 13
+        t.repairFillLevel()
+        assertEquals(2, t.fillLevel)
     }
 
 }

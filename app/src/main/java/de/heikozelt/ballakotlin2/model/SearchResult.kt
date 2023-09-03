@@ -26,6 +26,11 @@ class SearchResult {
 
     companion object {
         /**
+         * not initialized yet
+         */
+        const val STATUS_UNDEFINED = 0.toByte()
+
+        /**
          * don't know if solvable
          */
         const val STATUS_OPEN = 1.toByte()
@@ -41,8 +46,8 @@ class SearchResult {
         const val STATUS_UNSOLVABLE = 3.toByte()
 
         /**
-         * not initialized yet
+         * already finished, no more move possible
          */
-        const val STATUS_UNDEFINED = 3.toByte()
+        const val STATUS_ALREADY_SOLVED = 4.toByte()
     }
 }

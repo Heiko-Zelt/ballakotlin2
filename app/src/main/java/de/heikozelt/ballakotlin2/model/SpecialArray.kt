@@ -2,7 +2,7 @@ package de.heikozelt.ballakotlin2.model
 
 /**
  * a wrapper for Array<Byte> to be used with HashSet.
- * equals() returns true if the contents of the arrays equals.
+ * equals() returns true if the contents of the arrays equal.
  * hashCode() calculates hash value based on the content of the array.
  */
 class SpecialArray(val bytes: Array<Byte>) {
