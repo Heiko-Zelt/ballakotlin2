@@ -5,6 +5,7 @@ import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import de.heikozelt.ballakotlin2.model.Move
 import de.heikozelt.ballakotlin2.model.SearchResult
+import de.heikozelt.ballakotlin2.model.StackSolver
 import kotlinx.coroutines.*
 //import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
@@ -19,6 +20,11 @@ import kotlin.coroutines.CoroutineContext
  * GameState is loaded later (asynchronously)
  */
 class GameController {
+    /**
+     * Algorithmus zum Lösen des Puzzles
+     */
+    private var solver = StackSolver()
+
     /**
      * Initial gibt es keinen Spielstatus.
      * Er muss erst vom persistenten Speicher geladen werden.
@@ -95,7 +101,7 @@ class GameController {
             gameState?.let { gs ->
                 job = GlobalScope.launch(Default) {
                     Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
-                    searchResult = gs.findSolution()
+                    searchResult = solver.findSolution(gs)
                     Log.d(TAG, "findSolution finished")
                     //todo: in der view unterscheiden zwischen keine Lösung gefunden und keine Lösung möglich
                     /*
