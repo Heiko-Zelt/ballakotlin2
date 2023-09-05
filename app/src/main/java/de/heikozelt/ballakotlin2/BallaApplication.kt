@@ -93,7 +93,7 @@ class BallaApplication : Application() {
         if (/* boardAscii == null || */ moveLogAscii == null || initialBoardAscii == null) {
             return false
         } else {
-            var gs: GameState? = null
+            val gs: GameState?
             val initialGs = GameState()
             try {
                 initialGs.fromAscii(initialBoardAscii)

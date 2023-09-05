@@ -19,7 +19,7 @@
     <string name="menu_new_game">Neues Spiel</string>
     <string name="menu_dimensions">Dimensionen</string>
     <string name="menu_cheat">Schummeln</string>
-    <string name="menu_sound_and_animations">Ton &amp; Animationen</string>
+    <string name="menu_sound_and_animations">Einstellungen</string>
     <string name="toggles_label_computer_support">Computer&#173;unter&#173;stützung:</string>
     <string name="toggles_label_animations">Animationen abspielen:</string>
     <string name="toggles_label_sound">Ton:</string>

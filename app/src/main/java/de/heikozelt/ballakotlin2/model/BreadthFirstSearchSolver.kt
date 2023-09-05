@@ -84,8 +84,8 @@ class BreadthFirstSearchSolver : Solver {
 
         private const val MAX_LEVEL = 100
 
-        private const val MAX_CAPACITY_PREVIOUS = 40_000
+        private const val MAX_CAPACITY_PREVIOUS = 30_000
 
-        private const val MAX_CAPACITY_LATEST = 60_000
+        private const val MAX_CAPACITY_LATEST = 30_000
     }
 }
