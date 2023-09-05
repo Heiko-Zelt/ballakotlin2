@@ -1,9 +1,12 @@
 package de.heikozelt.ballakotlin2.model
 
 /**
- * a simple list which is memory and CPU efficient.
- * chunks are stored in arrays, arrays are single linked.
+ * A simple list which is memory, CPU and garbage collector efficient.
+ * Chunks are stored in arrays, arrays are single linked.
  * not synchronized.
+ * When capacity is reached references to elements are not copied from old to new array as in Vector or ArrayList.
+ * There isn't a data structure for every element as in LinkedList.
+ * The list is easily iterable from top to bottom.
  * @param chunkSize must be at least 1
  */
 
