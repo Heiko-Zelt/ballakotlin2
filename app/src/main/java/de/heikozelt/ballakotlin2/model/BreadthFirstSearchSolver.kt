@@ -13,7 +13,7 @@ class BreadthFirstSearchSolver : Solver {
         val result = SearchResult()
         val firstMoves = gs2.allUsefulMovesIntegrated()
         val previousGameStates = LimitedSet<SpecialArray>(MAX_CAPACITY_PREVIOUS)
-        val latestGameStates = mutableListOf<HashSet<SpecialArray>>()
+        val latestGameStates = mutableListOf<EfficientList<Array<Byte>>>()
         if(gs.isSolved()) {
             result.status = SearchResult.STATUS_ALREADY_SOLVED
             return result
@@ -27,7 +27,9 @@ class BreadthFirstSearchSolver : Solver {
                 return result
             }
             //Log.d(TAG, "\n${gs2.toAscii()}")
-            latestGameStates.add(hashSetOf(SpecialArray(gs2.toBytesNormalized())))
+            val list = EfficientList<Array<Byte>>()
+            list.add(gs2.toBytesNormalized())
+            latestGameStates.add(list)
             gs2.moveBall(move.backwards())
         }
         for (level in 0 until MAX_LEVEL) {
@@ -41,9 +43,9 @@ class BreadthFirstSearchSolver : Solver {
 
             for (branch in latestGameStates.indices) {
                 Log.d(TAG, "latestGameStates[branch].size: ${latestGameStates[branch].size}")
-                val newSet = hashSetOf<SpecialArray>()
-                for (wrapper in latestGameStates[branch]) {
-                    gs2.fromBytes(wrapper.bytes)
+                val newList = EfficientList<Array<Byte>>()
+                for (bytes in latestGameStates[branch]) {
+                    gs2.fromBytes(bytes)
                     val moves = gs2.allUsefulMovesIntegrated()
                     moves.forEach { move ->
                         //Log.d(TAG, "\n${move.toAscii()}")
@@ -54,16 +56,17 @@ class BreadthFirstSearchSolver : Solver {
                             result.move = firstMoves[branch]
                             return result
                         } else {
-                            val wrapped = SpecialArray(gs2.toBytesNormalized())
+                            val newBytes = gs2.toBytesNormalized()
+                            val wrapped = SpecialArray(newBytes)
                             if (wrapped !in previousGameStates) {
-                                newSet.add(wrapped)
+                                newList.add(newBytes)
                                 previousGameStates.add(wrapped)
                             }
                         }
                         gs2.moveBall(move.backwards())
                     }
                 }
-                latestGameStates[branch] = newSet
+                latestGameStates[branch] = newList
             }
 
             //val sizeLatest = latestGameStates.fold(0) { sum, element -> sum + element.size }
@@ -84,8 +87,9 @@ class BreadthFirstSearchSolver : Solver {
 
         private const val MAX_LEVEL = 100
 
-        private const val MAX_CAPACITY_PREVIOUS = 30_000
+        private const val MAX_CAPACITY_PREVIOUS = 40_000
 
-        private const val MAX_CAPACITY_LATEST = 30_000
+        // TODO: gar keine Überschreitung zulassen
+        private const val MAX_CAPACITY_LATEST = 40_000
     }
 }
