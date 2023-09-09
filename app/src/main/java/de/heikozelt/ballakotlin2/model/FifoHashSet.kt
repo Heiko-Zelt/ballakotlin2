@@ -17,7 +17,7 @@ import kotlin.math.abs
  * Otherwise the elements would have to be wrapped, which is awkward.
  * The HashSet is not synchronized.
  * There is no concurrent access detection (modification counter).
- * No iterator, putAll, remove needed/implemented yet.
+ * No putAll, remove needed/implemented yet.
  */
 class FifoHashSet<T>(
     private var hashCodeFunction: (T) -> Int,
@@ -35,6 +35,120 @@ class FifoHashSet<T>(
      * number of elements in this set
      */
     private var size: Int = 0
+
+    class Entry<T>(
+        var value: T,
+        var nextInBucket: Entry<T>? = null,
+        var nextInQueue: Entry<T>? = null
+    )
+
+    class ChronologicalIterator<T>(private val hashSet: FifoHashSet<T>) : Iterator<T> {
+        private var started = false
+        private var currentEntry: Entry<T>? = null
+        override fun hasNext(): Boolean {
+            return if(started) {
+                currentEntry?.nextInQueue != null
+            } else {
+                hashSet.queueTail != null
+            }
+        }
+
+        override fun next(): T {
+            var entry = currentEntry
+            return if(started) {
+                entry = entry?.nextInQueue
+                if(entry == null) {
+                    throw NoSuchElementException()
+                } else {
+                    currentEntry = entry
+                    entry.value
+                }
+            } else {
+                started = true
+                val tail = hashSet.queueTail
+                if(tail == null) {
+                    throw NoSuchElementException()
+                } else {
+                    currentEntry = tail
+                    tail.value
+                }
+            }
+        }
+    }
+
+    class HashedIterator<T>(private val hashSet: FifoHashSet<T>) : Iterator<T> {
+        /**
+         * -1 for not started yet
+         * -2 for end reached
+         */
+        private var currentBucket = -1
+        private var currentEntry: Entry<T>? = null
+
+        override fun hasNext(): Boolean {
+            // 3 Fälle:
+            // noch nicht angefangen
+            // im aktuellen Bucket befindet sich mindestens ein weiterer Eintrag
+            // im aktuellen Bucket befindet sich kein Eintrag mehr
+            return if (currentBucket == -1) {
+                findNextBucket() != -2
+            } else {
+                if (currentEntry?.nextInBucket == null) {
+                    findNextBucket() != -2
+                } else {
+                    true
+                }
+            }
+        }
+
+        override fun next(): T {
+            // 3 Fälle:
+            // noch nicht angefangen
+            // im aktuellen Bucket befindet sich mindestens ein weiterer Eintrag
+            // im aktuellen Bucket befindet sich kein Eintrag mehr
+            return if (currentBucket == -1) {
+                val nextBucket = findNextBucket()
+                if (nextBucket == -2) {
+                    throw NoSuchElementException()
+                } else {
+                    currentBucket = nextBucket
+                    currentEntry = hashSet.buckets[currentBucket]
+                    currentEntry as T
+                }
+            } else {
+                if (currentEntry?.nextInBucket == null) {
+                    val nextBucket = findNextBucket()
+                    if (nextBucket == -2) {
+                        throw NoSuchElementException()
+                    } else {
+                        currentBucket = nextBucket
+                        currentEntry = hashSet.buckets[currentBucket]
+                        currentEntry as T
+                    }
+                } else {
+                    currentEntry = currentEntry?.nextInBucket
+                    currentEntry as T
+                }
+            }
+        }
+
+        /**
+         * @return nächster Bucket-Index, welcher mindestens einen Eintrag enthält oder -2 für Ende erreicht.
+         */
+        private fun findNextBucket(): Int {
+            var i = currentBucket
+            do {
+                i++
+                if (i == hashSet.buckets.size) {
+                    break
+                }
+                if (hashSet.buckets[i] != null) {
+                    return i
+                }
+            } while (true)
+            return -2
+        }
+
+    }
 
     init {
         if (initialCapacity < 0)
@@ -55,11 +169,7 @@ class FifoHashSet<T>(
     /**
      * value may be replaced, if an element is added, which equals an existing element.
      */
-    class Entry<T>(
-        var value: T,
-        var nextInBucket: Entry<T>? = null,
-        var nextInQueue: Entry<T>? = null
-    )
+
 
     fun size(): Int {
         return size
@@ -197,7 +307,7 @@ class FifoHashSet<T>(
                 remove(tail.value)
             }
             queueTail = queueTail?.nextInQueue
-        } else if(queueTail == null) {
+        } else if (queueTail == null) {
             queueTail = newEntry
         }
     }
@@ -207,6 +317,14 @@ class FifoHashSet<T>(
      */
     private fun hash(element: T): Int {
         return abs(hashCodeFunction(element) % buckets.size)
+    }
+
+    operator fun iterator(): Iterator<T> {
+        return ChronologicalIterator(this)
+    }
+
+    fun hashedIterator(): Iterator<T> {
+        return HashedIterator(this)
     }
 
     companion object {

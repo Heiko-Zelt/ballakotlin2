@@ -6,13 +6,22 @@ import android.util.Log
  * interative breadth-first search
  */
 class BreadthFirstSearchSolver : Solver {
+
+    fun equalsFunction(a: Array<Byte>, b: Array<Byte>): Boolean {
+        return a.contentEquals(b)
+    }
+
+    fun hashCodeFunction(a: Array<Byte>): Int {
+        return a.contentHashCode()
+    }
+
     override suspend fun findSolution(gs: GameState): SearchResult {
         Log.d(TAG, "find Solution for\n${gs.toAscii()}")
         // make sure gs is not modified and existing move log is ignored
         val gs2 = gs.cloneWithoutLog()
         val result = SearchResult()
         val firstMoves = gs2.allUsefulMovesIntegrated()
-        val previousGameStates = LimitedSet<SpecialArray>(MAX_CAPACITY_PREVIOUS)
+        val previousGameStates = FifoHashSet(::hashCodeFunction, :: equalsFunction, MAX_CAPACITY_PREVIOUS)
         val latestGameStates = mutableListOf<EfficientList<Array<Byte>>>()
         if(gs.isSolved()) {
             result.status = SearchResult.STATUS_ALREADY_SOLVED
@@ -57,10 +66,9 @@ class BreadthFirstSearchSolver : Solver {
                             return result
                         } else {
                             val newBytes = gs2.toBytesNormalized()
-                            val wrapped = SpecialArray(newBytes)
-                            if (wrapped !in previousGameStates) {
+                            if (newBytes !in previousGameStates) {
                                 newList.add(newBytes)
-                                previousGameStates.add(wrapped)
+                                previousGameStates.put(newBytes)
                             }
                         }
                         gs2.moveBall(move.backwards())
@@ -87,7 +95,7 @@ class BreadthFirstSearchSolver : Solver {
 
         private const val MAX_LEVEL = 100
 
-        private const val MAX_CAPACITY_PREVIOUS = 40_000
+        private const val MAX_CAPACITY_PREVIOUS = 50_000
 
         // TODO: gar keine Überschreitung zulassen
         private const val MAX_CAPACITY_LATEST = 40_000

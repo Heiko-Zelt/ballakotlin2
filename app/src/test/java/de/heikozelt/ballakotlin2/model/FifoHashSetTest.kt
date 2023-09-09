@@ -1,13 +1,13 @@
 package de.heikozelt.ballakotlin2.model
 
+import android.util.Log
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import android.util.Log
-import org.junit.jupiter.api.Assertions.assertNotNull
 
 class FifoHashSetTest {
 
@@ -17,6 +17,18 @@ class FifoHashSetTest {
 
     private fun hashCodeFunction(s: String): Int {
         return s.lowercase().hashCode()
+    }
+
+    private fun count(iterator: Iterator<Any>): Int {
+        var i = 0
+        for(element in iterator) i++
+        return i
+    }
+
+    @Test
+    fun test_count() {
+        val list = listOf("a", "b")
+        assertEquals(2, count(list.iterator()))
     }
 
     @Test
@@ -41,75 +53,90 @@ class FifoHashSetTest {
 
     @Test
     fun test_empty() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10)
-        assertEquals(0, set.size())
-        assertTrue(set.isEmpty())
-        assertFalse("Hallo" in set)
-        assertNull(set.get("Hallo"))
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10)
+        assertEquals(0, hashSet.size())
+        assertTrue(hashSet.isEmpty())
+        assertFalse("Hallo" in hashSet)
+        assertNull(hashSet.get("Hallo"))
+        assertFalse(hashSet.iterator().hasNext())
+        assertFalse(hashSet.hashedIterator().hasNext())
+        assertEquals(0, count(hashSet.iterator()))
+        assertEquals(0, count(hashSet.hashedIterator()))
     }
 
     @Test
     fun test_one_element() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10)
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10)
         val firstElement = "Hallo"
-        val prior = set.put(firstElement)
+        val prior = hashSet.put(firstElement)
         assertNull(prior)
-        assertEquals(1, set.size())
-        assertFalse(set.isEmpty())
-        assertTrue("Hallo" in set)
-        assertTrue(firstElement === set.get("Hallo"))
+        assertEquals(1, hashSet.size())
+        assertFalse(hashSet.isEmpty())
+        assertTrue("Hallo" in hashSet)
+        assertTrue(firstElement === hashSet.get("Hallo"))
+        assertEquals(1, count(hashSet.iterator()))
+        assertEquals(1, count(hashSet.hashedIterator()))
     }
 
     @Test
     fun test_two_equal_elements() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10)
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10)
         val firstElement = "Hallo"
         val secondElement = "hallo"
-        set.put(firstElement)
-        val prior = set.put(secondElement)
+        hashSet.put(firstElement)
+        val prior = hashSet.put(secondElement)
         assertTrue(prior === firstElement)
-        assertEquals(1, set.size())
-        assertFalse(set.isEmpty())
-        assertTrue("hallo" in set)
-        assertTrue(secondElement === set.get("Hallo"))
+        assertEquals(1, hashSet.size())
+        assertFalse(hashSet.isEmpty())
+        assertTrue("hallo" in hashSet)
+        assertTrue(secondElement === hashSet.get("Hallo"))
+        assertEquals(1, count(hashSet.iterator()))
+        assertEquals(1, count(hashSet.hashedIterator()))
     }
 
     @Test
     fun test_minimal_capacity() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10,1)
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 10,1)
         val firstElement = "1st"
         val secondElement = "2nd"
-        val prior1 = set.put(firstElement)
+        val prior1 = hashSet.put(firstElement)
         assertNull(prior1)
-        val prior2 = set.put(secondElement)
+        val prior2 = hashSet.put(secondElement)
         assertNull(prior2)
-        assertEquals(2, set.size())
-        assertFalse(set.isEmpty())
-        assertTrue("1st" in set)
-        assertTrue("2nd" in set)
-        assertTrue(firstElement === set.get("1st"))
-        assertTrue(secondElement === set.get("2nd"))
-        Log.d(TAG, "capacity: ${set.getCapacity()}")
-        assertEquals(3, set.getCapacity())
+        assertEquals(2, hashSet.size())
+        assertFalse(hashSet.isEmpty())
+        assertTrue("1st" in hashSet)
+        assertTrue("2nd" in hashSet)
+        assertTrue(firstElement === hashSet.get("1st"))
+        assertTrue(secondElement === hashSet.get("2nd"))
+        Log.d(TAG, "capacity: ${hashSet.getCapacity()}")
+        assertEquals(3, hashSet.getCapacity())
+        assertEquals(2, count(hashSet.iterator()))
+        assertEquals(2, count(hashSet.hashedIterator()))
     }
 
     @Test
     fun test_100_elements() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 100,1)
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 100,1)
         for(i in 0 until 100) {
-            val prior = set.put("element #$i")
+            val prior = hashSet.put("element #$i")
             assertNull(prior)
-            assertEquals(i + 1, set.size())
+            assertEquals(i + 1, hashSet.size())
         }
-        assertFalse(set.isEmpty())
-        assertEquals(100, set.size())
-        assertFalse("element #101" in set)
+        assertFalse(hashSet.isEmpty())
+        assertEquals(100, hashSet.size())
+        assertFalse("element #101" in hashSet)
         for(i in 0 until 100) {
-            assertTrue("element #$i" in set)
-            assertNotNull(set.get("element #$i"))
+            assertTrue("element #$i" in hashSet)
+            assertNotNull(hashSet.get("element #$i"))
         }
-        Log.d(TAG, "capacity: ${set.getCapacity()}")
-        assertEquals(255, set.getCapacity())
+        Log.d(TAG, "capacity: ${hashSet.getCapacity()}")
+        assertEquals(255, hashSet.getCapacity())
+        assertEquals(100, count(hashSet.iterator()))
+        assertEquals(100, count(hashSet.hashedIterator()))
+        for(element in hashSet) {
+            assertTrue(element in hashSet)
+        }
     }
 
     /**
@@ -135,41 +162,47 @@ class FifoHashSetTest {
 
     @Test
     fun size_limit_exceeded_by_one() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 2,1)
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 2,1)
         val first = "1st"
         val second = "2nd"
         val third = "3rd"
-        set.put(first)
-        set.put(second)
-        // todo bug: second element is removed from hash table!!!
-        set.put(third)
-        assertEquals(2, set.size())
-        assertFalse(first in set)
-        assertTrue(second in set)
-        assertTrue(third in set)
+        hashSet.put(first)
+        hashSet.put(second)
+        hashSet.put(third)
+        assertEquals(2, hashSet.size())
+        assertFalse(first in hashSet)
+        assertTrue(second in hashSet)
+        assertTrue(third in hashSet)
+        assertEquals(2, count(hashSet.iterator()))
+        assertEquals(2, count(hashSet.hashedIterator()))
     }
 
     @Test
     fun put_100_elements_with_size_limit_of_50() {
-        val set = FifoHashSet(::hashCodeFunction, ::equalsFunction, 50,1)
+        val hashSet = FifoHashSet(::hashCodeFunction, ::equalsFunction, 50,1)
         for(i in 0 until 100) {
-            val prior = set.put("element #$i")
+            val prior = hashSet.put("element #$i")
             assertNull(prior)
-            assertEquals(Math.min(i + 1, 50), set.size())
+            assertEquals(Math.min(i + 1, 50), hashSet.size())
         }
-        assertFalse(set.isEmpty())
-        assertEquals(50, set.size())
-        assertFalse("element #101" in set)
+        assertFalse(hashSet.isEmpty())
+        assertEquals(50, hashSet.size())
+        assertFalse("element #101" in hashSet)
         for(i in 0 until 50) {
-            assertFalse("element #$i" in set)
-            assertNull(set.get("element #$i"))
+            assertFalse("element #$i" in hashSet)
+            assertNull(hashSet.get("element #$i"))
         }
         for(i in 50 until 100) {
-            assertTrue("element #$i" in set)
-            assertNotNull(set.get("element #$i"))
+            assertTrue("element #$i" in hashSet)
+            assertNotNull(hashSet.get("element #$i"))
         }
-        Log.d(TAG, "capacity: ${set.getCapacity()}")
-        assertEquals(127, set.getCapacity())
+        Log.d(TAG, "capacity: ${hashSet.getCapacity()}")
+        assertEquals(127, hashSet.getCapacity())
+        assertEquals(50, count(hashSet.iterator()))
+        assertEquals(50, count(hashSet.hashedIterator()))
+        for(element in hashSet) {
+            assertTrue(element in hashSet)
+        }
     }
 
     companion object {
