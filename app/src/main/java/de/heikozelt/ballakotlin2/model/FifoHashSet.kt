@@ -5,18 +5,21 @@ import kotlin.math.abs
 
 
 /**
- * A slimmer, more flexible and efficient LinkedHashSet.
+ * A hash set much like LinkedHashSet, but with special features.
+ *
  * The size is limited. If the size limit is reached, older elements are evicted.
+ * That's useful if the set is huge, wouldn't fit into memory and older elements are unimportant.
  * This is implemented by a single linked list, instead of a double linked list like in LinkedHashSet.
+ *
  * The hashCode- and equals-function are functional parameters independent of the
  * hashCode- and equals-methods of the elements. This makes this HashSet more flexible.
  * For example:
  * Elements are Arrays. We don't care about the object identities but about the array contents.
- * Instead of Array.equals-method, Array.contentEquals-method is used and
- * instead of Array.hashCode-method, Array.contentHashCode-method is used.
+ * Instead of the Array.equals-method, the Array.contentEquals-method can be used and
+ * instead of the Array.hashCode-method, the Array.contentHashCode-method can be used.
  * Otherwise the elements would have to be wrapped, which is awkward.
- * The HashSet is not synchronized.
- * There is no concurrent access detection (modification counter).
+ *
+ * The HashSet is not synchronized. There is no concurrent access detection (modification counter).
  * No putAll, remove needed/implemented yet.
  */
 class FifoHashSet<T>(

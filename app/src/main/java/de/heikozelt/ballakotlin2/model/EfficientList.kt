@@ -12,6 +12,24 @@ package de.heikozelt.ballakotlin2.model
 
 class EfficientList<T>(val chunkSize: Int = 32) {
 
+    class EfficientListIterator<T>(private val efficientList: EfficientList<T>): Iterator<T> {
+        private var currentChunk = efficientList.firstChunk
+        private var index = 0
+        override fun hasNext(): Boolean {
+            return index < efficientList.size
+        }
+
+        override fun next(): T {
+            val localIndex = index % efficientList.chunkSize
+            index++
+            val element = currentChunk?.content?.get(localIndex)
+            if(localIndex == (efficientList.chunkSize - 1)) {
+                currentChunk = currentChunk?.nextChunk
+            }
+            return element as T
+        }
+    }
+
     var firstChunk: Chunk<T>? = null
     private var lastChunk: Chunk<T>? = null
     var size: Int = 0

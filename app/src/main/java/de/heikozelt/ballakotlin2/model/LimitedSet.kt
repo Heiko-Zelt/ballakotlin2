@@ -8,6 +8,7 @@ import java.util.LinkedList
  */
 class LimitedSet<T>(private val capacity: Int) {
 
+    // LinkedHashSet could be used
     private val hashSet = hashSetOf<T>()
     private val queue = LinkedList<T>()
 
