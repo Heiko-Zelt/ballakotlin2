@@ -5,27 +5,31 @@ import kotlin.math.abs
 
 
 /**
- * A slimmer, more flexible and efficient HashSet.
+ * A slimmer, more flexible and efficient LinkedHashSet.
+ * The size is limited. If the size limit is reached, older elements are evicted.
+ * This is implemented by a single linked list, instead of a double linked list like in LinkedHashSet.
  * The hashCode- and equals-function are functional parameters independent of the
  * hashCode- and equals-methods of the elements. This makes this HashSet more flexible.
  * For example:
  * Elements are Arrays. We don't care about the object identities but about the array contents.
  * Instead of Array.equals-method, Array.contentEquals-method is used and
  * instead of Array.hashCode-method, Array.contentHashCode-method is used.
- * Otherwise the elements would have to be wrapped.
+ * Otherwise the elements would have to be wrapped, which is awkward.
  * The HashSet is not synchronized.
  * There is no concurrent access detection (modification counter).
- * No iterator, putAll needed/implemented yet.
+ * No iterator, putAll, remove needed/implemented yet.
  */
-class EfficientHashSet<T>(
+class FifoHashSet<T>(
     private var hashCodeFunction: (T) -> Int,
     private var equalsFunction: (T, T) -> Boolean,
-    private var initialCapacity: Int = 11,
+    private var sizeLimit: Int,
+    initialCapacity: Int = 11,
     private val loadFactor: Float = 0.75f
 ) {
-
     private var threshold: Int
     private var buckets: Array<Entry<T>?>
+    private var queueHead: Entry<T>? = null
+    private var queueTail: Entry<T>? = null
 
     /**
      * number of elements in this set
@@ -34,11 +38,9 @@ class EfficientHashSet<T>(
 
     init {
         if (initialCapacity < 0)
-            throw IllegalArgumentException("Illegal Capacity: " + initialCapacity)
+            throw IllegalArgumentException("Illegal Capacity: $initialCapacity")
         if (loadFactor <= 0) // Todo: check for NaN too
-            throw IllegalArgumentException("Illegal Load: " + loadFactor)
-        if (initialCapacity == 0)
-            initialCapacity = 1
+            throw IllegalArgumentException("Illegal Load: $loadFactor")
         buckets = Array(initialCapacity) { null }
         threshold = (initialCapacity * loadFactor).toInt()
     }
@@ -55,9 +57,9 @@ class EfficientHashSet<T>(
      */
     class Entry<T>(
         var value: T,
-        var nextInBucket: Entry<T>? = null
-    ) {
-    }
+        var nextInBucket: Entry<T>? = null,
+        var nextInQueue: Entry<T>? = null
+    )
 
     fun size(): Int {
         return size
@@ -107,15 +109,49 @@ class EfficientHashSet<T>(
                 val priorElement = entry.value
                 entry.value = element
                 return priorElement
-            } else
-                entry = entry.nextInBucket
+            }
+            // follow bucket chain
+            entry = entry.nextInBucket
         }
-        if (++size > threshold) {
+        size++
+        if (size > threshold) {
             rehash()
             // Need a new hash value to suit the bigger table.
             idx = hash(element)
         }
         addEntry(element, idx)
+        return null
+    }
+
+    /**
+     * Warning: The element is removed from the hash table, but not from the queue.
+     * If removal is not needed, this is not a problem. so make it private.
+     */
+    private fun remove(element: T): T? {
+        val idx = hash(element);
+        return removeEntry(element, idx)
+    }
+
+    /**
+     * remove an entry from the hash table
+     */
+    private fun removeEntry(element: T, idx: Int): T? {
+        var entry = buckets[idx]
+        var previous: Entry<T>? = null
+        while (entry != null) {
+            if (equalsFunction(element, entry.value)) {
+                // cut entry out of chain
+                if (previous == null) { // is first in chain?
+                    buckets[idx] = entry.nextInBucket
+                } else {
+                    previous.nextInBucket = entry.nextInBucket
+                }
+                size--
+                return entry.value
+            }
+            previous = entry
+            entry = entry.nextInBucket
+        }
         return null
     }
 
@@ -146,12 +182,24 @@ class EfficientHashSet<T>(
 
 
     /**
-     * adds a new entry at the head of the chain
+     * adds a new entry at the head of the bucket chain
+     * move queue head and
+     * if size limit is reached, remove oldest entry from queue and hash table
      */
     private fun addEntry(element: T, idx: Int) {
         val newEntry = Entry(element)
         newEntry.nextInBucket = buckets[idx]
         buckets[idx] = newEntry
+        queueHead?.nextInQueue = newEntry
+        queueHead = newEntry
+        if (size > sizeLimit) {
+            queueTail?.let { tail ->
+                remove(tail.value)
+            }
+            queueTail = queueTail?.nextInQueue
+        } else if(queueTail == null) {
+            queueTail = newEntry
+        }
     }
 
     /**
