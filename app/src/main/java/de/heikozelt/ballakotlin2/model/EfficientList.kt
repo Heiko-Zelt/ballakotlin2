@@ -7,10 +7,19 @@ package de.heikozelt.ballakotlin2.model
  * When capacity is reached references to elements are not copied from old to new array as in Vector or ArrayList.
  * There isn't a data structure for every element as in LinkedList.
  * The list is easily iterable from top to bottom.
+ * @param capacityLimit if capacity limit is exceede an exception is thrown (preventing exhaustive memory usage). -1 for no limit.
  * @param chunkSize must be at least 1
  */
 
-class EfficientList<T>(val chunkSize: Int = 32) {
+class EfficientList<T>(
+    private val capacityLimit: Int = -1,
+    val chunkSize: Int = 32
+) {
+
+    class Chunk<T>(chunkSize: Int = 16) {
+        val content = Array<Any?>(chunkSize) { null }
+        var nextChunk: Chunk<T>? = null
+    }
 
     class EfficientListIterator<T>(private val efficientList: EfficientList<T>): Iterator<T> {
         private var currentChunk = efficientList.firstChunk
@@ -35,12 +44,16 @@ class EfficientList<T>(val chunkSize: Int = 32) {
     var size: Int = 0
     fun add(element: T) {
         if (size == 0) {
+            if(capacityLimit == 0)
+                throw CapacityLimitExceededException()
             firstChunk = Chunk(chunkSize)
             firstChunk?.content?.set(0, element)
             lastChunk = firstChunk
         } else {
             val index = size % chunkSize
             if (index == 0) {
+                if((capacityLimit != -1) && (size + chunkSize > capacityLimit) )
+                    throw CapacityLimitExceededException()
                 val newChunk = Chunk<T>(chunkSize)
                 newChunk.content[0] = element
                 lastChunk?.nextChunk = newChunk
@@ -51,6 +64,8 @@ class EfficientList<T>(val chunkSize: Int = 32) {
         }
         size++
     }
+
+    class CapacityLimitExceededException: Exception()
 
     operator fun iterator(): Iterator<T> {
         return EfficientListIterator(this)
