@@ -3,7 +3,8 @@ package de.heikozelt.ballakotlin2.model
 import android.util.Log
 
 /**
- * interative breadth-first search
+ * interative backtracking breadth-first search
+ * todo Bug: according to logcat there are multiple threads running at the same time
  */
 class BreadthFirstSearchSolver : Solver {
 
@@ -21,68 +22,72 @@ class BreadthFirstSearchSolver : Solver {
         val gs2 = gs.cloneWithoutLog()
         val result = SearchResult()
         val firstMoves = gs2.allUsefulMovesIntegrated()
-        val previousGameStates = FifoHashSet(::hashCodeFunction, :: equalsFunction, MAX_CAPACITY_PREVIOUS)
+        val previousGameStates =
+            FifoHashSet(::hashCodeFunction, ::equalsFunction, MAX_CAPACITY_PREVIOUS, INITIAL_CAPACITY, LOAD_FACTOR)
         val latestGameStates = mutableListOf<EfficientList<Array<Byte>>>()
-        if(gs.isSolved()) {
+        if (gs.isSolved()) {
             result.status = SearchResult.STATUS_ALREADY_SOLVED
             return result
         }
-        firstMoves.forEach { move ->
-            //Log.d(TAG, "\n${move.toAscii()}")
-            gs2.moveBall(move)
-            if(gs2.isSolved()) {
-                result.status = SearchResult.STATUS_FOUND_SOLUTION
-                result.move = move
-                return result
-            }
-            //Log.d(TAG, "\n${gs2.toAscii()}")
-            val list = EfficientList<Array<Byte>>()
-            list.add(gs2.toBytesNormalized())
-            latestGameStates.add(list)
-            gs2.moveBall(move.backwards())
-        }
-        for (level in 0 until MAX_LEVEL) {
-            Log.d(TAG, "level #$level")
-            // gibt es noch offene Pfade?
-            if (latestGameStates.all { it.size == 0 }) {
-                // wenn nicht, dann ist es unlösbar
-                result.status = SearchResult.STATUS_UNSOLVABLE
-                return result
-            }
-
-            for (branch in latestGameStates.indices) {
-                Log.d(TAG, "latestGameStates[branch].size: ${latestGameStates[branch].size}")
-                val newList = EfficientList<Array<Byte>>()
-                for (bytes in latestGameStates[branch]) {
-                    gs2.fromBytes(bytes)
-                    val moves = gs2.allUsefulMovesIntegrated()
-                    moves.forEach { move ->
-                        //Log.d(TAG, "\n${move.toAscii()}")
-                        gs2.moveBall(move)
-                        //Log.d(TAG, "\n${gs2.toAscii()}")
-                        if (gs2.isSolved()) {
-                            result.status = SearchResult.STATUS_FOUND_SOLUTION
-                            result.move = firstMoves[branch]
-                            return result
-                        } else {
-                            val newBytes = gs2.toBytesNormalized()
-                            if (newBytes !in previousGameStates) {
-                                newList.add(newBytes)
-                                previousGameStates.put(newBytes)
-                            }
-                        }
-                        gs2.moveBall(move.backwards())
-                    }
+        try {
+            firstMoves.forEach { move ->
+                //Log.d(TAG, "\n${move.toAscii()}")
+                gs2.moveBall(move)
+                if (gs2.isSolved()) {
+                    result.status = SearchResult.STATUS_FOUND_SOLUTION
+                    result.move = move
+                    return result
                 }
-                latestGameStates[branch] = newList
+                //Log.d(TAG, "\n${gs2.toAscii()}")
+                val list = EfficientList<Array<Byte>>()
+                list.add(gs2.toBytesNormalized())
+                latestGameStates.add(list)
+                gs2.moveBall(move.backwards())
             }
+            for (level in 0 until MAX_LEVEL) {
+                Log.d(TAG, "level #$level")
+                // gibt es noch offene Pfade?
+                if (latestGameStates.all { it.getSize() == 0 }) {
+                    // wenn nicht, dann ist es unlösbar
+                    result.status = SearchResult.STATUS_UNSOLVABLE
+                    return result
+                }
 
-            //val sizeLatest = latestGameStates.fold(0) { sum, element -> sum + element.size }
-            val sizeLatest = latestGameStates.sumOf{ it.size }
-            Log.d(TAG, "previous size: ${previousGameStates.size()}, latest size: $sizeLatest")
-            if(sizeLatest >= MAX_CAPACITY_LATEST) {
-                break
+                for (branch in latestGameStates.indices) {
+                    Log.d(
+                        TAG,
+                        "latestGameStates[branch].size: ${latestGameStates[branch].getSize()}"
+                    )
+                    val usedCapacity = latestGameStates.sumOf { it.getCapacity() }
+                    val remainingCapacity = MAX_CAPACITY_LATEST - usedCapacity
+                    Log.d(TAG, "Game States: latest used capacity: $usedCapacity, remaining capacity: $remainingCapacity, previous size: ${previousGameStates.size()}")
+                    val newList = EfficientList<Array<Byte>>(remainingCapacity, CHUNK_SIZE)
+                    for (bytes in latestGameStates[branch]) {
+                        gs2.fromBytes(bytes)
+                        val moves = gs2.allUsefulMovesIntegrated()
+                        moves.forEach { move ->
+                            //Log.d(TAG, "\n${move.toAscii()}")
+                            gs2.moveBall(move)
+                            //Log.d(TAG, "\n${gs2.toAscii()}")
+                            if (gs2.isSolved()) {
+                                result.status = SearchResult.STATUS_FOUND_SOLUTION
+                                result.move = firstMoves[branch]
+                                return result
+                            } else {
+                                val newBytes = gs2.toBytesNormalized()
+                                if (newBytes !in previousGameStates) {
+                                    newList.add(newBytes)
+                                    previousGameStates.put(newBytes)
+                                }
+                            }
+                            gs2.moveBall(move.backwards())
+                        }
+                    }
+                    latestGameStates[branch] = newList
+                }
             }
+        } catch (ex: EfficientList.CapacityLimitExceededException) {
+            Log.d(TAG, "latest game states: capacity limit exceeded")
         }
         // Es gibt noch offene Pfade und Lösung wurde (noch) nicht gefunden
         result.status = SearchResult.STATUS_OPEN
@@ -91,13 +96,21 @@ class BreadthFirstSearchSolver : Solver {
 
 
     companion object {
-        private const val TAG = "balla.BreathFirstSolver"
-
+        private const val TAG = "balla.BreathFirstSearchSolver"
         private const val MAX_LEVEL = 100
+        /**
+         * parameters for the hash set to store previous game states:
+         * less buckets -> more elements in same bucket, less memory usage but
+         * more collisions, more time needed for search
+         */
+        private const val LOAD_FACTOR = 1.0f
+        private const val INITIAL_CAPACITY = 1111
+        private const val MAX_CAPACITY_PREVIOUS = 100_000
 
-        private const val MAX_CAPACITY_PREVIOUS = 50_000
-
-        // TODO: gar keine Überschreitung zulassen
-        private const val MAX_CAPACITY_LATEST = 40_000
+        /**
+         * parameters for the lists to store the latest game states
+         */
+        private const val CHUNK_SIZE = 64
+        private const val MAX_CAPACITY_LATEST = 50_000
     }
 }

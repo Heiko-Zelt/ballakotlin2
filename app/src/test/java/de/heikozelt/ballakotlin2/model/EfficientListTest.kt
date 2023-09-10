@@ -12,9 +12,11 @@ class EfficientListTest {
     @Test
     fun empty_EfficientList() {
         val list = EfficientList<String>()
-        assertEquals(0, list.size)
+        assertEquals(0, list.getSize())
         val iterator = list.iterator()
         assertFalse(iterator.hasNext())
+        assertEquals(0, list.numberOfChunks())
+        assertEquals(0, list.getCapacity())
     }
 
     @Test
@@ -22,11 +24,13 @@ class EfficientListTest {
         val list = EfficientList<String>()
         val first = "1st element"
         list.add(first)
-        assertEquals(1, list.size)
+        assertEquals(1, list.getSize())
         val iterator = list.iterator()
         assertTrue(iterator.hasNext())
         assertEquals(first, iterator.next())
         assertFalse(iterator.hasNext())
+        assertEquals(1, list.numberOfChunks())
+        assertEquals(32, list.getCapacity())
     }
 
     @Test
@@ -34,11 +38,13 @@ class EfficientListTest {
         val list = EfficientList<String>(1, 1)
         val first = "1st element"
         list.add(first)
-        assertEquals(1, list.size)
+        assertEquals(1, list.getSize())
         val iterator = list.iterator()
         assertTrue(iterator.hasNext())
         assertEquals(first, iterator.next())
         assertFalse(iterator.hasNext())
+        assertEquals(1, list.numberOfChunks())
+        assertEquals(1, list.getCapacity())
     }
 
     @Test
@@ -48,12 +54,14 @@ class EfficientListTest {
         val second = "2nd element"
         list.add(first)
         list.add(second)
-        assertEquals(2, list.size)
+        assertEquals(2, list.getSize())
         val iterator = list.iterator()
         iterator.next()
         assertTrue(iterator.hasNext())
         assertEquals(second, iterator.next())
         assertFalse(iterator.hasNext())
+        assertEquals(1, list.numberOfChunks())
+        assertEquals(32, list.getCapacity())
     }
 
     @Test
@@ -63,12 +71,14 @@ class EfficientListTest {
         val second = "2nd element"
         list.add(first)
         list.add(second)
-        assertEquals(2, list.size)
+        assertEquals(2, list.getSize())
         val iterator = list.iterator()
         iterator.next()
         assertTrue(iterator.hasNext())
         assertEquals(second, iterator.next())
         assertFalse(iterator.hasNext())
+        assertEquals(2, list.numberOfChunks())
+        assertEquals(2, list.getCapacity())
     }
 
     @Test
@@ -83,6 +93,8 @@ class EfficientListTest {
             assertEquals("element #$i", elem)
             i++
         }
+        assertEquals(3, list.numberOfChunks())
+        assertEquals(12, list.getCapacity())
     }
 
     @Test
@@ -91,6 +103,9 @@ class EfficientListTest {
         assertThrows(EfficientList.CapacityLimitExceededException::class.java) {
             list.add("1st element")
         }
+        assertEquals(0, list.getSize())
+        assertEquals(0, list.numberOfChunks())
+        assertEquals(0, list.getCapacity())
     }
 
     @Test
@@ -100,6 +115,9 @@ class EfficientListTest {
         assertThrows(EfficientList.CapacityLimitExceededException::class.java) {
             list.add("2nd element")
         }
+        assertEquals(1, list.getSize())
+        assertEquals(1, list.numberOfChunks())
+        assertEquals(1, list.getCapacity())
     }
 
     @Test
@@ -110,6 +128,9 @@ class EfficientListTest {
         assertThrows(EfficientList.CapacityLimitExceededException::class.java) {
             list.add("3rd element")
         }
+        assertEquals(2, list.getSize())
+        assertEquals(1, list.numberOfChunks())
+        assertEquals(2, list.getCapacity())
     }
 
     @Test
@@ -122,6 +143,9 @@ class EfficientListTest {
         assertThrows(EfficientList.CapacityLimitExceededException::class.java) {
             list.add("5th element")
         }
+        assertEquals(4, list.getSize())
+        assertEquals(2, list.numberOfChunks())
+        assertEquals(4, list.getCapacity())
     }
 
     companion object {

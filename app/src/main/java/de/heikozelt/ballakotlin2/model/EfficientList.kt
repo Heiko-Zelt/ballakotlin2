@@ -1,5 +1,7 @@
 package de.heikozelt.ballakotlin2.model
 
+import kotlin.math.ceil
+
 /**
  * A simple list which is memory, CPU and garbage collector efficient.
  * Chunks are stored in arrays, arrays are single linked.
@@ -16,7 +18,7 @@ class EfficientList<T>(
     val chunkSize: Int = 32
 ) {
 
-    class Chunk<T>(chunkSize: Int = 16) {
+    class Chunk<T>(chunkSize: Int = 32) {
         val content = Array<Any?>(chunkSize) { null }
         var nextChunk: Chunk<T>? = null
     }
@@ -41,7 +43,7 @@ class EfficientList<T>(
 
     var firstChunk: Chunk<T>? = null
     private var lastChunk: Chunk<T>? = null
-    var size: Int = 0
+    private var size: Int = 0
     fun add(element: T) {
         if (size == 0) {
             if(capacityLimit == 0)
@@ -69,5 +71,24 @@ class EfficientList<T>(
 
     operator fun iterator(): Iterator<T> {
         return EfficientListIterator(this)
+    }
+
+    fun getSize(): Int {
+        return size
+    }
+
+    fun getCapacity(): Int {
+        return numberOfChunks() * chunkSize
+    }
+
+    /**
+     * chunk size = 2
+     * 0 -> 0
+     * 1 -> 1
+     * 2 -> 1
+     * 3 -> 2
+     */
+    fun numberOfChunks(): Int {
+        return ceil(size.toDouble() / chunkSize).toInt()
     }
 }

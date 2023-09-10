@@ -213,7 +213,7 @@ class FifoHashSet<T>(
      * @return the prior element, or null if there was none
      */
     fun put(element: T): T? {
-        Log.d(TAG, "put($element)")
+        //Log.d(TAG, "put($element)")
         var idx = hash(element)
         var entry = buckets[idx]
         // replace existing element?
@@ -331,7 +331,7 @@ class FifoHashSet<T>(
     }
 
     companion object {
-        private const val TAG = "balla.EfficientHashSet"
+        private const val TAG = "balla.FifoHashSet"
     }
 
 }
