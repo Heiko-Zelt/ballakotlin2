@@ -3,10 +3,16 @@ package de.heikozelt.ballakotlin2.model
 import android.util.Log
 
 /**
- * interative backtracking breadth-first search
+ * backtracking with interative breadth-first search
  * todo Bug: according to logcat there are multiple threads running at the same time
  */
 class BreadthFirstSearchSolver : Solver {
+
+    private var cancel = false
+
+    fun cancelJob() {
+        cancel = true
+    }
 
     fun equalsFunction(a: Array<Byte>, b: Array<Byte>): Boolean {
         return a.contentEquals(b)
@@ -17,7 +23,11 @@ class BreadthFirstSearchSolver : Solver {
     }
 
     override suspend fun findSolution(gs: GameState): SearchResult {
-        Log.d(TAG, "find Solution for\n${gs.toAscii()}")
+        jobCounter++
+        val jobNum = jobCounter
+        jobsHistory += "start $jobNum, "
+        Log.d(TAG, "Job #$jobNum: find Solution for\n${gs.toAscii()}")
+        Log.d(TAG, "Jobs history: $jobsHistory")
         // make sure gs is not modified and existing move log is ignored
         val gs2 = gs.cloneWithoutLog()
         val result = SearchResult()
@@ -27,6 +37,7 @@ class BreadthFirstSearchSolver : Solver {
         val latestGameStates = mutableListOf<EfficientList<Array<Byte>>>()
         if (gs.isSolved()) {
             result.status = SearchResult.STATUS_ALREADY_SOLVED
+            jobsHistory += "finished already solved $jobNum, "
             return result
         }
         try {
@@ -36,6 +47,7 @@ class BreadthFirstSearchSolver : Solver {
                 if (gs2.isSolved()) {
                     result.status = SearchResult.STATUS_FOUND_SOLUTION
                     result.move = move
+                    jobsHistory += "finished solved $jobNum, "
                     return result
                 }
                 //Log.d(TAG, "\n${gs2.toAscii()}")
@@ -50,6 +62,7 @@ class BreadthFirstSearchSolver : Solver {
                 if (latestGameStates.all { it.getSize() == 0 }) {
                     // wenn nicht, dann ist es unlösbar
                     result.status = SearchResult.STATUS_UNSOLVABLE
+                    jobsHistory += "finished unsolvable $jobNum, "
                     return result
                 }
 
@@ -63,6 +76,11 @@ class BreadthFirstSearchSolver : Solver {
                     Log.d(TAG, "Game States: latest used capacity: $usedCapacity, remaining capacity: $remainingCapacity, previous size: ${previousGameStates.size()}")
                     val newList = EfficientList<Array<Byte>>(remainingCapacity, CHUNK_SIZE)
                     for (bytes in latestGameStates[branch]) {
+                        if(cancel) {
+                            result.status = SearchResult.STATUS_CANCELED
+                            jobsHistory += "finished canceled job $jobNum, "
+                            return result
+                        }
                         gs2.fromBytes(bytes)
                         val moves = gs2.allUsefulMovesIntegrated()
                         moves.forEach { move ->
@@ -72,6 +90,7 @@ class BreadthFirstSearchSolver : Solver {
                             if (gs2.isSolved()) {
                                 result.status = SearchResult.STATUS_FOUND_SOLUTION
                                 result.move = firstMoves[branch]
+                                jobsHistory += "finished found $jobNum, "
                                 return result
                             } else {
                                 val newBytes = gs2.toBytesNormalized()
@@ -91,11 +110,15 @@ class BreadthFirstSearchSolver : Solver {
         }
         // Es gibt noch offene Pfade und Lösung wurde (noch) nicht gefunden
         result.status = SearchResult.STATUS_OPEN
+        jobsHistory += "finished open $jobNum, "
         return result
     }
 
 
     companion object {
+        private var jobCounter = 0
+        private var jobsHistory = ""
+
         private const val TAG = "balla.BreathFirstSearchSolver"
         private const val MAX_LEVEL = 100
         /**

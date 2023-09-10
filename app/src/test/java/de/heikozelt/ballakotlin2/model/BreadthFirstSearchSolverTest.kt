@@ -7,6 +7,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class BreadthFirstSearchSolverTest {
@@ -88,6 +89,35 @@ class BreadthFirstSearchSolverTest {
         Assertions.assertEquals(SearchResult.STATUS_ALREADY_SOLVED, result.status)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun cancel_job() {
+        val boardAscii = """
+          _ 9 _ _ _ _ _ _ _ e _ _ _ _ _ 9 8 _
+          3 9 1 1 _ _ a e _ e _ b 2 _ _ c 8 7
+          1 a e 4 _ 5 1 d _ 3 _ b 7 f d c 8 7
+          8 c 7 5 6 4 2 6 _ 4 1 b e f d c 8 7
+          3 c d a 6 8 2 e 3 4 1 b 2 f 3 e 8 9
+          d c a a 6 5 2 7 3 4 8 b 5 f 6 2 1 9
+          d c a b 6 9 2 7 3 4 f b 4 f d 5 6 9
+          d c a 5 6 5 2 7 3 4 1 b a f e 5 f 9
+        """.trimIndent()
+        val gs = GameState()
+        gs.fromAscii(boardAscii)
+        var result = SearchResult()
+        val solver = BreadthFirstSearchSolver()
+        // cancel even before it started, so there is no run condition
+        solver.cancelJob()
+        runTest {
+            val job = GlobalScope.launch(Dispatchers.Default) {
+                Log.d(TAG, "start job")
+                result = solver.findSolution(gs)
+                Log.d(TAG, "finished job")
+            }
+            job.join()
+        }
+        assertEquals(SearchResult.STATUS_CANCELED, result.status)
+    }
 
     companion object {
         private const val TAG = "balla.BreadthFirstSearchSolverTest"

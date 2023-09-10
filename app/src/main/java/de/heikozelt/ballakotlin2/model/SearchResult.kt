@@ -46,8 +46,13 @@ class SearchResult {
         const val STATUS_UNSOLVABLE = 3.toByte()
 
         /**
-         * already finished, no more move possible
+         * already solved, no more move possible
          */
         const val STATUS_ALREADY_SOLVED = 4.toByte()
+
+        /**
+         * Job was canceled
+         */
+        const val STATUS_CANCELED = 5.toByte()
     }
 }
