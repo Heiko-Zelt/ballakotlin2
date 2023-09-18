@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
 
         Log.i(TAG, "injecting game state")
         drawView?.setGameController(gameController)
-        gameController?.registerFeedbackContext(Main)
+        //gameController?.registerFeedbackContext(Main)
         gameController?.registerGameObserver(this)
 
         restoreWidgetsStatus()
@@ -239,6 +239,7 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
                     //(application as BallaApplication).saveSettings()
                     finishAndRemoveTask()
                 }
+
                 else -> {
                     Toast.makeText(
                         applicationContext,
@@ -373,30 +374,30 @@ class MainActivity : AppCompatActivity(), GameObserverInterface {
         togglesResult?.launch(launchIntent)
     }
 
-/*
- * Hauptmenü initialisieren
+    /*
+     * Hauptmenü initialisieren
 
-override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    val inflater = menuInflater
-    val popup = inflater.inflate(R.menu.burger_menu, menu)
-    return true
-}
-
-override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    when(item.itemId) {
-        R.id.item_new_game -> gameController?.actionNewGame()
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        val popup = inflater.inflate(R.menu.burger_menu, menu)
+        return true
     }
-    return super.onOptionsItemSelected(item)
-}
 
-    fun onMenuItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
             R.id.item_new_game -> gameController?.actionNewGame()
         }
         return super.onOptionsItemSelected(item)
     }
 
- */
+        fun onMenuItemSelected(item: MenuItem): Boolean {
+            when (item.itemId) {
+                R.id.item_new_game -> gameController?.actionNewGame()
+            }
+            return super.onOptionsItemSelected(item)
+        }
+
+     */
 
 
     /**
@@ -524,24 +525,31 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // todo: menu item enable / disable
     }
 
+    // is called from Background-Thread.
     override fun updateStatusSearchResult(result: SearchResult) {
         Log.d(TAG, "updateStatusSearchResult(result.status=${result.status})")
-        when (result.status) {
-            SearchResult.STATUS_FOUND_SOLUTION -> {
-                enableView(btnLightbulb, true)
-                btnLightbulb?.setImageResource(R.drawable.ic_lightbulb)
-            }
-            SearchResult.STATUS_UNSOLVABLE -> {
-                enableView(btnLightbulb, false)
-                btnLightbulb?.setImageResource(R.drawable.ic_dead_end)
-            }
-            SearchResult.STATUS_OPEN -> {
-                enableView(btnLightbulb, false)
-                btnLightbulb?.setImageResource(R.drawable.ic_lightbulb_off)
-            }
-            else -> {
-                Log.e(TAG, "unknown search result")
-                enableView(btnLightbulb, false)
+        // push in UI-Event-Queue.
+        runOnUiThread {
+            when (result.status) {
+                SearchResult.STATUS_FOUND_SOLUTION -> {
+                    enableView(btnLightbulb, true)
+                    btnLightbulb?.setImageResource(R.drawable.ic_lightbulb)
+                }
+
+                SearchResult.STATUS_UNSOLVABLE -> {
+                    enableView(btnLightbulb, false)
+                    btnLightbulb?.setImageResource(R.drawable.ic_dead_end)
+                }
+
+                SearchResult.STATUS_OPEN -> {
+                    enableView(btnLightbulb, false)
+                    btnLightbulb?.setImageResource(R.drawable.ic_lightbulb_off)
+                }
+
+                else -> {
+                    Log.e(TAG, "unknown search result")
+                    enableView(btnLightbulb, false)
+                }
             }
         }
     }

@@ -10,6 +10,7 @@ import de.heikozelt.ballakotlin2.model.StackSolver
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import kotlin.coroutines.CoroutineContext
+import de.heikozelt.ballakotlin2.view.MainActivity
 
 
 /**
@@ -41,7 +42,7 @@ class GameController {
      * Der Coroutinen-Context, in dem Benachrichtigung von Hintergrund-Jobs übergeben werden.
      * In Android Main / UI thread, bei Tests auch andere
      */
-    private var feedbackContext: CoroutineContext? = null
+    //private var feedbackContext: Activity? = null
 
     /**
      * true, if one ball ist lifted.
@@ -74,9 +75,9 @@ class GameController {
     var searchResult: SearchResult? = null
 
     /**
-     * Hintergrund-Coroutine, um nächsten Zug zu berechnen
+     * Hintergrund-Thread, um nächsten Zug zu berechnen
      */
-    private var job: Job? = null
+    private var job: Thread? = null
 
     init {
         Log.i(TAG, "init")
@@ -96,11 +97,15 @@ class GameController {
     fun findHelp() {
         Log.d(TAG, "findHelp()")
         searchResult = null
-        job?.cancel()
+        Log.d(TAG, "cancelJob()")
+        solver.cancelJob()
+        Log.d(TAG, "before join()")
+        job?.join()
+        Log.d(TAG, "after join()")
         if (isComputerSupportive) {
             gameObserver?.updateStatusSearching()
             gameState?.let { gs ->
-                job = GlobalScope.launch(Default) {
+                job = Thread {
                     Log.d(TAG, "coroutine launched with GlobalScope in Default Dispatcher")
                     searchResult = solver.findSolution(gs)
                     Log.d(TAG, "findSolution finished")
@@ -110,21 +115,17 @@ class GameController {
                         helpMove = searchResult.move
                     }
                     */
-
-                    feedbackContext?.let { con ->
-                        withContext(con) {
-                            Log.d(TAG, "withContext(Main)")
-                            //if (isHelpAvailable()) {
-                            if (isComputerSupportive) {
-                                Log.d(TAG, "update Status with SearchResult")
-                                //gameObserver?.enableHelp(true)
-                                searchResult?.let { sr ->
-                                    gameObserver?.updateStatusSearchResult(sr)
-                                }
-                            }
+                    Log.d(TAG, "withContext(Main)")
+                    //if (isHelpAvailable()) {
+                    if (isComputerSupportive) {
+                        Log.d(TAG, "update Status with SearchResult")
+                        //gameObserver?.enableHelp(true)
+                        searchResult?.let { sr ->
+                            gameObserver?.updateStatusSearchResult(sr)
                         }
                     }
                 }
+                job?.start()
                 // todo: Event-Handler zuerst (und ein einziges Mal) registrieren, dann Job starten, aber wie?
                 // todo: in welchem Thread läuft invokeOnCompletion?
                 // switch to Main/GUI thread
@@ -164,9 +165,9 @@ class GameController {
     /**
      * wegen Rückmeldung von findHelp() wenn Hintergrundjob fertig ist.
      */
-    fun registerFeedbackContext(fd: CoroutineContext) {
-        feedbackContext = fd
-    }
+    //fun registerFeedbackContext(fd: CoroutineContext) {
+    //    feedbackContext = fd
+    //}
 
     /**
      * muss aufgerufen werden, wenn eine Activity beendet wird
@@ -428,6 +429,7 @@ class GameController {
                         gameObserver?.dropBall(column, row)
                         up = false
                     }
+
                     gs.isMoveAllowed(upColumn, column) -> { // Normalfall A
                         val move = Move(upColumn, column)
                         gs.moveBallAndLog(move)
@@ -438,10 +440,12 @@ class GameController {
                                 gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
                                 gameObserver?.puzzleSolved()
                             }
+
                             gs.tubes[column].isSolved() -> {
                                 gameObserver?.holeBallTubeSolved(upColumn, column, fromRow, toRow)
                                 gameObserver?.enableUndoAndReset(true)
                             }
+
                             else -> {
                                 gameObserver?.holeBall(upColumn, column, fromRow, toRow)
                                 gameObserver?.enableUndoAndReset(true)
@@ -450,6 +454,7 @@ class GameController {
                         up = false
                         findHelp()
                     }
+
                     else -> { // Sonderfall C
                         val downToRow = gs.tubes[upColumn].fillLevel - 1
                         val upFromRow = gs.tubes[column].fillLevel - 1
@@ -479,7 +484,7 @@ class GameController {
             findHelp()
         }
         if (!enabled) {
-            job?.cancel()
+            solver.cancelJob()
             isComputerSupportive = false
             searchResult = null
             gameObserver?.updateStatusHelpOff()

@@ -7,7 +7,7 @@ import kotlinx.coroutines.yield
  * recursive depth-first search
  */
 class StackSolver: Solver {
-    override suspend fun findSolution(gs: GameState): SearchResult {
+    override fun findSolution(gs: GameState): SearchResult {
         Log.d(TAG, "find Solution for\n${gs.toAscii()}")
         val gs2 = gs.cloneWithoutLog()
         val result = SearchResult()
@@ -70,14 +70,14 @@ class StackSolver: Solver {
 
     /*,
        previousGameStates: MutableList<Array<Byte>> = mutableListOf(Array(numberOfTubes * tubeHeight) { 0.toByte() }) */
-    suspend fun findSolutionNoBackAndForth(
+    fun findSolutionNoBackAndForth(
         gs: GameState,
         maxRecursionDepth: Int,
         result: SearchResult,
         previousGameStates: HashSet<SpecialArray>
     ) {
         // Job canceled? nicht zu oft Kontrolle abgeben.
-        if (maxRecursionDepth > 7) yield()
+        //if (maxRecursionDepth > 7) yield()
 
         if (gs.isSolved()) {
             //Log.d(TAG,"1. Abbruchkriterium: Lösung gefunden")

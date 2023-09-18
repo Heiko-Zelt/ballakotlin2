@@ -163,7 +163,8 @@ class GameControllerTest {
 
         listener.dump()
         assertFalse(controller.isUp())
-        assertEquals(7, listener.observationsLog.size)
+        listener.dump()
+        assertEquals(8, listener.observationsLog.size)
         // click
         assertEquals("liftBall(column=0, row=0)", listener.observationsLog[0])
         // click
@@ -175,7 +176,8 @@ class GameControllerTest {
             "liftAndHoleBall(fromColumn=1, toColumn=0, fromRow=0, toRow=0)",
             listener.observationsLog[4]
         )
-        assertEquals("updateStatusSearching()", listener.observationsLog[6])
+        assertEquals("updateStatusSearchResult()", listener.observationsLog[6])
+        assertEquals("updateStatusSearching()", listener.observationsLog[7])
     }
 
     @Test
@@ -339,7 +341,6 @@ class GameControllerTest {
         controller.registerGameObserver(listener)
 
         runBlocking {
-            controller.registerFeedbackContext(currentCoroutineContext())
             controller.findHelp()
             // eine Sekunde sollte normalerweise ausreichen, um eine Lösung zu finden
             delay(1000L)
@@ -393,7 +394,6 @@ class GameControllerTest {
         controller.registerGameObserver(listener)
 
         runBlocking {
-            controller.registerFeedbackContext(currentCoroutineContext())
             controller.findHelp()
             // eine Sekunde sollte normalerweise ausreichen, um eine Lösung zu finden
             delay(500L)
