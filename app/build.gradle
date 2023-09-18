@@ -26,8 +26,8 @@ android {
         minSdk 22 // Abwärts-Kompatibiltät
         //minSdk 29 // profilable
         targetSdk 33 // getestet mit aktueller Version
-        versionCode 6 // important for publication in google play store
-        versionName "1.6"
+        versionCode 7 // important for publication in google play store
+        versionName "1.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release

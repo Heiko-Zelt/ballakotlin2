@@ -141,14 +141,14 @@ class BreadthFirstSearchSolver : Solver {
          * less buckets -> more elements in same bucket, less memory usage but
          * more collisions, more time needed for search
          */
-        private const val LOAD_FACTOR = 1.0f
+        private const val LOAD_FACTOR = 0.9f
         private const val INITIAL_CAPACITY = 1111
-        private const val MAX_CAPACITY_PREVIOUS = 100_000
+        private const val MAX_CAPACITY_PREVIOUS = 120_000
 
         /**
          * parameters for the lists to store the latest game states
          */
         private const val CHUNK_SIZE = 64
-        private const val MAX_CAPACITY_LATEST = 50_000
+        private const val MAX_CAPACITY_LATEST = 60_000
     }
 }
