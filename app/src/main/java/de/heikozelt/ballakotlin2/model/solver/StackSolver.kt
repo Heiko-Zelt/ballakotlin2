@@ -1,7 +1,9 @@
-package de.heikozelt.ballakotlin2.model
+package de.heikozelt.ballakotlin2.model.solver
 
 import android.util.Log
-import kotlinx.coroutines.yield
+import de.heikozelt.ballakotlin2.model.GameState
+import de.heikozelt.ballakotlin2.model.SearchResult
+import de.heikozelt.ballakotlin2.model.SpecialArray
 
 /**
  * recursive depth-first search

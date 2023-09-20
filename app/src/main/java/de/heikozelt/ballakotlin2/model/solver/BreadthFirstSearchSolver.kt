@@ -1,6 +1,10 @@
-package de.heikozelt.ballakotlin2.model
+package de.heikozelt.ballakotlin2.model.solver
 
 import android.util.Log
+import de.heikozelt.ballakotlin2.model.EfficientList
+import de.heikozelt.ballakotlin2.model.FifoHashSet
+import de.heikozelt.ballakotlin2.model.GameState
+import de.heikozelt.ballakotlin2.model.SearchResult
 
 /**
  * backtracking with interative breadth-first search

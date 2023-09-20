@@ -1,16 +1,11 @@
 package de.heikozelt.ballakotlin2
 
 import android.util.Log
-import de.heikozelt.ballakotlin2.model.BreadthFirstSearchSolver
+import de.heikozelt.ballakotlin2.model.solver.BreadthFirstSearchSolver
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.GameObserverInterface
 import de.heikozelt.ballakotlin2.model.Move
 import de.heikozelt.ballakotlin2.model.SearchResult
-import de.heikozelt.ballakotlin2.model.StackSolver
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Default
-import kotlin.coroutines.CoroutineContext
-import de.heikozelt.ballakotlin2.view.MainActivity
 
 
 /**

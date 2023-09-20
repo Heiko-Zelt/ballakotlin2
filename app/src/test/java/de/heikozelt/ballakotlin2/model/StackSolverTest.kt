@@ -1,6 +1,7 @@
 package de.heikozelt.ballakotlin2.model
 
 import android.util.Log
+import de.heikozelt.ballakotlin2.model.solver.StackSolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
