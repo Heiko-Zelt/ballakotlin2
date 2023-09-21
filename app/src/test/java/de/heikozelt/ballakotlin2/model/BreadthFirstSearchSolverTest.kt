@@ -68,6 +68,74 @@ class BreadthFirstSearchSolverTest {
 
     @ExperimentalCoroutinesApi
     @Test
+    fun findSolution_why_not_found() {
+        /*
+          _ _ _
+          1 1 2
+          2 1 2
+         */
+        val gs = GameState().apply {
+            resize(2, 1, 3)
+            tubes[0].apply {
+                addBall(2); addBall(1)
+            }
+            tubes[1].apply {
+                addBall(1); addBall(1)
+            }
+            tubes[2].apply {
+                addBall(2); addBall(2)
+            }
+        }
+
+        val result = BreadthFirstSearchSolver().findSolution(gs)
+
+
+        //val solutionArray = solution?.toTypedArray()
+        //val match1a = solution1a contentEquals solutionArray
+        //val match2a = solution2a contentEquals solutionArray
+
+        Log.d(TAG, "result.move: ${result.move}")
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(0, 1), result.move)
+        //todo: weitere result-properties pruefen
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun findSolution_found() {
+        /*
+          _ 1 _
+          _ 1 2
+          2 1 2
+         */
+        val gs = GameState().apply {
+            resize(2, 1, 3)
+            tubes[0].apply {
+                addBall(2)
+            }
+            tubes[1].apply {
+                addBall(1); addBall(1); addBall(1)
+            }
+            tubes[2].apply {
+                addBall(2); addBall(2)
+            }
+        }
+
+        val result = BreadthFirstSearchSolver().findSolution(gs)
+
+
+        //val solutionArray = solution?.toTypedArray()
+        //val match1a = solution1a contentEquals solutionArray
+        //val match2a = solution2a contentEquals solutionArray
+
+        Log.d(TAG, "result.move: ${result.move}")
+        assertEquals(SearchResult.STATUS_FOUND_SOLUTION, result.status)
+        assertEquals(Move(0, 2), result.move)
+        //todo: weitere result-properties pruefen
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
     fun findSolution_already_solved() {
         val gs = GameState().apply {
             resize(2, 1, 2)

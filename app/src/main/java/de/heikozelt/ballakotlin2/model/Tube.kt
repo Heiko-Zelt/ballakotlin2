@@ -50,6 +50,13 @@ class Tube(val tubeHeight: Int):Comparable<Tube> {
         fillLevel = tubeHeight
     }
 
+    fun clear() {
+        for (i in 0 until tubeHeight) {
+            cells[i] = 0.toByte()
+        }
+        fillLevel = 0
+    }
+
     fun repairFillLevel() {
         fillLevel = 0
         while((fillLevel < cells.size) && (cells[fillLevel] != 0.toByte())) {

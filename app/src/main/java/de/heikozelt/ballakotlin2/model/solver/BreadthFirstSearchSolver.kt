@@ -5,10 +5,11 @@ import de.heikozelt.ballakotlin2.model.EfficientList
 import de.heikozelt.ballakotlin2.model.FifoHashSet
 import de.heikozelt.ballakotlin2.model.GameState
 import de.heikozelt.ballakotlin2.model.SearchResult
+import de.heikozelt.ballakotlin2.model.codec.FixedSizeCodec
+import de.heikozelt.ballakotlin2.model.codec.SeparatorCodec
 
 /**
- * backtracking with interative breadth-first search
- * todo Bug: according to logcat there are multiple threads running at the same time
+ * backtracking using iterative breadth-first search
  */
 class BreadthFirstSearchSolver : Solver {
 
@@ -37,9 +38,21 @@ class BreadthFirstSearchSolver : Solver {
             jobsHistory += "start $jobNum, "
             Log.d(TAG, "Job #$jobNum: find Solution for\n${gs.toAscii()}")
             Log.d(TAG, "Jobs history: $jobsHistory")
+
             // make sure gs is not modified and existing move log is ignored
             val gs2 = gs.cloneWithoutLog()
             val result = SearchResult()
+            // Bei Gleichheit SeparatorCodec bevorzugen,
+            // da die tatsächliche Größe beim SeparatorCodec kleiner sein kann.
+            val codec = if(FixedSizeCodec.encodedSizeInBytes(gs) < SeparatorCodec.encodedSizeInBytes(gs)) {
+                Log.d("TAG", "using FixedSizeCodec")
+                FixedSizeCodec
+            } else {
+                Log.d("TAG", "using SeparatorCodec")
+                SeparatorCodec
+            }
+            // val codec = FixedSizeCodec
+
             val firstMoves = gs2.allUsefulMovesIntegrated()
             val previousGameStates =
                 FifoHashSet(
@@ -50,7 +63,7 @@ class BreadthFirstSearchSolver : Solver {
                     LOAD_FACTOR
                 )
             val latestGameStates = mutableListOf<EfficientList<Array<Byte>>>()
-            if (gs.isSolved()) {
+            if (gs2.isSolved()) {
                 result.status = SearchResult.STATUS_ALREADY_SOLVED
                 jobsHistory += "finished already solved $jobNum, "
                 return result
@@ -67,7 +80,7 @@ class BreadthFirstSearchSolver : Solver {
                     }
                     //Log.d(TAG, "\n${gs2.toAscii()}")
                     val list = EfficientList<Array<Byte>>()
-                    list.add(gs2.toBytesNormalized())
+                    list.add(codec.encodeNormalized(gs2))
                     latestGameStates.add(list)
                     gs2.moveBall(move.backwards())
                 }
@@ -94,29 +107,37 @@ class BreadthFirstSearchSolver : Solver {
                         )
                         val newList = EfficientList<Array<Byte>>(remainingCapacity, CHUNK_SIZE)
                         for (bytes in latestGameStates[branch]) {
+                            val hex = bytes.joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
+                            Log.d(TAG, "bytes to be decoded: $hex")
                             if (cancel) {
                                 result.status = SearchResult.STATUS_CANCELED
                                 jobsHistory += "finished canceled job $jobNum, "
                                 return result
                             }
-                            gs2.fromBytes(bytes)
+                            codec.decode(gs2, bytes)
+                            Log.d(TAG, gs2.toAscii())
                             val moves = gs2.allUsefulMovesIntegrated()
                             moves.forEach { move ->
-                                //Log.d(TAG, "\n${move.toAscii()}")
+                                Log.d(TAG, "\n${move.toAscii()}")
                                 gs2.moveBall(move)
                                 //Log.d(TAG, "\n${gs2.toAscii()}")
                                 if (gs2.isSolved()) {
+                                    Log.d(TAG, "not yet solved")
                                     result.status = SearchResult.STATUS_FOUND_SOLUTION
                                     result.move = firstMoves[branch]
                                     jobsHistory += "finished found $jobNum, "
                                     return result
                                 } else {
-                                    val newBytes = gs2.toBytesNormalized()
+                                    Log.d(TAG, "encode. it happens here!!!!")
+                                    val newBytes = codec.encodeNormalized(gs2)
+                                    Log.d(TAG, "encoded")
                                     if (newBytes !in previousGameStates) {
+                                        Log.d(TAG, "no cycle")
                                         newList.add(newBytes)
                                         previousGameStates.put(newBytes)
                                     }
                                 }
+                                Log.d(TAG, "move backwards")
                                 gs2.moveBall(move.backwards())
                             }
                         }

@@ -161,9 +161,9 @@ class GameState {
      * also jede Röhren entweder leer oder gelöst ist.
      */
     fun isSolved(): Boolean {
-        for (i in 0 until numberOfTubes) {
+        for (tube in tubes) {
             //console.debug('i=' + i)
-            if (!(tubes[i].isEmpty() || tubes[i].isSolved())) {
+            if (!(tube.isEmpty() || tube.isSolved())) {
                 //console.debug('tube ' + i + ' is not empty or solved')
                 return false
             }
@@ -1119,6 +1119,10 @@ class GameState {
         Log.d(TAG, "fromAscii(ascii=\n$ascii)")
         val lines = ascii.split(lineDelimiter)
         fromAsciiLines(lines.toTypedArray())
+    }
+
+    fun clear() {
+        tubes.forEach { it.clear() }
     }
 
 

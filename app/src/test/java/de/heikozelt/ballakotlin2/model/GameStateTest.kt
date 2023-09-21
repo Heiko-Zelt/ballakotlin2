@@ -1,6 +1,7 @@
 package de.heikozelt.ballakotlin2.model
 
 import android.util.Log
+import de.heikozelt.ballakotlin2.model.codec.SeparatorCodec
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.IndexOutOfBoundsException
@@ -1101,6 +1102,22 @@ class GameStateTest {
             |1 1 2
             """.trimMargin()
         assertEquals(expected, str)
+    }
+
+    @Test
+    fun fromAscii_toAscii_big() {
+        val boardAscii = """
+            8 _ _ _ _ 4 c _ 3 d f 8 _ 8 4 a e 2
+            c _ _ _ _ 2 4 _ 6 9 6 5 _ 2 8 b 9 6
+            6 _ _ _ _ d d _ a e 1 c 7 2 f 5 f 2
+            8 4 _ _ _ 1 d _ 9 6 d 1 7 c a 1 1 5
+            7 c _ 7 _ 5 7 4 9 b b b c 2 9 e e f
+            1 3 7 4 _ 5 6 c 9 8 a b 7 d 2 e b f
+            1 3 4 7 3 5 6 8 9 5 a b 3 d 3 e a f
+            1 2 3 3 4 5 6 8 9 a a b c d e e f f""".trimIndent()
+        val gs = GameState()
+        gs.fromAscii(boardAscii)
+        assertEquals(boardAscii, gs.toAscii())
     }
 
     @Test

@@ -18,6 +18,7 @@ class SeparatorCodec {
 
             val bytes = Array<Byte>(encodedSizeInNibbles(gameState)) { 0 }
             var i = 0
+            val maxTubeIndex = sortedTubes.size - 1
             for(tubeIndex in sortedTubes.indices) {
                 val tube = sortedTubes[tubeIndex]
                 for(position in 0 until tube.fillLevel) {
@@ -25,7 +26,8 @@ class SeparatorCodec {
                     i++
                 }
                 // separator?
-                if(tube.fillLevel < gameState.tubeHeight) {
+                // nur wenn nicht voll und nicht bei letzter Röhre
+                if((tube.fillLevel < gameState.tubeHeight) && (tubeIndex != maxTubeIndex)) {
                     // bytes[i] = 0 ueberflüssig, da der Array mit Nullen initialisiert wurde
                     i++
                 }
@@ -57,26 +59,51 @@ class SeparatorCodec {
                 val lowerNibble = byte and 0b00001111.toByte()
                 bytes2[nibbleIndex] = lowerNibble
                 nibbleIndex++
-                val higherNibble = (byte.toInt() shr 4).toByte()
+                // seltsame Berechung, aber Bytes sind in Java eigentlich vorzeichenbehaftet
+                val higherNibble = ((byte.toInt() shr 4) and 0b00001111).toByte()
                 bytes2[nibbleIndex] = higherNibble
                 nibbleIndex++
             }
 
+            /*
             var byteIndex = 0
             for(tubeIndex in gameState.tubes.indices) {
                 val tube = gameState.tubes[tubeIndex]
                 for(position in 0 until gameState.tubeHeight) {
                     val color = bytes2[byteIndex]
-                    if(color != 0.toByte()) {
+                    // innerhalb der Röhre farblos oder Seperator erreicht oder letzter Ball erreicht?
+                    if((color != 0.toByte()) && (byteIndex < bytes2.size)) {
                         byteIndex++
                     }
                     tube.cells[position] = color
                 }
                 tube.repairFillLevel()
-                // separator?
+                // separator überspringen?
                 if(tube.fillLevel < gameState.tubeHeight) {
                     byteIndex++
                 }
+            }
+            */
+            var tubeIndex = 0
+            var position = 0
+            var ballIndex = 0
+            val numberOfBalls = gameState.numberOfTubes * gameState.tubeHeight
+            gameState.clear()
+            for(color in bytes2) {
+                if(position == gameState.tubeHeight) {
+                    tubeIndex++
+                    position = 0
+                }
+                if(color == 0.toByte()) {
+                    tubeIndex++
+                    position = 0
+                } else {
+                    if(tubeIndex == gameState.numberOfTubes) break
+                    gameState.tubes[tubeIndex].addBall(color)
+                    position++
+                    ballIndex++
+                }
+                if(ballIndex == numberOfBalls) break
             }
         }
 
