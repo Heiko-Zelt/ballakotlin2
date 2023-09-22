@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
 
-class ParameterizedCodecTest {
+class GenericCodecTest {
 
     /**
      * Codecs encode differently,
@@ -21,6 +21,7 @@ class ParameterizedCodecTest {
         val gs = GameState()
         gs.fromAscii(boards.first)
         val bytes = codec.encodeNormalized(gs)
+        gs.rainbow()
         codec.decode(gs, bytes)
         Assertions.assertEquals(boards.second, gs.toAscii())
     }
@@ -130,7 +131,7 @@ class ParameterizedCodecTest {
                     """.trimIndent()
                 )
             )
-            val codecs = arrayOf(FixedSizeCodec, SeparatorCodec)
+            val codecs = arrayOf(FixedSizeCodec, TerminatorCodec, SeparatorCodec)
             var stream = Stream.of<Arguments>()
             boards.forEach { boards ->
                 codecs.forEach { codec ->
