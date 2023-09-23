@@ -1,6 +1,7 @@
 package de.heikozelt.ballakotlin2.model.codec
 
 import de.heikozelt.ballakotlin2.model.GameState
+import java.util.Arrays
 import kotlin.experimental.and
 
 /**
@@ -67,8 +68,13 @@ class TerminatorCodec {
                     tube.cells[tube.fillLevel] = color
                     tube.fillLevel++
                 }
+                /*
+                if(tube.fillLevel < gameState.tubeHeight) {
+                    Arrays.fill(tube.cells, tube.fillLevel, gameState.tubeHeight, 0.toByte())
+                }
+                */
                 for(emptyPosition in tube.fillLevel until gameState.tubeHeight) {
-                    tube.cells[emptyPosition] = 0
+                    tube.cells[emptyPosition] = 0.toByte()
                 }
             }
         }

@@ -56,8 +56,7 @@ class EfficientHashSet<T>(
     class Entry<T>(
         var value: T,
         var nextInBucket: Entry<T>? = null
-    ) {
-    }
+    )
 
     fun size(): Int {
         return size

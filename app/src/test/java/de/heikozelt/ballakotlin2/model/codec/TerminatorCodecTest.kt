@@ -5,7 +5,17 @@ import de.heikozelt.ballakotlin2.model.GameState
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.Arrays
+
 class TerminatorCodecTest {
+
+    @Test
+    fun fillArray() {
+        val a = Array(6) { it }
+        // interesting, toIndex is outside of the interval
+        Arrays.fill(a, 2, 4, 0)
+        assertArrayEquals(arrayOf(0, 1, 0, 0, 4, 5), a)
+    }
 
     @Test
     fun encodedSizeInNibbles_even() {

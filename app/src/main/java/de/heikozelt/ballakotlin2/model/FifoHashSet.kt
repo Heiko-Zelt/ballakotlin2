@@ -45,6 +45,20 @@ class FifoHashSet<T>(
         var nextInQueue: Entry<T>? = null
     )
 
+    /**
+     * This function can't be a method of entry,
+     * because entry can be null.
+     */
+    fun bucketSize(entry: Entry<T>?): Int {
+        var e = entry
+        var count = 0
+        while(e != null) {
+            e = e.nextInBucket
+            count++
+        }
+        return count
+    }
+
     class ChronologicalIterator<T>(private val hashSet: FifoHashSet<T>) : Iterator<T> {
         private var started = false
         private var currentEntry: Entry<T>? = null
@@ -328,6 +342,52 @@ class FifoHashSet<T>(
 
     fun hashedIterator(): Iterator<T> {
         return HashedIterator(this)
+    }
+
+    fun getBucketSizeStatistic(): IntKeyStatistic {
+        val stat = IntKeyStatistic()
+        for(b in buckets) {
+            stat.increment(bucketSize(b))
+        }
+        return stat
+    }
+
+    /**
+     * just for debugging
+     */
+    fun countEntriesInBuckets(): Int {
+        var count = 0
+        for(b in buckets) {
+            count += bucketSize(b)
+        }
+        return count
+    }
+
+    /**
+     * just for debugging
+     */
+    fun countEntriesInQueue(): Int {
+        var count = 0
+        var e = queueTail
+        while(e != null) {
+            e = e.nextInQueue
+            count ++
+        }
+        return count
+    }
+
+    /**
+     * just for debugging
+     */
+    fun dumpStatistic() {
+        Log.d(TAG, "FifoHashSet statistic:")
+        Log.d(TAG, "number of entries: $size")
+        Log.d(TAG, "number of buckets: ${buckets.size}")
+        Log.d(TAG, "number of entries in buckets: ${countEntriesInBuckets()}")
+        Log.d(TAG, "number of entries in queue: ${countEntriesInQueue()}")
+        Log.d(TAG, "number of entries -> number of buckets")
+        val stat = getBucketSizeStatistic()
+        stat.dump()
     }
 
     companion object {

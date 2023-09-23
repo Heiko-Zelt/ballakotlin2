@@ -108,36 +108,28 @@ class BreadthFirstSearchSolver : Solver {
                         val newList = EfficientList<Array<Byte>>(remainingCapacity, CHUNK_SIZE)
                         for (bytes in latestGameStates[branch]) {
                             val hex = bytes.joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
-                            Log.d(TAG, "bytes to be decoded: $hex")
                             if (cancel) {
                                 result.status = SearchResult.STATUS_CANCELED
                                 jobsHistory += "finished canceled job $jobNum, "
                                 return result
                             }
                             codec.decode(gs2, bytes)
-                            Log.d(TAG, gs2.toAscii())
                             val moves = gs2.allUsefulMovesIntegrated()
                             moves.forEach { move ->
-                                Log.d(TAG, "\n${move.toAscii()}")
                                 gs2.moveBall(move)
-                                //Log.d(TAG, "\n${gs2.toAscii()}")
                                 if (gs2.isSolved()) {
-                                    Log.d(TAG, "not yet solved")
                                     result.status = SearchResult.STATUS_FOUND_SOLUTION
                                     result.move = firstMoves[branch]
                                     jobsHistory += "finished found $jobNum, "
+                                    previousGameStates.dumpStatistic()
                                     return result
                                 } else {
-                                    Log.d(TAG, "encode. it happens here!!!!")
                                     val newBytes = codec.encodeNormalized(gs2)
-                                    Log.d(TAG, "encoded")
                                     if (newBytes !in previousGameStates) {
-                                        Log.d(TAG, "no cycle")
                                         newList.add(newBytes)
                                         previousGameStates.put(newBytes)
                                     }
                                 }
-                                Log.d(TAG, "move backwards")
                                 gs2.moveBall(move.backwards())
                             }
                         }
@@ -167,7 +159,7 @@ class BreadthFirstSearchSolver : Solver {
          * more collisions, more time needed for search
          */
         private const val LOAD_FACTOR = 0.9f
-        private const val INITIAL_CAPACITY = 1111
+        private const val INITIAL_CAPACITY = 5
         private const val MAX_CAPACITY_PREVIOUS = 120_000
 
         /**
