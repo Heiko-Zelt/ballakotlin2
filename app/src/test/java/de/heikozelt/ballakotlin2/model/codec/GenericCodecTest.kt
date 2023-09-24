@@ -17,13 +17,11 @@ class GenericCodecTest {
      */
     @ParameterizedTest
     @MethodSource("provideData")
-    fun encode_decode(boards: Pair<String, String>, codec: GameStateCodec) {
-        val gs = GameState()
-        gs.fromAscii(boards.first)
-        val bytes = codec.encodeNormalized(gs)
+    fun encode_decode(expectedBoard: String, gs: GameState, codec: GameStateCodec) {
+        val bytes = codec.encodeNormalized()
         gs.rainbow()
-        codec.decode(gs, bytes)
-        Assertions.assertEquals(boards.second, gs.toAscii())
+        codec.decode(bytes)
+        Assertions.assertEquals(expectedBoard, gs.toAscii())
     }
 
     companion object {
@@ -37,7 +35,7 @@ class GenericCodecTest {
          */
         @JvmStatic
         fun provideData(): Stream<Arguments> {
-            val boards = arrayOf(
+            val datas = arrayOf(
                 Pair(
                     """
                     _ 1 _
@@ -131,11 +129,16 @@ class GenericCodecTest {
                     """.trimIndent()
                 )
             )
-            val codecs = arrayOf(FixedSizeCodec, TerminatorCodec, SeparatorCodec)
             var stream = Stream.of<Arguments>()
-            boards.forEach { boards ->
+            datas.forEach { boards ->
+                val gs = GameState()
+                gs.fromAscii(boards.first)
+                val codecs = mutableListOf<GameStateCodec>()
+                codecs.add(FixedSizeCodec(gs))
+                codecs.add(TerminatorCodec(gs))
+                codecs.add(SeparatorCodec(gs))
                 codecs.forEach { codec ->
-                    stream = Stream.concat(stream, Stream.of(arguments(boards, codec)))
+                    stream = Stream.concat(stream, Stream.of(arguments(boards.second, gs, codec)))
                 }
             }
             return stream

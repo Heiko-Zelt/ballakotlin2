@@ -44,12 +44,14 @@ class BreadthFirstSearchSolver : Solver {
             val result = SearchResult()
             // Bei Gleichheit SeparatorCodec bevorzugen,
             // da die tatsächliche Größe beim SeparatorCodec kleiner sein kann.
-            val codec = if(FixedSizeCodec.encodedSizeInBytes(gs) < SeparatorCodec.encodedSizeInBytes(gs)) {
+            val codecF = FixedSizeCodec(gs2)
+            val codecS = SeparatorCodec(gs2)
+            val codec = if(codecF.encodedSizeInBytes() < codecS.encodedSizeInBytes()) {
                 Log.d("TAG", "using FixedSizeCodec")
-                FixedSizeCodec
+                codecF
             } else {
                 Log.d("TAG", "using SeparatorCodec")
-                SeparatorCodec
+                codecS
             }
             // val codec = FixedSizeCodec
 
@@ -80,7 +82,7 @@ class BreadthFirstSearchSolver : Solver {
                     }
                     //Log.d(TAG, "\n${gs2.toAscii()}")
                     val list = EfficientList<Array<Byte>>()
-                    list.add(codec.encodeNormalized(gs2))
+                    list.add(codec.encodeNormalized())
                     latestGameStates.add(list)
                     gs2.moveBall(move.backwards())
                 }
@@ -107,13 +109,13 @@ class BreadthFirstSearchSolver : Solver {
                         )
                         val newList = EfficientList<Array<Byte>>(remainingCapacity, CHUNK_SIZE)
                         for (bytes in latestGameStates[branch]) {
-                            val hex = bytes.joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
+                            // val hex = bytes.joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
                             if (cancel) {
                                 result.status = SearchResult.STATUS_CANCELED
                                 jobsHistory += "finished canceled job $jobNum, "
                                 return result
                             }
-                            codec.decode(gs2, bytes)
+                            codec.decode(bytes)
                             val moves = gs2.allUsefulMovesIntegrated()
                             moves.forEach { move ->
                                 gs2.moveBall(move)
@@ -124,7 +126,7 @@ class BreadthFirstSearchSolver : Solver {
                                     previousGameStates.dumpStatistic()
                                     return result
                                 } else {
-                                    val newBytes = codec.encodeNormalized(gs2)
+                                    val newBytes = codec.encodeNormalized()
                                     if (newBytes !in previousGameStates) {
                                         newList.add(newBytes)
                                         previousGameStates.put(newBytes)

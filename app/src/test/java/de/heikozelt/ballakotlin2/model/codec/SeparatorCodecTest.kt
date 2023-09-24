@@ -16,7 +16,8 @@ class SeparatorCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 2 Farben * 3 Bälle + 2 Trenner
-        assertEquals(2 * 3 + (3 - 1), SeparatorCodec.encodedSizeInNibbles(gs))
+        val codec = SeparatorCodec(gs)
+        assertEquals(2 * 3 + (3 - 1), codec.encodedSizeInNibbles())
     }
 
     @Test
@@ -27,7 +28,8 @@ class SeparatorCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 2 Farben * 2 Bälle + 3 Trenner
-        assertEquals(2 * 2 + (4 - 1), SeparatorCodec.encodedSizeInNibbles(gs))
+        val codec = SeparatorCodec(gs)
+        assertEquals(2 * 2 + (4 - 1), codec.encodedSizeInNibbles())
     }
 
     @Test
@@ -38,7 +40,8 @@ class SeparatorCodecTest {
             1 2 1""".trimMargin()
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        assertEquals(8 / 2, SeparatorCodec.encodedSizeInBytes(gs))
+        val codec = SeparatorCodec(gs)
+        assertEquals(8 / 2, codec.encodedSizeInBytes())
     }
 
     @Test
@@ -48,8 +51,9 @@ class SeparatorCodecTest {
             1 2 _ 2""".trimMargin()
         val gs = GameState()
         gs.fromAscii(boardAscii)
+        val codec = SeparatorCodec(gs)
         // 4 bytes to store 7 nibbles
-        assertEquals(4, SeparatorCodec.encodedSizeInBytes(gs))
+        assertEquals(4, codec.encodedSizeInBytes())
     }
 
     @Test
@@ -65,7 +69,8 @@ class SeparatorCodecTest {
         val expected = arrayOf((1 * 16).toByte(), (2 * 16 + 1).toByte(), (2 * 16).toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = SeparatorCodec.encodeNormalized(gs)
+        val codec = SeparatorCodec(gs)
+        val bytes = codec.encodeNormalized()
         bytes.forEach {
             Log.d(TAG, "result: $it")
         }
@@ -86,7 +91,8 @@ class SeparatorCodecTest {
         val expected = arrayOf(1.toByte(), (1 * 16 + 1).toByte(), (2 * 16).toByte(), (2 * 16 + 2).toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = SeparatorCodec.encodeNormalized(gs)
+        val codec = SeparatorCodec(gs)
+        val bytes = codec.encodeNormalized()
         assertArrayEquals(expected, bytes)
     }
 
@@ -151,8 +157,46 @@ class SeparatorCodecTest {
 
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = SeparatorCodec.encodeNormalized(gs)
+        val codec = SeparatorCodec(gs)
+        val bytes = codec.encodeNormalized()
         assertArrayEquals(expectedBytes, bytes)
+    }
+
+    /**
+     * first decoding fills buffer with data.
+     * second decoding must not reuse date / must overwrite.
+     */
+    @Test
+    fun encode_3_times() {
+        val expectedBytes1 = arrayOf(0x01.toByte(), 0x11.toByte(), 0x20.toByte(), 0x22.toByte())
+        // sorted: 100 110 222
+        // encoded: 10 110 222
+        // 10 11 02 22
+        // 01 11 20 22
+        val board1 = """
+            _ 2 _
+            1 2 _
+            1 2 1""".trimIndent()
+        val expectedBytes2 = arrayOf(0x10.toByte(), 0x11.toByte(), 0x22.toByte(), 0x02.toByte())
+        // sorted: 000 111 222
+        // encoded 0 111 222
+        // 01 11 22 20
+        // 10 11 22 02
+        val board2 = """
+            1 2 _
+            1 2 _
+            1 2 _""".trimIndent()
+        val gs = GameState()
+        gs.fromAscii(board1)
+        val codec = SeparatorCodec(gs)
+        val result1 = codec.encodeNormalized()
+        assertArrayEquals(expectedBytes1, result1)
+        gs.fromAscii(board2)
+        val result2 = codec.encodeNormalized()
+        assertArrayEquals(expectedBytes2, result2)
+        gs.fromAscii(board1)
+        val result3 = codec.encodeNormalized()
+        assertArrayEquals(expectedBytes1, result3)
     }
 
 
@@ -172,7 +216,8 @@ class SeparatorCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 2, 2)
-        SeparatorCodec.decode(gs, bytes)
+        val codec = SeparatorCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
@@ -192,7 +237,8 @@ class SeparatorCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 1, 3)
-        SeparatorCodec.decode(gs, bytes)
+        val codec = SeparatorCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
@@ -225,9 +271,44 @@ class SeparatorCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(15, 3, 8)
-        SeparatorCodec.decode(gs, bytes)
+        val codec = SeparatorCodec(gs)
+        codec.decode(bytes)
         val resultAsAscii = gs.toAscii()
         assertEquals(expectedBoardAscii, resultAsAscii)
+    }
+
+    /**
+     * first decoding fills buffer with data.
+     * second decoding must not reuse date / must overwrite.
+     */
+    @Test
+    fun decode_3_times() {
+        val bytes1 = arrayOf(0x11.toByte(), 0x20.toByte(), 0x22.toByte(), 0x01.toByte())
+        // 110 | 222 | 1
+        // 11 02 22 10
+        // 11 20 22 01
+        val expectedBoard1 = """
+            _ 2 _
+            1 2 _
+            1 2 1""".trimIndent()
+        val bytes2 = arrayOf(0x11.toByte(), 0x21.toByte(), 0x22.toByte())
+        // 111 | 222
+        // 11 12 22
+        // 11 21 22
+        val expectedBoard2 = """
+            1 2 _
+            1 2 _
+            1 2 _""".trimIndent()
+        val gs = GameState()
+        gs.resize(2, 1, 3)
+        // 2 Farben * 3 Bälle + 2 Trenner
+        val codec = SeparatorCodec(gs)
+        codec.decode(bytes1)
+        assertEquals(expectedBoard1, gs.toAscii())
+        codec.decode(bytes2)
+        assertEquals(expectedBoard2, gs.toAscii())
+        codec.decode(bytes1)
+        assertEquals(expectedBoard1, gs.toAscii())
     }
 
     companion object {

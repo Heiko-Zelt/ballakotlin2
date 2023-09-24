@@ -16,12 +16,23 @@ class CodecPerformanceTest {
             gs.fromAscii(board)
             gameStates.add(gs)
         }
+
+        val codecs = mutableListOf<GameStateCodec>()
+        codecs.add(FixedSizeCodec(gameStates[0]))
+        codecs.add(TerminatorCodec(gameStates[0]))
+        codecs.add(SeparatorCodec(gameStates[0]))
+        codecs.add(FixedSizeCodec(gameStates[0]))
+        codecs.add(TerminatorCodec(gameStates[0]))
+        codecs.add(SeparatorCodec(gameStates[0]))
+        codecs.add(FixedSizeCodec(gameStates[0]))
+        codecs.add(TerminatorCodec(gameStates[0]))
+        codecs.add(SeparatorCodec(gameStates[0]))
         for (codec in codecs) {
             val duration = measureTimeMillis {
                 for (i in 0 until 500) {
                     for (gs in gameStates) {
-                        val bytes = codec.encodeNormalized(gs)
-                        codec.decode(gs, bytes)
+                        val bytes = codec.encodeNormalized()
+                        codec.decode(bytes)
                     }
                 }
             }
@@ -31,11 +42,6 @@ class CodecPerformanceTest {
 
     companion object {
         private const val TAG = "balla.CodecPerformanceTest"
-
-        val codecs = arrayOf(
-            FixedSizeCodec, TerminatorCodec, SeparatorCodec,
-            FixedSizeCodec, TerminatorCodec, SeparatorCodec,
-            FixedSizeCodec, TerminatorCodec, SeparatorCodec)
 
         val boards = arrayOf(
             """

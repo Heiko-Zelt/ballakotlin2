@@ -26,7 +26,8 @@ class TerminatorCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 2 Farben * 3 Bälle + 3 Terminatoren
-        assertEquals(2 * 3 + 3, TerminatorCodec.encodedSizeInNibbles(gs))
+        val codec = TerminatorCodec(gs)
+        assertEquals(2 * 3 + 3, codec.encodedSizeInNibbles())
     }
 
     @Test
@@ -36,8 +37,9 @@ class TerminatorCodecTest {
             1 2 _ 2""".trimMargin()
         val gs = GameState()
         gs.fromAscii(boardAscii)
+        val codec = TerminatorCodec(gs)
         // 2 Farben * 2 Bälle + 4 Terminatoren
-        assertEquals(2 * 2 + 4, TerminatorCodec.encodedSizeInNibbles(gs))
+        assertEquals(2 * 2 + 4, codec.encodedSizeInNibbles())
     }
 
     @Test
@@ -48,7 +50,8 @@ class TerminatorCodecTest {
             1 2 1""".trimMargin()
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        assertEquals(5, TerminatorCodec.encodedSizeInBytes(gs))
+        val codec = TerminatorCodec(gs)
+        assertEquals(5, codec.encodedSizeInBytes())
     }
 
     @Test
@@ -59,7 +62,8 @@ class TerminatorCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 4 bytes to store 7 nibbles
-        assertEquals(4, TerminatorCodec.encodedSizeInBytes(gs))
+        val codec = TerminatorCodec(gs)
+        assertEquals(4, codec.encodedSizeInBytes())
     }
 
     @Test
@@ -75,7 +79,8 @@ class TerminatorCodecTest {
         val expected = arrayOf(0x10.toByte(), 0x01.toByte(), 0x02.toByte(), 0x02.toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = TerminatorCodec.encodeNormalized(gs)
+        val codec = TerminatorCodec(gs)
+        val bytes = codec.encodeNormalized()
         bytes.forEach {
             Log.d(TAG, "result: $it")
         }
@@ -96,7 +101,8 @@ class TerminatorCodecTest {
         val expected = arrayOf(0x01.toByte(), 0x11.toByte(), 0x20.toByte(), 0x22.toByte(), 0x00.toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = TerminatorCodec.encodeNormalized(gs)
+        val codec = TerminatorCodec(gs)
+        val bytes = codec.encodeNormalized()
         assertArrayEquals(expected, bytes)
     }
 
@@ -157,7 +163,8 @@ class TerminatorCodecTest {
                 0x5f.toByte(), 0x62.toByte(), 0x02.toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = TerminatorCodec.encodeNormalized(gs)
+        val codec = TerminatorCodec(gs)
+        val bytes = codec.encodeNormalized()
         assertArrayEquals(expectedBytes, bytes)
     }
 
@@ -181,7 +188,8 @@ class TerminatorCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 2, 2)
-        TerminatorCodec.decode(gs, bytes)
+        val codec = TerminatorCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
@@ -200,7 +208,8 @@ class TerminatorCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 1, 3)
-        TerminatorCodec.decode(gs, bytes)
+        val codec = TerminatorCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
@@ -236,7 +245,8 @@ class TerminatorCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(15, 3, 8)
-        TerminatorCodec.decode(gs, bytes)
+        val codec = TerminatorCodec(gs)
+        codec.decode(bytes)
         val resultAsAscii = gs.toAscii()
         assertEquals(expectedBoardAscii, resultAsAscii)
     }

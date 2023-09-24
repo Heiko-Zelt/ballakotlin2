@@ -15,8 +15,9 @@ class FixedSizeCodecTest {
             1 2 1""".trimMargin()
         val gs = GameState()
         gs.fromAscii(boardAscii)
+        val codec = FixedSizeCodec(gs)
         // 3 Röhren * 3 Bälle/Röhre
-        assertEquals(3 * 3, FixedSizeCodec.encodedSizeInNibbles(gs))
+        assertEquals(3 * 3, codec.encodedSizeInNibbles())
     }
 
     @Test
@@ -27,7 +28,8 @@ class FixedSizeCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 4 Röhren * 2 Bälle/Röhre
-        assertEquals(4 * 2, FixedSizeCodec.encodedSizeInNibbles(gs))
+        val codec = FixedSizeCodec(gs)
+        assertEquals(4 * 2, codec.encodedSizeInNibbles())
     }
 
     @Test
@@ -39,7 +41,8 @@ class FixedSizeCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 5 bytes to store 9 nibbles ((3 * 3) + 1) / 2
-        assertEquals(5, FixedSizeCodec.encodedSizeInBytes(gs))
+        val codec = FixedSizeCodec(gs)
+        assertEquals(5, codec.encodedSizeInBytes())
     }
 
     @Test
@@ -50,7 +53,8 @@ class FixedSizeCodecTest {
         val gs = GameState()
         gs.fromAscii(boardAscii)
         // 4 bytes to store 8 nibbles
-        assertEquals(4 * 2 / 2, FixedSizeCodec.encodedSizeInBytes(gs))
+        val codec = FixedSizeCodec(gs)
+        assertEquals(4 * 2 / 2, codec.encodedSizeInBytes())
     }
 
     @Test
@@ -64,7 +68,8 @@ class FixedSizeCodecTest {
         val expected = arrayOf(0.toByte(), (1 * 16 + 1).toByte(), 2.toByte(), 2.toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = FixedSizeCodec.encodeNormalized(gs)
+        val codec = FixedSizeCodec(gs)
+        val bytes = codec.encodeNormalized()
         bytes.forEach {
             Log.d(TAG, "result: $it")
         }
@@ -83,7 +88,8 @@ class FixedSizeCodecTest {
         val expected = arrayOf(0x01.toByte(), 0x10.toByte(), 0x01.toByte(), 0x22.toByte(), 0x02.toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = FixedSizeCodec.encodeNormalized(gs)
+        val codec = FixedSizeCodec(gs)
+        val bytes = codec.encodeNormalized()
         assertArrayEquals(expected, bytes)
     }
 
@@ -99,7 +105,8 @@ class FixedSizeCodecTest {
         val expected = arrayOf(0x21.toByte(), 0x20.toByte(), 0x00.toByte(), 0x12.toByte(), 0x01.toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)
-        val bytes = FixedSizeCodec.encodeNormalized(gs)
+        val codec = FixedSizeCodec(gs)
+        val bytes = codec.encodeNormalized()
         assertArrayEquals(expected, bytes)
     }
 
@@ -156,7 +163,8 @@ class FixedSizeCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 2, 2)
-        FixedSizeCodec.decode(gs, bytes)
+        val codec = FixedSizeCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
@@ -172,7 +180,8 @@ class FixedSizeCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 1, 3)
-        FixedSizeCodec.decode(gs, bytes)
+        val codec = FixedSizeCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
@@ -188,7 +197,8 @@ class FixedSizeCodecTest {
         expected.fromAscii(expectedBoardAscii)
         val gs = GameState()
         gs.resize(2, 1, 3)
-        FixedSizeCodec.decode(gs, bytes)
+        val codec = FixedSizeCodec(gs)
+        codec.decode(bytes)
         assertEquals(expected.toAscii(), gs.toAscii())
     }
 
