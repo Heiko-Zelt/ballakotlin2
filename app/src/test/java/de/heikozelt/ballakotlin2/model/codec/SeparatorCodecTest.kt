@@ -59,9 +59,9 @@ class SeparatorCodecTest {
             1 2 _ 2""".trimMargin()
         // original: 1 1 | 2 0 | 0 0 | 2 0
         // sorted: 0 0 | 1 1 | 2 0 | 2 0
-        // bytes: 0 | 1 1 | 2 0 | 2
-        // nibbles: 0 1 | 1 2 | 0 2
-        // lower nibble right: 1 0 | 2 1 | 2 0
+        // encode: 0 | 1 1 | 2 0 | 2
+        // nibbles: 01 12 02
+        // lower nibble right: 10 21 20
         val expected = arrayOf((1 * 16).toByte(), (2 * 16 + 1).toByte(), (2 * 16).toByte())
         val gs = GameState()
         gs.fromAscii(boardAscii)

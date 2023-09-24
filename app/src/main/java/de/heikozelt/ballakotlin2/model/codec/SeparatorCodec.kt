@@ -32,20 +32,8 @@ class SeparatorCodec {
                     i++
                 }
             }
-            // copy from array of bytes to array with nibbles (2 elements per byte)
-            // if size is odd, last nibble is filled with 0
-            val bytes2 = Array<Byte>((i + 1) / 2) { 0 }
-            var nibbleIndex = 0
-            for(byteIndex in bytes2.indices) {
-                val lowerNibble = bytes[nibbleIndex]
-                nibbleIndex++
-                var higherNibble = 0.toByte()
-                if(nibbleIndex < bytes.size) {
-                    higherNibble = bytes[nibbleIndex]
-                    nibbleIndex++
-                }
-                bytes2[byteIndex] = (lowerNibble + (higherNibble * 16)).toByte()
-            }
+
+            val bytes2 = deflate(bytes, i)
             return bytes2
         }
 
@@ -53,17 +41,7 @@ class SeparatorCodec {
         override fun decode(gameState: GameState, bytes: Array<Byte>) {
             // copy array with nibbles to array of bytes
             val bytes2 = Array<Byte>(bytes.size * 2) { 0 }
-            var nibbleIndex = 0
-            for(byteIndex in bytes.indices) {
-                val byte = bytes[byteIndex]
-                val lowerNibble = byte and 0b00001111.toByte()
-                bytes2[nibbleIndex] = lowerNibble
-                nibbleIndex++
-                // seltsame Berechung, aber Bytes sind in Java eigentlich vorzeichenbehaftet
-                val higherNibble = ((byte.toInt() shr 4) and 0b00001111).toByte()
-                bytes2[nibbleIndex] = higherNibble
-                nibbleIndex++
-            }
+            inflate(bytes, bytes2)
 
             /*
             var byteIndex = 0

@@ -12,7 +12,7 @@ class NibblesTest {
         val input = Array(16) { it.toByte() }
         val expected = arrayOf(0x10.toByte(), 0x32.toByte(), 0x54.toByte(), 0x76.toByte(),
             0x98.toByte(), 0xba.toByte(), 0xdc.toByte(), 0xfe.toByte())
-        val output = deflate(input)
+        val output = deflate(input, 16)
         Log.d(TAG, "output: ${output.joinToString()}")
         assertArrayEquals(expected, output)
     }
@@ -21,7 +21,16 @@ class NibblesTest {
     fun deflate0_1_2() {
         val input = Array(3) { it.toByte() }
         val expected = arrayOf(0x10.toByte(), 0x02.toByte())
-        val output = deflate(input)
+        val output = deflate(input, 3)
+        Log.d(TAG, "output: ${output.joinToString()}")
+        assertArrayEquals(expected, output)
+    }
+
+    @Test
+    fun deflate3_of_4() {
+        val input = Array(4) { it.toByte() }
+        val expected = arrayOf(0x10.toByte(), 0x02.toByte())
+        val output = deflate(input, 3)
         Log.d(TAG, "output: ${output.joinToString()}")
         assertArrayEquals(expected, output)
     }

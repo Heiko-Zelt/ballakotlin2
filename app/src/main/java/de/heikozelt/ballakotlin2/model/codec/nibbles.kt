@@ -5,15 +5,18 @@ import kotlin.experimental.and
 /**
  * converts the lower 4 bits of bytes in bytes with 4+4 bits.
  * shrinks the size of the array by half (if even).
+ * if odd, the last nibble is padded with 0.
+ * @param input buffer, may be bigger as actual data
+ * @param size number of bytes to read from buffer / nibbles to return
  */
-fun deflate(input: Array<Byte>): Array<Byte> {
-    val output = Array<Byte>((input.size + 1) / 2) { 0 }
+fun deflate(input: Array<Byte>, size: Int): Array<Byte> {
+    val output = Array<Byte>((size + 1) / 2) { 0 }
     var nibbleIndex = 0
     for (byteIndex in output.indices) {
         val lowerNibble = input[nibbleIndex]
         nibbleIndex++
         var higherNibble = 0.toByte()
-        if (nibbleIndex < input.size) {
+        if (nibbleIndex < size) {
             higherNibble = input[nibbleIndex]
             nibbleIndex++
         }
